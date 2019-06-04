@@ -70,7 +70,7 @@ for key in geneID_cellType_TPM:
         print(key)
     else:
         chr, start, stop = geneID_to_loc[key]
-        if chr == 'MT':
+        if chr == 'MT' or 'PATCH' in chr:
             pass
         else:
             file.write(chr + '\t' + start + '\t' + stop)
