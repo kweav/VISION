@@ -16,13 +16,14 @@ for line in open(gencode_file):
         pass
     else:
         fields=line.strip('\r\n').split('\t')
-        chr = fields[0]
-        start = fields[3]
-        stop = fields[4]
-        info = fields[8]
-        geneID = info.split(";")[0].split(" ")[1].replace('"','')
-        if geneID not in geneID_to_loc:
-            geneID_to_loc[geneID] = (chr, start, stop)
+        if fields[2] == 'gene':
+            chr = fields[0]
+            start = fields[3]
+            stop = fields[4]
+            info = fields[8]
+            geneID = info.split(";")[0].split(" ")[1].replace('"','')
+            if geneID not in geneID_to_loc:
+                geneID_to_loc[geneID] = (chr, start, stop)
 
 geneID_cellType_TPM = {}
 field_to_cellType = {2: 'LSK',
@@ -67,27 +68,6 @@ for RNAseq_file in RNAseq_files:
                     if cellType not in geneID_cellType_TPM[geneID]:
                         geneID_cellType_TPM[geneID][cellType] = []
                     geneID_cellType_TPM[geneID][cellType].append(tpm)
-        #
-        # file=open("scriptseq3.v3.kw2.tab", "w+")
-        # file2=open('noCorrespondingLoc.txt', "w+")
-        # for key in geneID_cellType_TPM:
-        #     if key not in geneID_to_loc:
-        #         file2.write(key + '\n')
-        #     else:
-        #         chr, start, stop = geneID_to_loc[key]
-        #         if 'M' in chr or 'PATCH' in chr:
-        #             pass
-        #         else:
-        #             newFinalField = ''
-        #             for cellType in cellTypes:
-        #                 tpmValue = np.average(geneID_cellType_TPM1[key][cellType])
-        #                 newFinalField += cellType
-        #                 newFinalField += '='
-        #                 newFinalField += "{0:.2f}".format(tpmValue)
-        #                 newFinalField += ";"
-        #             file.write(chr + '\t' + start + '\t' + stop + '\t' + newFinalField + '\n')
-        # file.close()
-        # file2.close()
     else:
         cellType_TPM = RNAseq_file.split(".")[0].replace("amitData/", "")
         for line in open(RNAseq_file):
@@ -100,8 +80,6 @@ for RNAseq_file in RNAseq_files:
                 geneID_cellType_TPM[geneID][cellType_TPM] = 0
             geneID_cellType_TPM[geneID][cellType_TPM] = tpm
 
-#file=open("amit.cellTypes_withLoc.tab", "w+")
-#file2=open("noCorrespondingLoc_amit.txt", "w+")
 file=open("both_RNAseq.tab", 'w+')
 file2=open("noCorrespondingLoc_both.txt", "w+")
 for key in geneID_cellType_TPM:
