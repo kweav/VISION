@@ -1,9 +1,9 @@
 #!/bin/bash
 
-PATH1P1=/project/vision/Data/IDEAS/intersect_window_100K_10K/ideasVisionV20p8Seg
+PATH1P1=/project/vision/Data/IDEAS/intersect_window_100000_10000/ideasVisionV20p8Seg
 PATH1P2=.window.100K_10K.bed
 
-PATH2P1=/project/vision/Data/IDEAS/complement_window_100K_10K/ideasVisionV20p8Seg
+PATH2P1=/project/vision/Data/IDEAS/complement_window_100000_10000/ideasVisionV20p8Seg
 PATH2P2=.complement.100K_10K.bed
 
 PATH3P1=/project/vision/Data/IDEAS/intersect_window_75000_5000/ideasVisionV20p8Seg
@@ -11,6 +11,12 @@ PATH3P2=.window.75K_5K.bed
 
 PATH4P1=/project/vision/Data/IDEAS/complement_window_75000_5000/ideasVisionV20p8Seg
 PATH4P2=.complement.75K_5K.bed
+
+PATH5P1=/project/vision/Data/IDEAS/complement_window_55000_5000/ideasVisionV20p8Seg
+PATH5P2=.complement.55K_5K.bed
+
+PATH6P1=/project/vision/Data/IDEAS/intersect_window_55000_5000/ideasVisionV20p8Seg
+PATH6P2=.window.55K_5K.bed
 
 function awk_it {
   for CHR in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chrX chrY
@@ -27,7 +33,9 @@ function call_it {
   done
 }
 
-call_it $PATH1P1 $PATH1P2
-call_it $PATH2P1 $PATH2P2
-call_it $PATH3P1 $PATH3P2
-call_it $PATH4P1 $PATH4P2
+#call_it $PATH1P1 $PATH1P2
+#call_it $PATH2P1 $PATH2P2
+#call_it $PATH3P1 $PATH3P2
+#call_it $PATH4P1 $PATH4P2
+call_it $PATH5P1 $PATH5P2
+call_it $PATH6P1 $PATH6P2
