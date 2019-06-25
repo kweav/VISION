@@ -21,9 +21,10 @@ function bedtools_it {
 for TYPE in B Cd4 Cd8 Cfue Cfum Clp Cmp Er4 Eryad Eryfl G1e Gmp Hpc7 Imk Lsk Mep Mk Mon Neu Nk
 do
   FILEOI=$PATH1P1$TYPE.$PATH1P2
+  echo $FILEOI
   #bedtools_it $WINDOWS1 $FILEOI $PATH1P1$TYPE $WINDOWTYPE1
   #bedtools_it $WINDOWS2 $FILEOI $PATH1P1$TYPE $WINDOWTYPE2
-  bedtools_it $WINDOWS3 $FILEOI $PATHP1$TYPE $WINDOWTYPE3
+  bedtools_it $WINDOWS3 $FILEOI $PATH1P1$TYPE $WINDOWTYPE3
 done
 
 #for FILE1 in $PATH1
