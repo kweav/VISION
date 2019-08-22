@@ -3,7 +3,7 @@
 import argparse as ap
 import numpy as np
 
-'''Usage:./geneID_loc_exp.py --gencode ~/mm10_genome/gencode.vM4.annotation.gtf --RNAseq [~/taylorLab/VISION/data/RNAseq/scriptseq3.v3.kw1.tab] or [~/taylorLab/VISION/data/RNAseq/amitData/*.amit.geneID_TPM.tab]'''
+'''Usage:./geneID_loc_exp.py --gencode ~/mm10_genome/gencode.vM4.annotation.gtf --RNAseq [scriptseq3.v3.kw1.tab] or [amitData/*.amit.geneID_TPM.tab]'''
 
 parser = ap.ArgumentParser(description='retrieve genomic locations for geneIDs from RNAseq data using Gencode annotation')
 parser.add_argument('--gencode', action='store', nargs=1, type=str, required=True, help='Gencode annotation')
