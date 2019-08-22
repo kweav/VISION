@@ -71,7 +71,7 @@ for RNAseq_file in RNAseq_files:
                         geneID_cellType_TPM1[geneID][cellType] = []
                     geneID_cellType_TPM1[geneID][cellType].append(tpm)
 
-        file=open("scriptseq3.v3.kw2.IDlocexp.tab", "w+")
+        file=open("scriptseq3.v3.kw2.IDlocexp.bed", "w+")
         file2=open('noCorrespondingLoc_scriptseq.txt', "w+")
         for key in geneID_cellType_TPM1:
             if key not in geneID_to_loc:
@@ -88,7 +88,7 @@ for RNAseq_file in RNAseq_files:
                         newFinalField += '='
                         newFinalField += "{0:.2f}".format(tpmValue)
                         newFinalField += ";"
-                    file.write(key + '\t' + chr + '\t' + start + '\t' + stop + '\t' + newFinalField + '\n')
+                    file.write(chr + '\t' + start + '\t' + stop + '\t' + key + '\t' + newFinalField + '\n')
         file.close()
         file2.close()
     else:
@@ -103,23 +103,23 @@ for RNAseq_file in RNAseq_files:
                 geneID_cellType_TPM[geneID][cellType_TPM] = 0
             geneID_cellType_TPM[geneID][cellType_TPM] = tpm
 
-file=open("amit.cellTypes_IDlocexp.tab", "w+")
-file2=open("noCorrespondingLoc_amit.txt", "w+")
-for key in geneID_cellType_TPM:
-    if key not in geneID_to_loc:
-        file2.write(key + '\n')
-    else:
-        chr, start, stop = geneID_to_loc[key]
-        if 'M' in chr or 'PATCH' in chr:
-            pass
-        else:
-            newFinalField = ''
-            for cellType in cellTypes2:
-                tpmValue = geneID_cellType_TPM[key][cellType]
-                newFinalField += cellType
-                newFinalField += '='
-                newFinalField += "{0:.2f}".format(float(tpmValue))
-                newFinalField += ';'
-            file.write(key + '\t' + chr + '\t' + start + '\t' + stop + '\t' + newFinalField + '\n')
-file.close()
-file2.close()
+        file=open("amit.cellTypes_IDlocexp.bed", "w+")
+        file2=open("noCorrespondingLoc_amit.txt", "w+")
+        for key in geneID_cellType_TPM:
+            if key not in geneID_to_loc:
+                file2.write(key + '\n')
+            else:
+                chr, start, stop = geneID_to_loc[key]
+                if 'M' in chr or 'PATCH' in chr:
+                    pass
+                else:
+                    newFinalField = ''
+                    for cellType in cellTypes2:
+                        tpmValue = geneID_cellType_TPM[key][cellType]
+                        newFinalField += cellType
+                        newFinalField += '='
+                        newFinalField += "{0:.2f}".format(float(tpmValue))
+                        newFinalField += ';'
+                    file.write(chr + '\t' + start + '\t' + stop  + '\t' + key + '\t' +  newFinalField + '\n')
+        file.close()
+        file2.close()
