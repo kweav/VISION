@@ -11,14 +11,14 @@ args = parser.parse_args()
 TPM_file_list = args.TPM_files
 
 for TPM_file in TPM_file_list:
-    cellType = TPM_file.split(".")[0]
+    cellType = TPM_file.replace("amitData/",'').split(".")[0]
 
-    f1 = open("{}.amit.geneID_TPM.tsv".format(cellType), "w+")
+    f1 = open("{}.amit.geneID_TPM.tab".format(cellType), "w+")
     f2 = open("{}.amit.geneID.txt".format(cellType), "w+")
     for line in open(TPM_file):
         if line.startswith("E"):
             fields = line.strip('\r\n').split('\t')
-            geneID, suffix = fields[0].split(".")
+            geneID = fields[0]
             TPM = fields[5]
             f1.write(geneID + '\t' + TPM + '\n')
             f2.write(geneID + '\n')
