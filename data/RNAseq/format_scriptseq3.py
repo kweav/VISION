@@ -23,9 +23,9 @@ field_to_cellType = {3: 'Lsk',
                      14: 'Er4'}
 
 field_to_cellType2 = {3: 'B',
-                      4: 'NK',
-                      5: 'T_CD4',
-                      6: 'T_CD8'}
+                      4: 'Nk',
+                      5: 'Tcd4',
+                      6: 'Tcd8'}
 
 newFile = open("scriptseq3.v3.kw3.tab", "w+")
 for line in open(scriptseq_file):
@@ -42,6 +42,8 @@ for line in open(scriptseq_file):
         newFinalField += ";"
     newFile.write(newChr + '\t' + start + '\t' + stop + '\t' + newFinalField + '\n')
 
+newFile.close()
+
 newFile2 = open("amit.cellTypes_withLoc.v2.tab", "w+")
 for line in open(amit_file):
     fields=line.strip('\r\n').split('\t')
@@ -56,3 +58,5 @@ for line in open(amit_file):
         newFinalField += "{0:.2f}".format(float(fields[i]))
         newFinalField += ";"
     newFile2.write(newChr + '\t' + start + '\t' + stop + '\t' + newFinalField + '\n')
+
+newFile2.close()

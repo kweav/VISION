@@ -28,32 +28,32 @@ for line in open(gencode_file):
                 geneID_to_loc[geneID] = (chr, start, stop)
 
 geneID_cellType_TPM = {}
-field_to_cellType = {2: 'LSK',
-                     3: 'LSK',
-                     4: 'CMP',
-                     5: 'CMP',
-                     6: 'GMP',
-                     7: 'GMP',
-                     8: 'MEP',
-                     9: 'MEP',
-                     10: 'CFU-E',
-                     11: 'CFU-E',
-                     12: 'ERYad',
-                     13: 'ERYad',
-                     14: 'CFU-Mk',
-                     15: 'CFU-Mk',
-                     16: 'iMK',
-                     17: 'iMK',
-                     18: 'Mono',
-                     19: 'Mono',
-                     20: 'Neutrophil',
-                     21: 'Neutrophil',
-                     22: 'G1E',
-                     23: 'G1E',
-                     24: 'ER4',
-                     25: 'ER4'}
-cellTypes = ['LSK', 'CMP', 'GMP', 'MEP', 'CFU-E', 'ERYad', 'CFU-Mk', 'iMK', 'Mono', 'Neutrophil', 'G1E', 'ER4']
-cellTypes2 = ['B', 'NK', 'T_CD4', 'T_CD8']
+field_to_cellType = {2: 'Lsk',
+                     3: 'Lsk',
+                     4: 'Cmp',
+                     5: 'Cmp',
+                     6: 'Gmp',
+                     7: 'Gmp',
+                     8: 'Mep',
+                     9: 'Mep',
+                     10: 'Cfue',
+                     11: 'Cfue',
+                     12: 'Eryad',
+                     13: 'Eryad',
+                     14: 'Cfum',
+                     15: 'Cfum',
+                     16: 'Imk',
+                     17: 'Imk',
+                     18: 'Mon',
+                     19: 'Mon',
+                     20: 'Neu',
+                     21: 'Neu',
+                     22: 'G1e',
+                     23: 'G1e',
+                     24: 'Er4',
+                     25: 'Er4'}
+cellTypes = ['Lsk', 'Cmp', 'Gmp', 'Mep', 'Cfue', 'Eryad', 'Cfum', 'Imk', 'Mon', 'Neu', 'G1e', 'Er4']
+cellTypes2 = ['B', 'Nk', 'Tcd4', 'Tcd8']
 
 geneID_cellType_TPM = {}
 geneID_cellType_TPM1 = {}
