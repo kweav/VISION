@@ -70,11 +70,9 @@ The script `genomeLoc_to_ID.py` produces 19 character unique IDs where
     chr3    108107280       108146146       ENSMUSG00000000001.4    Lsk=81.94;Cmp=65.34;Gmp=96.05;Mep=72.91;Cfue=8.61;Eryad=16.54;Cfum=103.60;Imk=94.43;Mon=75.31;Neu=59.91;G1e=240.12;Er4=130.20;  Ch.671aef2h.671afdb     Lsk=0;Hpc7=0;Cmp=0;Mep=0;G1e=0;Er4=0;Cfue=0;Eryad=0;Eryfl=0;Cfum=0;Imk=0;Gmp=0;Mon=1;Neu=0;Nk=0;B=0;Tcd4=0;Tcd8=0;      Lsk=1;Hpc7=1;Cmp=1;Mep=1;G1e=1;Er4=8;Cfue=1;Eryad=1;Eryfl=1;Cfum=1;Imk=1;Mk=1;Gmp=6;Mon=9;Neu=4;Clp=1;Nk=1;B=1;Tcd4=1;Tcd8=1;
   - 3 windows used:
     - within 200bp
-    - within 1kb 
+    - within 1kb
     - within 1Mb (but excluding the within 1kb)
-
-
-
+--------------------------------------------------------------------------------
 - Used bedtools window to find ccREs within 200bp of each gene, 1kb, and 1Mb
   - `bedtools window -w 200 -a scriptseq3.v3.kw2.IDlocexp.bed -b ../ccRE/VISIONmusHem_ccREs_filterkw.bed > genes_ccRE_200bp_window.bed`
   - `bedtools window -w 1000 -a scriptseq3.v3.kw2.IDlocexp.bed -b ../ccRE/VISIONmusHem_ccREs_filterkw.bed > genes_ccRE_1kb_window.bed`
