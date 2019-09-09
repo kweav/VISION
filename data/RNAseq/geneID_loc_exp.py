@@ -93,6 +93,7 @@ for RNAseq_file in RNAseq_files:
         file2.close()
     else:
         cellType_TPM = RNAseq_file.split(".")[0].replace("amitData/", "")
+        print(cellType_TPM)
         for line in open(RNAseq_file):
             fields=line.strip('\r\n').split('\t')
             geneID = fields[0]
@@ -103,23 +104,24 @@ for RNAseq_file in RNAseq_files:
                 geneID_cellType_TPM[geneID][cellType_TPM] = 0
             geneID_cellType_TPM[geneID][cellType_TPM] = tpm
 
-        file=open("amit.cellTypes_IDlocexp.bed", "w+")
-        file2=open("noCorrespondingLoc_amit.txt", "w+")
-        for key in geneID_cellType_TPM:
-            if key not in geneID_to_loc:
-                file2.write(key + '\n')
+if RNAseq_file != 'scriptseq3.v3.kw1.tab':
+    file=open("amit.cellTypes_IDlocexp.bed", "w+")
+    file2=open("noCorrespondingLoc_amit.txt", "w+")
+    for key in geneID_cellType_TPM:
+        if key not in geneID_to_loc:
+            file2.write(key + '\n')
+        else:
+            chr, start, stop = geneID_to_loc[key]
+            if 'M' in chr or 'PATCH' in chr:
+                pass
             else:
-                chr, start, stop = geneID_to_loc[key]
-                if 'M' in chr or 'PATCH' in chr:
-                    pass
-                else:
-                    newFinalField = ''
-                    for cellType in cellTypes2:
-                        tpmValue = geneID_cellType_TPM[key][cellType]
-                        newFinalField += cellType
-                        newFinalField += '='
-                        newFinalField += "{0:.2f}".format(float(tpmValue))
-                        newFinalField += ';'
-                    file.write(chr + '\t' + start + '\t' + stop  + '\t' + key + '\t' +  newFinalField + '\n')
-        file.close()
-        file2.close()
+                newFinalField = ''
+                for cellType in cellTypes2:
+                    tpmValue = geneID_cellType_TPM[key][cellType]
+                    newFinalField += cellType
+                    newFinalField += '='
+                    newFinalField += "{0:.2f}".format(float(tpmValue))
+                    newFinalField += ';'
+                file.write(chr + '\t' + start + '\t' + stop  + '\t' + key + '\t' +  newFinalField + '\n')
+    file.close()
+    file2.close()
