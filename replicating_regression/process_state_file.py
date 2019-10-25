@@ -16,7 +16,7 @@ def load_state(statepref, chr, rna_names): #pknorm_2_16lim_ref1mo_0424_lesshet.s
     file_to_load = "%s.state" %statepref
     state = []
     with open(file_to_load) as f:
-        header = f.readline().split()
+        header = f.readline().split()[4:]
         for line in f:
             state.append(line.strip('\r\n').split())
 
