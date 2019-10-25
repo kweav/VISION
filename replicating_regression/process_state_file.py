@@ -26,8 +26,10 @@ def load_state(statepref, chr, rna_names): #pknorm_2_16lim_ref1mo_0424_lesshet.s
     scr = state[:,1] #state chromosome names
     pos = state[:,2].astype(np.int32)//200 #state bins (coordinate --> 200bp bin space)
     state = state[:,4:].astype(np.int32) #remove state position data, so just states left
-    valid = [x for x in header if x in rna_names]
-    state = state[:,np.where(valid)[0]] #select only cell types RNA data; in essence subselecting and reordering the state cell types to match the rna cell types
+    # valid = [x for x in header if x in rna_names]
+    # state = state[:,np.where(valid)[0]] #select only cell types RNA data; in essence subselecting and reordering the state cell types to match the rna cell types
+    valid = [header.index(x) for x in rna_names if x in header]
+    state = state[:,valid] #select only cell types RNA data; in essence subselecting and reordering the state cell types to match the rna cell types
     t = np.where(scr == chr)[0] #extract only relevant chromosomes genes/states;
     pos = pos[t] #extract only relevant chromosome state bins
     state = state[t,:] #extract only relevant chromosomes states
