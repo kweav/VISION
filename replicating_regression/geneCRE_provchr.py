@@ -294,6 +294,10 @@ class regress_gene_cre():
             r = self.refineList(rt, ss, pair, sel, i)
 
     def run(self, chrom):
+        #****#*********#*************#***********#
+        self.e = None
+        #****#*********#*************#***********#
+
         '''subselect all data for specific chromosome '''
         self.rna = self.rna_all[chrom]
         self.state = self.state_all[chrom]
@@ -351,9 +355,9 @@ class regress_gene_cre():
             #****#*********#*************#***********#
             tss_local = np.where(a==self.tss[i])[0]
             #****#*********#*************#***********#
-            np.savetxt('my_a_{}.txt'.format(i), a)
+            #np.savetxt('my_a_{}.txt'.format(i), a)
             rr = np.dot(tr[i:(i+1), :], ts[a,:].T).ravel(order='F') #predict state contribution to rna
-            np.savetxt('my_rr_{}.txt'.format(i), rr)
+            #np.savetxt('my_rr_{}.txt'.format(i), rr)
             trr = np.dot(tr[i:(i+1), np.r_[np.arange(self.lessone), #predict position correlation to RNA leaving out one cell type specified by lessone
                                            np.arange(self.lessone +1, self.cellN)]],
                         (ts[a,:][:,np.r_[np.arange(self.lessone),
@@ -365,7 +369,7 @@ class regress_gene_cre():
                 nt = []
                 for j in np.unique(cre[a[t]]): #a[t] is global position, cre[a[t]] is the cre index at that position. Since a ccRE can overlap multiple bins, take unique
                     tt = t[np.where(cre[a[t]]==j)] #Identify each CRE position(s) of valid state in window; tt is local position of valid CRE
-                    #nt.append(tt[np.where(np.around(trr[tt], decimals=5)==np.amax(np.around(trr[tt], decimals=5))[0][0]]) #determine CRE position (if it spans multiple bins) with highest contribution/correlation and append to nt
+                    nt.append(tt[np.where(np.around(trr[tt], decimals=5)==np.amax(np.around(trr[tt], decimals=5)))[0]][0]) #determine CRE position (if it spans multiple bins) with highest contribution/correlation and append to nt
 
                     #****#*********#*************#***********#
                     ntt = tt[np.where(np.around(trr[tt], decimals=5)==np.amax(np.around(trr[tt], decimals=5)))[0]]
@@ -373,6 +377,7 @@ class regress_gene_cre():
                         nt.append(tss_local)
                     else:
                         nt.append(ntt[0])
+                    #nt.append(ntt[0])
                     #****#*********#*************#***********#
 
                 t = np.array(nt) #refining t to be the single position that has maximum correlation for each ccRE
@@ -390,25 +395,36 @@ class regress_gene_cre():
                 #t = np.r_[ttss,t]
             #****#*********#*************#***********#
 
-            np.savetxt('my_t_{}.txt'.format(i), t)
+            #np.savetxt('my_t_{}.txt'.format(i), t)
 
             for j in range(t.shape[0]):
                 pair.append((self.tss[i], a[t[j]], i, rr[t[j]], cre[a[t[j]]])) #TSS, global cre bin position, tss index, predicted correlation without leave one out
-
+                            #TSS          CRE   TSSidx  rr      CREidx
 
 
         pair = np.array(pair, dtype=np.dtype([('TSS', np.int32), ('CRE', np.int32), #convert pair into a numpy array
                                                 ('TSSidx', np.int32), ('rr', np.float32),
                                                 ('CREidx', np.int32)]))
 
-        np.savetxt('my_pair_TSS.txt', pair['TSS'])
-        np.savetxt('my_pair_CRE.txt', pair['CRE'])
-        np.savetxt('my_pair_TSSidx.txt', pair['TSSidx'])
-        np.savetxt('my_pair_rr.txt', pair['rr'])
-        np.savetxt('my_pair_CREidx', pair['CREidx'])
+        #np.savetxt('my_pair_TSS.txt', pair['TSS'])
+        #np.savetxt('my_pair_CRE.txt', pair['CRE'])
+        #np.savetxt('my_pair_TSSidx.txt', pair['TSSidx'])
+        #np.savetxt('my_pair_rr.txt', pair['rr'])
+        #np.savetxt('my_pair_CREidx.txt', pair['CREidx'])
         print("PAIR SHAPE: ", pair.shape)
 
         self.pair = pair
+        output = open('tmp_%s_py.txt' % chrom, 'a')
+        self.pair['TSS'] += 1
+        self.pair['CRE'] += 1
+        self.pair['TSSidx'] += 1
+        self.pair['CREidx'] += 1
+        for line in self.pair:
+           print( "%s %i %i %i %0.15f %i" % (chrom, line[0], line[1], line[2], line[3], line[4]), file=output)
+        output.close()
+        return
+
+
         kk = np.zeros(self.stateN, dtype=np.int32) #create an array of size #ofstates
         #print("kk: ", kk.shape)
         kk[k] = 1 #mark most prevelant state
@@ -444,7 +460,8 @@ cre_file = '/home/kweave23/VISION_regression/their_stuff/vision_cres.txt'
 #atacsig_file = '/home/kweave23/VISION_regression/their_stuff/vision_cres.mat.atacsig.txt'
 state_by_chr_file = '/home/kweave23/VISION_regression/state_all_and_pos_all_by_chr.pickle'
 
-chrom = sys.argv[1]
-
 test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file, -4, 2)
-test1.run(chrom)
+
+
+for chrom in ['chr1', 'chr11', 'chr19']:
+    test1.run(chrom)
