@@ -614,5 +614,5 @@ for chrom in ['chr1', 'chr2', 'chr3', 'chr4', 'chr5',
     for i in range(12): #lessone
         for thresh_type in range(1,5): #threshtype
             rt = test1.run(chrom, thresh_type, lessone)
-            with open("vision_rna_tss2k_ccreunit.{}.{}.{}.pickle".format(chrom, thresh_type, i), "wb") f:
+            with open("vision_rna_tss2k_ccreunit.{}.{}.{}.pickle".format(chrom, thresh_type, i), "wb") as f:
                 pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
