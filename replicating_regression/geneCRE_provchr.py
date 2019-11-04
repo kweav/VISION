@@ -2,21 +2,29 @@
 
 
 import sys
+import os
+
+os.environ["OMP_NUM_THREADS"] = "80"
+os.environ["OPENBLAS_NUM_THREADS"] = "80"
+os.environ["MKL_NUM_THREADS"] = "80"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "80"
+os.environ["NUMEXPR_NUM_THREADS"] = "80"
+
 import numpy as np
 from numpy.linalg import qr, inv
 import pickle
+import argparse as ap
 
 
 class regress_gene_cre():
-    def __init__(self, statepref, exp_file, cre_file, state_by_chr_file, m_thresh, s_thresh, e=None, lessone=0, tssdist=5, maxdist=int(1e6), cut=0.2, B=100, fixEffect=False):
+    def __init__(self, statepref, exp_file, cre_file, state_by_chr_file, m_thresh = -4, s_thresh = 2, e=None, tssdist=5, maxdist=int(1e6), cut=0.2, B=100, fixEffect=False):
         """ statepref: string for file with columns for binID, chr, posStart, posEnd, celltype1, ..., cellTypeN, posClass; pknorm_2_16lim_ref1mo_0424_lesshet
            exp_file: string for file with chr tss gene_category strand celltype1, ..., celltypej; rnaTPM.txt
            cre_file: string for file with chr, start, stop; vision_cres.txt
            state_by_chr_file: string for npz file with preprocessed state and pos arrays
-           m_thresh: int, threshold for mean of expression (gene group subselection)
-           s_thresh: int, threshold for stdev of expression (gene group subselection)
+           m_thresh: int, threshold for mean of expression (gene group subselection); default -4
+           s_thresh: int, threshold for stdev of expression (gene group subselection); default 2
            e: float array of beta coefficient, dim is # states; must be None initially
-           lessone: int, leave-one-out cellType value {0,1,2,3,4,5,6,7,8,9,10,11}; default 11
            tssdist: int, number of bins around TSS for proximal CREs where bin is 200 bp; default 5
            maxdist: int, distance in bp for distal CRE window; default 1e6
            cut: float, correlation cutoff for initial CRE filtering; default 0.2
@@ -26,7 +34,6 @@ class regress_gene_cre():
         self.m_thresh = m_thresh
         self.s_thresh = s_thresh
         self.e = e
-        self.lessone = lessone
         self.tssdist = tssdist
         self.maxdist = maxdist
         self.cut = cut
@@ -166,7 +173,7 @@ class regress_gene_cre():
         prior: ?
         """
 
-        some_stateN = state.shape[1] // self.cellN
+        #some_stateN = state.shape[1] // self.cellN
         some_l = state.shape[0]
         y = []
         x0 = []
@@ -189,6 +196,7 @@ class regress_gene_cre():
                                 * state[pair['CRE'][tt],:], axis=0))
             else:
                 x.append(np.mean(state[pair['CRE'][tt],:], axis=0)) #Get CRE mean states for TSS
+            print('\r%s\rTSS %i of %i' % (' ' * 80, i, ut.shape[0]), end='', file=sys.stderr)
         y = np.array(y, dtype=np.float32)
         x = np.array(x, dtype=np.float32)
         x0 = np.array(x0, dtype=np.float32)
@@ -201,6 +209,7 @@ class regress_gene_cre():
             # So, for each cell type, there is a 2D matrix of TSSs by TSS(CRE) mean state values
         xx = np.array(xx, dtype=np.float32)
         xx0 = np.array(xx0, dtype=np.float32)
+        print('\r%s\r' % (' ' * 80), end='', file=sys.stderr)
 
         rt = {
             'y': y.ravel(order='F'), #float array of size #TSS * #celltypes
@@ -210,10 +219,10 @@ class regress_gene_cre():
             'x0': xx0
              }
 
-        np.savetxt('my_rt_x.txt', rt['x'])
-        np.savetxt('my_rt_x0.txt', rt['x0'])
-        np.savetxt('my_rt_z.txt', rt['z'])
-        np.savetxt('my_rt_y.txt', rt['y'])
+        #np.savetxt('my_rt_x.{}.{}.{}.txt'.format(self.chrom, self.thresh_type, self.lessone), rt['x'])
+        #np.savetxt('my_rt_x0.{}.{}.{}.txt'.format(self.chrom, self.thresh_type, self.lessone), rt['x0'])
+        #np.savetxt('my_rt_z.{}.{}.{}.txt'.format(self.chrom, self.thresh_type, self.lessone), rt['z'])
+        #np.savetxt('my_rt_y.{}.{}.{}.txt'.format(self.chrom, self.thresh_type, self.lessone), rt['y'])
 
         return (rt)
 
@@ -338,7 +347,7 @@ class regress_gene_cre():
         lessone: int, cell type to skip in leave-one-out
         """
         r = {'x':np.copy(rt['x'])}
-        print('x shape: ', rt['x'].shape)
+        #print('x shape: ', rt['x'].shape)
         #k = rt['y'].shape[0]/ self.cellN k==self.utN
 
         #a00_x = rt['x0'][(self.lessone * self.utN):((self.lessone + 1)*self.utN),:]
@@ -383,9 +392,21 @@ class regress_gene_cre():
 
         return r
 
-    def run(self, chrom):
+    def run(self, chrom, thresh_type, lessone):
+        '''
+        chrom: str; 'chrV' where V is contained in {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,Y}
+        thresh_type: int, {1,2,3,4}
+            1: m <= -4 & s <= 2
+            2: m <= -4 & s > 2
+            3: m > -4 & s > 2
+            4: m > -4 & s <= 2
+        lessone: int, leave-one-out cellType value {0,1,2,3,4,5,6,7,8,9,10,11}
+        '''
         #****#*********#*************#***********#
+        self.chrom = chrom
         self.e = None
+        self.thresh_type = thresh_type
+        self.lessone = lessone
         #****#*********#*************#***********#
 
         '''subselect all data for specific chromosome '''
@@ -398,10 +419,18 @@ class regress_gene_cre():
         '''subselect expression data for specific average and stdev '''
         m = np.mean(self.rna, axis=1)
         s = np.std(self.rna, axis=1, ddof=1)
-        tt = np.where((m>self.m_thresh) & (s> self.s_thresh))[0]
 
-        self.rna = self.rna[tt]
-        self.tss = self.tss[tt]
+        tt_1 = np.where((m <= self.m_thresh) & ( s <= self.s_thresh))[0]
+        tt_2 = np.where((m <= self.m_thresh) & (s > self.s_thresh))[0]
+        tt_3 = np.where((m > self.m_thresh) & (s > self.s_thresh))[0]
+        tt_4 = np.where((m > self.m_thresh) & (s <= self.s_thresh))[0]
+        tt_dict = {1: tt_1,
+                   2: tt_2,
+                   3: tt_3,
+                   4: tt_4}
+
+        self.rna = self.rna[tt_dict[self.thresh_type]]
+        self.tss = self.tss[tt_dict[self.thresh_type]]
         self.tssN = self.tss.shape[0]
 
         '''now set up pairs '''
@@ -419,6 +448,7 @@ class regress_gene_cre():
         for i in range(self.tcre.shape[0]): #indice of the ccre is the row in tcre
             cre[self.tcre[i,0]:min(self.tcre[i,1],self.l)] = i #mark positions and indices of CREs, in this vector, if the crre overlaps that genome bin, set the element equal to the index (upstream will be overwritten by downstream with this approach if overlap)
 
+        print("\r%s\rFind gene-CRE pairs..." % (' ' * 80), end='', file=sys.stderr)
         if self.e is None:
             sss = np.zeros((self.tssN * self.cellN, self.stateN), dtype=np.float32) #stacked two dimensional array, blocked by cell type (consider moving to 3dim array?)
             for i in range(self.tssN):
@@ -501,9 +531,11 @@ class regress_gene_cre():
         #np.savetxt('my_pair_TSSidx.txt', pair['TSSidx'])
         #np.savetxt('my_pair_rr.txt', pair['rr'])
         #np.savetxt('my_pair_CREidx.txt', pair['CREidx'])
-        print("PAIR SHAPE: ", pair.shape)
+        print("{} PAIR SHAPE: ".format(self.chrom), pair.shape, file=sys.stderr)
 
         self.pair = pair
+
+        print("\r%s\rPrepare training..." % (' ' * 80), end='', file=sys.stderr)
         #output = open('tmp_%s_py.txt' % chrom, 'a')
         #self.pair['TSS'] += 1
         #self.pair['CRE'] += 1
@@ -537,6 +569,7 @@ class regress_gene_cre():
             ss = 2 ** sse
 
         rt = self.genereg(self.rna, ss, self.pair, prior=None)
+        print("\r%s\rSelect CREs..." % (' ' * 80), end='', file=sys.stderr)
         r = self.runRefine(rt, ss, self.pair)
 
         rt['nx'] = r['x']
@@ -552,14 +585,34 @@ class regress_gene_cre():
         print("\r%s\r" % (' ' * 80), end='', file=sys.stderr)
         return rt
 
-statepref = '/home/kweave23/VISION_regression/their_stuff/pknorm_2_16lim_ref1mo_0424_lesshet'
-exp_file = '/home/kweave23/VISION_regression/their_stuff/rnaTPM.txt'
-cre_file = '/home/kweave23/VISION_regression/their_stuff/vision_cres.txt'
+
+parser = ap.ArgumentParser(description = 'replicating VISION regression through regress_gene_cre class')
+parser.add_argument('--statepref', action='store', nargs='+', type=str, required=True, help='/home/kweave23/VISION_regression/their_stuff/pknorm_2_16lim_ref1mo_0424_lesshet')
+parser.add_argument('--state_by_chr_file', action='store', nargs='+', type=str, required=True, help='/home/kweave23/VISION_regression/state_all_and_pos_all_by_chr.pickle')
+parser.add_argument('--exp_file', action='store', nargs='+', type=str, required=True, help='/home/kweave23/VISION_regression/their_stuff/rnaTPM.txt')
+parser.add_argument('--cre_file', action='store', nargs='+', type=str, required=True, help='/home/kweave23/VISION_regression/their_stuff/vision_cres.txt')
+args = parser.parse_args()
+
+statepref = args.statepref[0]
+state_by_chr_file = args.state_by_chr_file[0]
+exp_file = args.exp_file[0]
+cre_file = args.cre_file[0]
+#statepref = '/home/kweave23/VISION_regression/their_stuff/pknorm_2_16lim_ref1mo_0424_lesshet'
+#exp_file = '/home/kweave23/VISION_regression/their_stuff/rnaTPM.txt'
+#cre_file = '/home/kweave23/VISION_regression/their_stuff/vision_cres.txt'
 #atacsig_file = '/home/kweave23/VISION_regression/their_stuff/vision_cres.mat.atacsig.txt'
-state_by_chr_file = '/home/kweave23/VISION_regression/state_all_and_pos_all_by_chr.pickle'
+#state_by_chr_file = '/home/kweave23/VISION_regression/state_all_and_pos_all_by_chr.pickle'
 
-test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file, -4, 2)
+test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file)
 
 
-for chrom in ['chr1', 'chr11', 'chr19']:
-    test1.run(chrom)
+for chrom in ['chr1', 'chr2', 'chr3', 'chr4', 'chr5',
+              'chr6', 'chr7', 'chr8', 'chr9', 'chr10',
+              'chr11','chr12', 'chr13', 'chr14', 'chr15',
+              'chr16', 'chr17', 'chr18','chr19',
+              'chrX', 'chrY']:
+    for i in range(12): #lessone
+        for thresh_type in range(1,5): #threshtype
+            rt = test1.run(chrom, thresh_type, lessone)
+            with open("vision_rna_tss2k_ccreunit.{}.{}.{}.pickle".format(chrom, thresh_type, i), "wb") f:
+                pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
