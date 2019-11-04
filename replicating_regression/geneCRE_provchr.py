@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -u
 
 
 import sys
@@ -196,7 +196,7 @@ class regress_gene_cre():
                                 * state[pair['CRE'][tt],:], axis=0))
             else:
                 x.append(np.mean(state[pair['CRE'][tt],:], axis=0)) #Get CRE mean states for TSS
-            print('\r%s\rTSS %i of %i' % (' ' * 80, i, ut.shape[0]), end='', file=sys.stderr)
+            print('\r%s\rTSS %i of %i' % (' ' * 80, i, ut.shape[0]), end='', file=sys.stdout)
         y = np.array(y, dtype=np.float32)
         x = np.array(x, dtype=np.float32)
         x0 = np.array(x0, dtype=np.float32)
@@ -209,7 +209,7 @@ class regress_gene_cre():
             # So, for each cell type, there is a 2D matrix of TSSs by TSS(CRE) mean state values
         xx = np.array(xx, dtype=np.float32)
         xx0 = np.array(xx0, dtype=np.float32)
-        print('\r%s\r' % (' ' * 80), end='', file=sys.stderr)
+        print('\r%s\r' % (' ' * 80), end='', file=sys.stdout)
 
         rt = {
             'y': y.ravel(order='F'), #float array of size #TSS * #celltypes
@@ -365,7 +365,7 @@ class regress_gene_cre():
         n0 = 1.0
         a = np.zeros(self.B, dtype=np.float32)
         n = np.zeros(self.B, dtype=np.float32)
-        print("\r%s\rRound:%i n:%f a:%f" % (' ' * 80, 0, n0, a0), end='', file=sys.stderr)
+        print("\r%s\rRound:%i n:%f a:%f" % (' ' * 80, 0, n0, a0), end='', file=sys.stdout)
 
         for i in range(self.B):
             r = self.refineList(rt, ss, pair, sel, i)
@@ -376,7 +376,7 @@ class regress_gene_cre():
                                       np.log2(rt['x0'][(self.lessone*self.utN):((self.lessone+1)*self.utN),:]+0.001))),
                             rt['y'][(self.lessone*self.utN):((self.lessone+1)*self.utN)])['R2adj'] #track the R2 performance for each run
             n[i] = np.mean(sel) #Percentage of retained CRMs
-            print("\r%s\rRound:%i n:%f a:%f" % (' ' * 80, i + 1, n, a), end='', file=sys.stderr)
+            print("\r%s\rRound:%i n:%f a:%f" % (' ' * 80, i + 1, n, a), end='', file=sys.stdout)
             if a[i] > ma: #retain best performing set; if you have achieved a better performance, update the best performing
                 ma = a[i]
                 ms = np.copy(sel)
@@ -407,6 +407,7 @@ class regress_gene_cre():
         self.e = None
         self.thresh_type = thresh_type
         self.lessone = lessone
+        print("chrom: {}, thresh_type: {}, lessone: {}".format(self.chrom, self.thresh_type, self.lessone))
         #****#*********#*************#***********#
 
         '''subselect all data for specific chromosome '''
@@ -448,7 +449,7 @@ class regress_gene_cre():
         for i in range(self.tcre.shape[0]): #indice of the ccre is the row in tcre
             cre[self.tcre[i,0]:min(self.tcre[i,1],self.l)] = i #mark positions and indices of CREs, in this vector, if the crre overlaps that genome bin, set the element equal to the index (upstream will be overwritten by downstream with this approach if overlap)
 
-        print("\r%s\rFind gene-CRE pairs..." % (' ' * 80), end='', file=sys.stderr)
+        print("\r%s\rFind gene-CRE pairs..." % (' ' * 80), end='', file=sys.stdout)
         if self.e is None:
             sss = np.zeros((self.tssN * self.cellN, self.stateN), dtype=np.float32) #stacked two dimensional array, blocked by cell type (consider moving to 3dim array?)
             for i in range(self.tssN):
@@ -531,11 +532,11 @@ class regress_gene_cre():
         #np.savetxt('my_pair_TSSidx.txt', pair['TSSidx'])
         #np.savetxt('my_pair_rr.txt', pair['rr'])
         #np.savetxt('my_pair_CREidx.txt', pair['CREidx'])
-        print("{} PAIR SHAPE: ".format(self.chrom), pair.shape, file=sys.stderr)
+        print("{} PAIR SHAPE: ".format(self.chrom), pair.shape, file=sys.stdout)
 
         self.pair = pair
 
-        print("\r%s\rPrepare training..." % (' ' * 80), end='', file=sys.stderr)
+        print("\r%s\rPrepare training..." % (' ' * 80), end='', file=sys.stdout)
         #output = open('tmp_%s_py.txt' % chrom, 'a')
         #self.pair['TSS'] += 1
         #self.pair['CRE'] += 1
@@ -569,7 +570,7 @@ class regress_gene_cre():
             ss = 2 ** sse
 
         rt = self.genereg(self.rna, ss, self.pair, prior=None)
-        print("\r%s\rSelect CREs..." % (' ' * 80), end='', file=sys.stderr)
+        print("\r%s\rSelect CREs..." % (' ' * 80), end='', file=sys.stdout)
         r = self.runRefine(rt, ss, self.pair)
 
         rt['nx'] = r['x']
@@ -582,7 +583,7 @@ class regress_gene_cre():
         rt['a00'] = r['a00']
         rt['ma'] = r['ma']
         rt['pair'] = pair
-        print("\r%s\r" % (' ' * 80), end='', file=sys.stderr)
+        print("\r%s\r" % (' ' * 80), end='', file=sys.stdout)
         return rt
 
 
