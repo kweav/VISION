@@ -219,7 +219,7 @@ class regress_gene_cre():
 
 
 
-    def refineList(self, rt, state, pair, sel, intern):
+    def refineList(self, rt, state, pair, sel, itern):
                         #rt, ss, self.pair
         """
         rt: dictionary with
@@ -230,7 +230,7 @@ class regress_gene_cre():
         pair: numpy object of TSS-CRE pairs (TSS, CRE positions, TSS index, predicted CRE position contributions)
         sel: int array, currently selected CREs
         lessone: int, leave one out cell type value
-        intern: int, iteration number
+        itern: int, iteration number
         """
 
         y = rt['y']
@@ -243,9 +243,13 @@ class regress_gene_cre():
         stateN = x.shape[1]
 
         tx = np.hstack((np.log2(x+0.001), np.log2(x0 + 0.001))) #n by stateN *2
-        e = np.zeros((self.stateN * 2, self.cellN -1), dtype=np.float32) # the new betas in the refined list for x and x0s effect on transcription across cell cell_types
+        #print("tx shape: ", tx.shape)
+        #****#*********#*************#***********#
+        e = np.zeros(((self.stateN * 2) + 1, self.cellN -1), dtype=np.float32) # the new betas in the refined list for x and x0s effect on transcription across cell cell_types
+        #****#*********#*************#***********#
+        #print("e shape: ", e.shape)
         f = np.zeros((self.utN, self.cellN-1), dtype=np.float32) # the new expression predictions
-
+        #print("f shape: ", f.shape)
         index = 0
         for i in range(self.cellN):
             if i == self.lessone:
@@ -253,15 +257,76 @@ class regress_gene_cre():
             mask = np.r_[np.arange(self.utN * min(i, self.lessone)),
                         np.arange(self.utN * (min(i,self.lessone)+1), n*max(i,self.lessone)),
                         np.arange(self.utN * (max(i, self.lessone) +1), y.shape[0])]
+            #print("Mask: ", mask.shape)
             # create a mask for all TSSs not in i or lessone cell type; leave out lessone cell type and cell type i
-            r = self.lm(tx[mask, :], y[mask])
+            r = self.lm(np.hstack((np.ones((tx.shape[0],1), dtype=np.float32),tx))[mask, :], y[mask])
             #do linear regression with limited set of cell type data
-            te = r['coeff']
+            te = r['coeff'].reshape(-1)
+            #****#*********#*************#***********#
+            te[np.isnan(te)==True] = 0
+            #****#*********#*************#***********#
+            #print("te: ", te.shape)
             e[:,index] = te #uses index becasue it's not sure which i
-            f[:,index] = np.dot(np.hstack((np.ones((self.utN, 1), dtype=np.flloat32),
-                                            tx[(i*n):((i+1)*n),:])), te)[:,0]
+            # test1 = np.ones((self.utN,1))
+            # test2 = tx[(i*self.utN):((i+1)*self.utN),:]
+            # print("1: ",test1.shape)
+            # print("2: ", test2.shape)
+            # test3 = np.hstack((test1, test2))
+            # print("3: ", test3.shape)
+            # test4 = np.dot(test3, te)
+            # print("4: ", test4.shape)
+            f[:,index] = np.dot(np.hstack((np.ones((self.utN, 1), dtype=np.float32),
+                                            tx[(i*self.utN):((i+1)*self.utN),:])), te)
             #create expression prediction for current cell type; for each TSS predict the left out cell type i expression
             index += 1
+
+        #****#*********#*************#***********#
+        mm = np.sum((np.r_[y[:(self.lessone * self.utN)], y[((self.lessone + 1) * self.utN):]].reshape(self.utN, self.cellN-1, order='F')
+                    - f) ** 2, axis=1) #Find mean squared error for total set
+        #****#*********#*************#***********#
+        nx = np.copy(x)
+
+        for i in range(self.utN): #For each TSS
+            t = np.where(pair['TSSidx'] == ut[i])[0] #list of ccREs for a given TSS - mask used with sel
+            if t.shape[0] == 0:
+                continue
+            me = np.zeros(t.shape[0], dtype=np.float32)
+            for j in range(t.shape[0]):
+                ttt = ((x[np.arange(self.cellN) * self.utN  + i, :] * np.sum(sel[t])
+                        - (2 * sel[t[j]] - 1) * state[pair['CRE'][t[j]], :].T)
+                        / (np.sum(sel[t]) - (2 * sel[t[j]] - 1) + 1e-10))
+                ttt[np.where(ttt < 0)[0]] = 0
+                f = np.dot(np.hstack((np.ones((self.cellN,1), dtype=np.float32),
+                                      np.log2(ttt + 0.001),
+                                      np.log2(x0[np.arange(self.cellN)* self.utN + i, :] + 0.001))), e)
+                me[j] = np.sum((y[np.r_[np.arange(self.lessone), np.arange(self.lessone + 1, self.cellN)]
+                                * self.utN + i] - f) ** 2)
+            j = np.where(me < mm[i])[0]
+            if j.shape[0] == 0:
+                continue
+            tp = np.exp((mm[i] - me[j] - np.amax(mm[i] - me[j])) / 2)
+            tp[np.where(np.isnan(tp))] = 0
+            tp += 1e-10 / j.shape[0]
+            if j.shape[0] > np.round(1000 / (itern+1)) + 1:
+                j = j[np.random.choice(j.shape[0], int(np.round(100 / (itern+1))) + 1, p=tp)]
+            ttt = ((x[np.arange(self.cellN) * self.utN + i, :] * np.sum(sel[t])
+                    - np.sum(state[pair['CRE'][t[j]], :].reshape(1, -1)
+                            * (2 * sel[t[j]] - 1). reshape(-1, 1),
+                            axis=0).reshape(self.utN, self.cellN, order='F').T)
+                    / (np.sum(sel[t]) - np.sum(2 * sel[t[j]] -1) + 1e-10))
+            ttt[np.where(ttt < 0)] = 0
+            f = np.dot(np.hstack((np.ones((ttt.shape[0], 1), dtype=np.float32),
+                                  np.log2(ttt + 0.001),
+                                  np.log2(x0[np.arange(self.cellN) * self.utN + i, :] + 0.001))), e)
+            f = np.diag(f[:,0])
+            mm[i] = np.sum((y[np.r_[np.arange(self.lessone),
+                                    np.arange(self.lessone + 1, self.cellN)] * self.utN + i] -f) ** 2)
+            nx[np.arange(self.cellN) * self.utN + i, :] = ttt
+            sel[t[j]] = 1 - sel[t[j]]
+
+            rt = {'x': nx,
+                  'sel': sel}
+            return rt
 
     def runRefine(self, rt, ss, pair):
         """
@@ -272,6 +337,7 @@ class regress_gene_cre():
         lessone: int, cell type to skip in leave-one-out
         """
         r = {'x':np.copy(rt['x'])}
+        print('x shape: ', rt['x'].shape)
         #k = rt['y'].shape[0]/ self.cellN k==self.utN
 
         #a00_x = rt['x0'][(self.lessone * self.utN):((self.lessone + 1)*self.utN),:]
@@ -289,9 +355,32 @@ class regress_gene_cre():
         n0 = 1.0
         a = np.zeros(self.B, dtype=np.float32)
         n = np.zeros(self.B, dtype=np.float32)
+        print("\r%s\rRound:%i n:%f a:%f" % (' ' * 80, 0, n0, a0), end='', file=sys.stderr)
 
         for i in range(self.B):
             r = self.refineList(rt, ss, pair, sel, i)
+            if np.sum(sel != r['sel']) == 0: #no change in the selected list
+                break #No more changes, end early
+            sel = np.copy(r['sel']) #sel equal to current/returned
+            a[i] = self.lm(np.hstack((np.log2(r['x'][(self.lessone*self.utN):((self.lessone+1)*self.utN),:]+0.001),
+                                      np.log2(rt['x0'][(self.lessone*self.utN):((self.lessone+1)*self.utN),:]+0.001))),
+                            rt['y'][(self.lessone*self.utN):((self.lessone+1)*self.utN)])['R2adj'] #track the R2 performance for each run
+            n[i] = np.mean(sel) #Percentage of retained CRMs
+            print("\r%s\rRound:%i n:%f a:%f" % (' ' * 80, i + 1, n, a), end='', file=sys.stderr)
+            if a[i] > ma: #retain best performing set; if you have achieved a better performance, update the best performing
+                ma = a[i]
+                ms = np.copy(sel)
+
+        r = {'n': n[:(i + 1)],
+             'n0': n0,
+             'a': a[:(i + 1)],
+             'a0': a0,
+             'a00': a00,
+             'ma': ma,
+             'msel': ms,
+             'sel': sel}
+
+        return r
 
     def run(self, chrom):
         #****#*********#*************#***********#
@@ -414,16 +503,15 @@ class regress_gene_cre():
         print("PAIR SHAPE: ", pair.shape)
 
         self.pair = pair
-        output = open('tmp_%s_py.txt' % chrom, 'a')
-        self.pair['TSS'] += 1
-        self.pair['CRE'] += 1
-        self.pair['TSSidx'] += 1
-        self.pair['CREidx'] += 1
-        for line in self.pair:
-           print( "%s %i %i %i %0.15f %i" % (chrom, line[0], line[1], line[2], line[3], line[4]), file=output)
-        output.close()
-        return
-
+        #output = open('tmp_%s_py.txt' % chrom, 'a')
+        #self.pair['TSS'] += 1
+        #self.pair['CRE'] += 1
+        #self.pair['TSSidx'] += 1
+        #self.pair['CREidx'] += 1
+        #for line in self.pair:
+        #   print( "%s %i %i %i %0.15f %i" % (chrom, line[0], line[1], line[2], line[3], line[4]), file=output)
+        #output.close()
+        #return
 
         kk = np.zeros(self.stateN, dtype=np.int32) #create an array of size #ofstates
         #print("kk: ", kk.shape)
@@ -450,9 +538,18 @@ class regress_gene_cre():
         rt = self.genereg(self.rna, ss, self.pair, prior=None)
         r = self.runRefine(rt, ss, self.pair)
 
-    def drive(self):
-        """
-        """
+        rt['nx'] = r['x']
+        rt['sel'] = r['sel']
+        rt['msel'] = r['msel']
+        rt['n'] = r['n']
+        rt['n0'] = r['n0']
+        rt['a'] = r['a']
+        rt['a0'] = r['a0']
+        rt['a00'] = r['a00']
+        rt['ma'] = r['ma']
+        rt['pair'] = r['pair']
+        print("\r%s\r" % (' ' * 80), end='', file=sys.stderr)
+        return rt
 
 statepref = '/home/kweave23/VISION_regression/their_stuff/pknorm_2_16lim_ref1mo_0424_lesshet'
 exp_file = '/home/kweave23/VISION_regression/their_stuff/rnaTPM.txt'
