@@ -331,6 +331,8 @@ class regress_gene_cre():
                                   np.log2(ttt + 0.001),
                                   np.log2(x0[np.arange(self.cellN) * self.utN + i, :] + 0.001))), e)
             f = np.diag(f[:,0])
+            print(f.shape)
+            print(np.arange(self.lessone+1, self.cellN).shape)
             mm[i] = np.sum((y[np.r_[np.arange(self.lessone),
                                     np.arange(self.lessone + 1, self.cellN)] * self.utN + i] -f) ** 2)
             nx[np.arange(self.cellN) * self.utN + i, :] = ttt
