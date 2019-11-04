@@ -324,7 +324,7 @@ class regress_gene_cre():
                                     np.arange(self.lessone + 1, self.cellN)] * self.utN + i] -f) ** 2)
             nx[np.arange(self.cellN) * self.utN + i, :] = ttt
             sel[t[j]] = 1 - sel[t[j]]
-            
+
         rt = {'x': nx,
               'sel': sel}
         return rt
@@ -372,14 +372,14 @@ class regress_gene_cre():
                 ma = a[i]
                 ms = np.copy(sel)
 
-        r = {'n': n[:(i + 1)],
-             'n0': n0,
-             'a': a[:(i + 1)],
-             'a0': a0,
-             'a00': a00,
-             'ma': ma,
-             'msel': ms,
-             'sel': sel}
+        r['n'] = n[:(i + 1)]
+        r['n0']= n0
+        r['a']= a[:(i + 1)]
+        r['a0']= a0
+        r['a00']= a00
+        r['ma']= ma
+        r['msel']= ms
+        r['sel']= sel
 
         return r
 
@@ -548,7 +548,7 @@ class regress_gene_cre():
         rt['a0'] = r['a0']
         rt['a00'] = r['a00']
         rt['ma'] = r['ma']
-        rt['pair'] = r['pair']
+        rt['pair'] = pair
         print("\r%s\r" % (' ' * 80), end='', file=sys.stderr)
         return rt
 
