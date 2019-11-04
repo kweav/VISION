@@ -296,7 +296,7 @@ class regress_gene_cre():
                         - (2 * sel[t[j]] - 1) * state[pair['CRE'][t[j]], :].reshape(self.cellN, self.stateN, order='C'))
                         / (np.sum(sel[t]) - (2 * sel[t[j]] - 1) + 1e-10))
                 ttt[np.where(ttt < 0)[0]] = 0
-                np.savetxt('my_ttt_298.txt', ttt)
+                #np.savetxt('my_ttt_298.txt', ttt)
                 f = np.dot(np.hstack((np.ones((self.cellN,1), dtype=np.float32),
                                       np.log2(ttt + 0.001),
                                       np.log2(x0[np.arange(self.cellN)* self.utN + i, :] + 0.001))), e)
@@ -324,10 +324,10 @@ class regress_gene_cre():
                                     np.arange(self.lessone + 1, self.cellN)] * self.utN + i] -f) ** 2)
             nx[np.arange(self.cellN) * self.utN + i, :] = ttt
             sel[t[j]] = 1 - sel[t[j]]
-            quit()
-            rt = {'x': nx,
-                  'sel': sel}
-            return rt
+            
+        rt = {'x': nx,
+              'sel': sel}
+        return rt
 
     def runRefine(self, rt, ss, pair):
         """
