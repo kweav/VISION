@@ -330,9 +330,11 @@ class regress_gene_cre():
             f = np.dot(np.hstack((np.ones((ttt.shape[0], 1), dtype=np.float32),
                                   np.log2(ttt + 0.001),
                                   np.log2(x0[np.arange(self.cellN) * self.utN + i, :] + 0.001))), e)
-            f = np.diag(f[:,0])
-            print(f.shape)
-            print(np.arange(self.lessone+1, self.cellN).shape)
+            #f = np.diag(f[:,0])
+            f = np.diag(f[np.r_[np.arange(self.lessone),
+                                np.arange(self.lessone + 1, self.cellN)],0])
+            #print(f.shape)
+
             mm[i] = np.sum((y[np.r_[np.arange(self.lessone),
                                     np.arange(self.lessone + 1, self.cellN)] * self.utN + i] -f) ** 2)
             nx[np.arange(self.cellN) * self.utN + i, :] = ttt
