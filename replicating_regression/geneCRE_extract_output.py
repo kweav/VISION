@@ -630,7 +630,7 @@ class regress_gene_cre():
                 #****#*********#*************#***********#
                 used_tt = tt_dict[g]
                 #****#*********#*************#***********#
-                for c in range(1,13): #this is lessone cell type
+                for c in range(1,12): #this is lessone cell type
                     print('cell: ', c)
                     dataset_name = '{}.{}.{}.{}.pickle'.format(output_file_name, chrom, g, c)
                     output_name = open('{}.{}.{}.{}.gene_ccRE.txt'.format(output_file_name, chrom, g, c), 'w+')
@@ -671,11 +671,7 @@ for i in range(1,20):
     chrom_list.append('chr{}'.format(i))
 for j in ['X', 'Y']:
     chrom_list.append('chr{}'.format(j))
-#for chrom in ['chr1', 'chr2', 'chr3', 'chr4', 'chr5',
-#              'chr6', 'chr7', 'chr8', 'chr9', 'chr10',
-#              'chr11','chr12', 'chr13', 'chr14', 'chr15',
-#              'chr16', 'chr17', 'chr18','chr19',
-#              'chrX', 'chrY']:
+
 for chrom in chrom_list:
     for i in range(12): #lessone
         for thresh_type in range(1,5): #threshtype
