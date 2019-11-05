@@ -637,8 +637,8 @@ class regress_gene_cre():
                     with open(dataset_name, 'rb') as f:
                         rt = pickle.load(f)
                         rna_g = rna_extract[used_tt,:]
-                    for key in rt:
-                        print(len(rt[key]))
+                    #for key in rt:
+                    #    print(len(rt[key]))
                     info_all = np.hstack((rt['pair'], rt['sel']))
                     info_pos_mat_g = self.extract_gene_ccRE(info_all, rna_g).T
                     np.savetxt(output_name, info_pos_mat_g, delimiter = '\t')
