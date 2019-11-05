@@ -686,17 +686,19 @@ output_file_name = args.output_file_name[0]
 
 test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file)
 
-chrom_list = []
-for i in range(1,20):
-    chrom_list.append('chr{}'.format(i))
-for j in ['X', 'Y']:
-    chrom_list.append('chr{}'.format(j))
+#chrom_list = []
+#for i in range(1,20):
+#    chrom_list.append('chr{}'.format(i))
+#for j in ['X', 'Y']:
+#    chrom_list.append('chr{}'.format(j))
 
-for chrom in chrom_list:
-    for i in range(12): #lessone
-        for thresh_type in range(1,5): #threshtype
-            rt = test1.run(chrom, thresh_type, i)
-            with open("{}.{}.{}.{}.pickle".format(output_file_name, chrom, thresh_type, i), "wb") as f:
-                pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
+chrom_list = ['chr1']
+
+#for chrom in chrom_list:
+#    for i in range(12): #lessone
+#        for thresh_type in range(1,5): #threshtype
+#            rt = test1.run(chrom, thresh_type, i)
+#            with open("{}.{}.{}.{}.pickle".format(output_file_name, chrom, thresh_type, i), "wb") as f:
+#                pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 test1.run_extract_info(chrom_list, output_file_name)

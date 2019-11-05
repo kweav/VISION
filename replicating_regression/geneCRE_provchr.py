@@ -49,7 +49,7 @@ class regress_gene_cre():
             set
             set number of cell types -> self.cellN
             '''
-        self.rna_all, self.rna_names, self.tss_all = self.load_RNA(exp_file)
+        self.rna_all, self.rna_names, self.tss_all, self.rna_info_all = self.load_RNA(exp_file)
         self.chroms = list(self.rna_all)
         self.cellN = self.rna_all[self.chroms[0]].shape[1]
 
@@ -65,30 +65,37 @@ class regress_gene_cre():
         rna = []
         chromosomes = []
         tss = []
+        rna_info = []
         with open(exp_file) as f:
             rna_names = f.readline().split()[4:]
             for line in f:
                 fields = line.strip('\r\n').split()
                 rna.append(fields[4:])
                 chromosomes.append(fields[0])
-                tss.append(round(float(fields[1])))
+                tss_val = round(float(fields[1]))
+                tss.append(tss_val)
+                rna_info.append((fields[0], int(tss_val), fields[2], fields[3]))
 
 
         rna = np.array(rna, dtype=np.float64)
         chromosomes = np.array(chromosomes)
         tss = np.array(tss, dtype=np.int32)
+
+        rna_info = np.array(rna_info, dtype=np.dtype([('chr', 'U5'), ('rTSS', np.int32), ('gene_cat', 'U25'), ('strand', 'U1')]))
         tss = (tss // 200).astype(np.int32).reshape(-1,1) # convert TSS coordinates into 200 bp bins
 
         '''subselect chromosomes'''
         chroms = np.unique(chromosomes)
         rna_all = {}
         tss_all = {}
+        rna_info_all = {}
         for chrom in chroms:
             where = np.where(chromosomes == chrom)[0]
             rna_all[chrom] = rna[where]
             tss_all[chrom] = tss[where]
+            rna_info_all[chrom] = rna_info[where]
 
-        return (rna_all, rna_names, tss_all)
+        return (rna_all, rna_names, tss_all, rna_info_all)
 
 
     def load_state(self, statepref): #pknorm_2_16lim_ref1mo_0424_lesshet.state
