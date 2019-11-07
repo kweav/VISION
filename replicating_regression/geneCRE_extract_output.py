@@ -16,6 +16,16 @@ import pickle
 import argparse as ap
 
 
+'''Use gene expression in 12 cell types to ...
+1) score the ccREs for their regulatory potentials based on epigenetic states
+2) map the ccREs to candidate genes
+3) further select the most likely subset of ccREs for predicting gene expression
+
+"investigated the effectiveness of the ccREs in explaining levels of gene expression....
+Developed a modeling approach to evaluate how well the ccREs could account for levels of expression in the 12 cell types
+for which the RNAseq measurements were determined in the same manner.... additional benefit of making predictions of target genes for each ccRE"'''
+
+
 
 class regress_gene_cre():
     def __init__(self, statepref, exp_file, cre_file, state_by_chr_file, m_thresh = -4, s_thresh = 2, e=None, tssdist=5, maxdist=int(1e6), cut=0.2, B=100, fixEffect=False):
@@ -156,22 +166,16 @@ class regress_gene_cre():
             tcre_all[chrom] = tcre['coord'][where, :]
         return (tcre_all)
 
-    def lm(self, x,y):
+    def lm(self, x,y, intercept=False):
         """x: 2dim rows is samples; columns is features
         y: 1dim, samples"""
-
-        print("I got to lm", flush=True)
-
-        Q,R = qr(x) #Use QR decomposition to solve linear regression
-        coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
-        coeff[np.where(np.isnan(coeff))] = 0
-        yhat = np.sum(x * coeff.T, axis=1)
-        R2 = np.corrcoef(y,yhat)[0,1]**2
-        n,k = x.shape
-        #R2adj = R2 - k/ (n-k-1) * (1-R2)
-        R2adj = 1 - ((1-R2)*(n-1)/(n-k-1))
-        print("I finished lm", flush=True)
-        return {'coeff': coeff, 'R2': R2, 'R2adj': R2adj}
+        robjects.globalenv["x"] = x
+        robjects.globalenv["y"] = y
+        if not intercept:
+            r = stats.lm("y~x-1")
+        else:
+            r = stats.lm("y~x")
+        return {'coeff': r.rx2('coefficients'), 'R2adj': r.rx2('adj.r.squared')}
 
     def genereg(self, rna, state, pair, prior=None):
         """
@@ -278,7 +282,7 @@ class regress_gene_cre():
             # create a mask for all TSSs not in i or lessone cell type; leave out lessone cell type and cell type i
             r = self.lm(np.hstack((np.ones((tx.shape[0],1), dtype=np.float32),tx))[mask, :], y[mask])
             #do linear regression with limited set of cell type data
-            te = r['coeff'].reshape(-1)
+            te = np.asarray(r['coeff']).reshape(-1)
             #****#*********#*************#***********#
             te[np.isnan(te)==True] = 0
             #****#*********#*************#***********#
@@ -476,7 +480,8 @@ class regress_gene_cre():
                     aaa[j,:] = np.bincount(temp[:,j], minlength=self.stateN) #finding the fraction of each state in that window around the TSS for each cell type
                 aaa /= np.sum(aaa, axis=1, keepdims=True) #convert to state proportions
                 sss[np.arange(self.cellN)*self.tssN + i,:] = aaa #sss has list of TSS state proportions, grouped by cell type
-            self.e = self.lm(sss, self.rna.ravel(order='F'))['coeff'][:,0] #Use QR decomposition to solve linear regression; e is a vector of 27 coefficients
+            self.e = np.asarray(self.lm(sss, self.rna.ravel(order='F'))['coeff'])
+            self.e[np.isnan(self.e)] = 0
         sse = self.e[ss] #get state coefficients for each bin and cell type; returns an array of exact same shape as ss, but sse_i,j takes on the values of e[ss_i,j]
         tr = ((self.rna - np.mean(self.rna, axis=1, keepdims=True))
                 / ((np.std(self.rna, axis=1, keepdims=True, ddof =1) + 1e-5) *(self.cellN -1) ** 0.5 ))
