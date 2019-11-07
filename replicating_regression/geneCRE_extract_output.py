@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 import sys
 import os
 
@@ -11,7 +10,12 @@ os.environ["VECLIB_MAXIMUM_THREADS"] = "80"
 os.environ["NUMEXPR_NUM_THREADS"] = "80"
 
 import numpy as np
-from numpy.linalg import qr, inv
+from rpy2 import robjects
+import rpy2.robjects.numpy2ri
+rpy2.robjects.numpy2ri.activate()
+from rpy2.robjects.packages import importr
+stats = importr('stats')
+from numpy.linalg import qr, inv, det
 import pickle
 import argparse as ap
 
