@@ -163,12 +163,25 @@ class regress_gene_cre():
     def lm(self, x,y, intercept=False):
         """x: 2dim rows is samples; columns is features
         y: 1dim, samples"""
-        robjects.globalenv["x"] = x
-        robjects.globalenv["y"] = y
-        if not intercept:
-            r = stats.lm("y~x-1")
+        Q,R = qr(x)
+        if det(R) == 0:
+            robjects.globalenv["x"] = x
+            robjects.globalenv["y"] = y
+            if not intercept:
+                r = stats.lm("y~x-1")
+            else:
+                r = stats.lm("y~x")
+            e = np.asarray(r.rx2('coefficients'))
+            e_to_return = e[np.where(np.isnan(e))] = 0
+            return {'coeff': e_to_return, 'R2adj': r.rx2('adj.r.squared')}
         else:
-            r = stats.lm("y~x")
+            coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
+            coeff[np.where(np.isnan(coeff))] = 0
+            yhat = np.sum(x* coeff.T, axis=1)
+            R2 = np.corrcoef(y, yhat)[0,1]**2
+            n,k = x.shape
+            R2adj = 1 - ((1-R2)*(n-1)/(n-k-1))
+            return {'coeff': coeff[:,0], 'R2adj': R2adj}
         # print("I got to lm", flush=True)
         #
         # Q,R = qr(x) #Use QR decomposition to solve linear regression
@@ -183,7 +196,7 @@ class regress_gene_cre():
         # R2adj = 1 - ((1-R2)*(n-1)/(n-k-1))
         # print("I finished lm", flush=True)
         #return {'coeff': coeff, 'R2': R2, 'R2adj': R2adj}
-        return {'coeff': r.rx2('coefficients'), 'R2adj': r.rx2('adj.r.squared')}
+
 
     def genereg(self, rna, state, pair, prior=None):
         """
@@ -292,7 +305,7 @@ class regress_gene_cre():
             #do linear regression with limited set of cell type data
             te = np.asarray(r['coeff']).reshape(-1)
             #****#*********#*************#***********#
-            te[np.isnan(te)==True] = 0
+            #te[np.isnan(te)==True] = 0
             #****#*********#*************#***********#
             #print("te: ", te.shape)
             e[:,index] = te #uses index becasue it's not sure which i
@@ -490,11 +503,12 @@ class regress_gene_cre():
                     aaa[j,:] = np.bincount(temp[:,j], minlength=self.stateN) #finding the fraction of each state in that window around the TSS for each cell type
                 aaa /= np.sum(aaa, axis=1, keepdims=True) #convert to state proportions
                 sss[np.arange(self.cellN)*self.tssN + i,:] = aaa #sss has list of TSS state proportions, grouped by cell type
-                np.savetxt('my_sss_13_thresh1.txt', sss)
-            self.e = np.asarray(self.lm(sss, self.rna.ravel(order='F'))['coeff'])
+                #np.savetxt('my_sss_13_thresh1.txt', sss)
+            self.e = self.lm(sss, self.rna.ravel(order='F'))['coeff']
+            #self.e = np.asarray(self.lm(sss, self.rna.ravel(order='F'))['coeff'])
             #print(self.e.shape)
             #print(self.e)
-            self.e[np.isnan(self.e)] = 0
+            #self.e[np.isnan(self.e)] = 0
             #print(self.e)#[:,0] #Use QR decomposition to solve linear regression; e is a vector of 27 coefficients
         sse = self.e[ss] #get state coefficients for each bin and cell type; returns an array of exact same shape as ss, but sse_i,j takes on the values of e[ss_i,j]
         tr = ((self.rna - np.mean(self.rna, axis=1, keepdims=True))
