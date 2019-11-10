@@ -171,9 +171,13 @@ class regress_gene_cre():
                 r = stats.lm("y~x-1")
             else:
                 r = stats.lm("y~x")
+            print(r.rx2('coefficients'))
             e = np.asarray(r.rx2('coefficients'))
-            e_to_return = e[np.where(np.isnan(e))] = 0
-            return {'coeff': e_to_return, 'R2adj': r.rx2('adj.r.squared')}
+            print(e.shape)
+            print(e)
+            e[np.where(np.isnan(e))] = 0
+            print(e)
+            return {'coeff': e, 'R2adj': r.rx2('adj.r.squared')}
         else:
             coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
             coeff[np.where(np.isnan(coeff))] = 0
@@ -510,7 +514,7 @@ class regress_gene_cre():
             #print(self.e)
             #self.e[np.isnan(self.e)] = 0
             #print(self.e)#[:,0] #Use QR decomposition to solve linear regression; e is a vector of 27 coefficients
-        sse = self.e[ss] #get state coefficients for each bin and cell type; returns an array of exact same shape as ss, but sse_i,j takes on the values of e[ss_i,j]
+        sse =  self.e[ss] #get state coefficients for each bin and cell type; returns an array of exact same shape as ss, but sse_i,j takes on the values of e[ss_i,j]
         tr = ((self.rna - np.mean(self.rna, axis=1, keepdims=True))
                 / ((np.std(self.rna, axis=1, keepdims=True, ddof =1) + 1e-5) *(self.cellN -1) ** 0.5 ))
 
@@ -661,10 +665,8 @@ test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file)
 
 for chrom in ['chr1', 'chr2', 'chr3', 'chr4', 'chr5',
               'chr6', 'chr7', 'chr8', 'chr9', 'chr10',
-              'chr11','chr12', 'chr13',
-              'chr14', 'chr15',
-              'chr16', 'chr17', 'chr18','chr19',
-              'chrX']:
+              'chr11','chr12']:
+              #['chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19', 'chrX']:
     for i in range(12): #lessone
         for thresh_type in range(1,5): #threshtype
             t = test1.run(chrom, thresh_type, i)
