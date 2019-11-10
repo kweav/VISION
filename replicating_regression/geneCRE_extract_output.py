@@ -173,13 +173,43 @@ class regress_gene_cre():
     def lm(self, x,y, intercept=False):
         """x: 2dim rows is samples; columns is features
         y: 1dim, samples"""
-        robjects.globalenv["x"] = x
-        robjects.globalenv["y"] = y
-        if not intercept:
-            r = stats.lm("y~x-1")
+        Q,R = qr(x)
+        if det(R) == 0:
+            robjects.globalenv["x"] = x
+            robjects.globalenv["y"] = y
+            if not intercept:
+                r = stats.lm("y~x-1")
+            else:
+                r = stats.lm("y~x")
+            print(r.rx2('coefficients'))
+            e = np.asarray(r.rx2('coefficients'))
+            print(e.shape)
+            print(e)
+            e[np.where(np.isnan(e))] = 0
+            print(e)
+            return {'coeff': e, 'R2adj': r.rx2('adj.r.squared')}
         else:
-            r = stats.lm("y~x")
-        return {'coeff': r.rx2('coefficients'), 'R2adj': r.rx2('adj.r.squared')}
+            coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
+            coeff[np.where(np.isnan(coeff))] = 0
+            yhat = np.sum(x* coeff.T, axis=1)
+            R2 = np.corrcoef(y, yhat)[0,1]**2
+            n,k = x.shape
+            R2adj = 1 - ((1-R2)*(n-1)/(n-k-1))
+            return {'coeff': coeff[:,0], 'R2adj': R2adj}
+        # print("I got to lm", flush=True)
+        #
+        # Q,R = qr(x) #Use QR decomposition to solve linear regression
+        # print(det(R))
+        # np.savetxt('R_from_sss_.txt', R)
+        # coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
+        # coeff[np.where(np.isnan(coeff))] = 0
+        # yhat = np.sum(x * coeff.T, axis=1)
+        # R2 = np.corrcoef(y,yhat)[0,1]**2
+        # n,k = x.shape
+        # #R2adj = R2 - k/ (n-k-1) * (1-R2)
+        # R2adj = 1 - ((1-R2)*(n-1)/(n-k-1))
+        # print("I finished lm", flush=True)
+        #return {'coeff': coeff, 'R2': R2, 'R2adj': R2adj}
 
     def genereg(self, rna, state, pair, prior=None):
         """
@@ -484,9 +514,13 @@ class regress_gene_cre():
                     aaa[j,:] = np.bincount(temp[:,j], minlength=self.stateN) #finding the fraction of each state in that window around the TSS for each cell type
                 aaa /= np.sum(aaa, axis=1, keepdims=True) #convert to state proportions
                 sss[np.arange(self.cellN)*self.tssN + i,:] = aaa #sss has list of TSS state proportions, grouped by cell type
-            self.e = np.asarray(self.lm(sss, self.rna.ravel(order='F'))['coeff'])
-            self.e[np.isnan(self.e)] = 0
-        sse = self.e[ss] #get state coefficients for each bin and cell type; returns an array of exact same shape as ss, but sse_i,j takes on the values of e[ss_i,j]
+            self.e = self.lm(sss, self.rna.ravel(order='F'))['coeff']
+            #self.e = np.asarray(self.lm(sss, self.rna.ravel(order='F'))['coeff'])
+            #print(self.e.shape)
+            #print(self.e)
+            #self.e[np.isnan(self.e)] = 0
+            #print(self.e)#[:,0] #Use QR decomposition to solve linear regression; e is a vector of 27 coefficients
+        sse =  self.e[ss] #get state coefficients for each bin and cell type; returns an array of exact same shape as ss, but sse_i,j takes on the values of e[ss_i,j]
         tr = ((self.rna - np.mean(self.rna, axis=1, keepdims=True))
                 / ((np.std(self.rna, axis=1, keepdims=True, ddof =1) + 1e-5) *(self.cellN -1) ** 0.5 ))
 
@@ -698,7 +732,7 @@ test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file)
 chrom_list = []
 for i in range(1,20):
     chrom_list.append('chr{}'.format(i))
-for j in ['X', 'Y']:
+for j in ['X']:
     chrom_list.append('chr{}'.format(j))
 
 for chrom in chrom_list:
