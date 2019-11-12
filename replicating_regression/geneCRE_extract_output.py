@@ -11,6 +11,7 @@ os.environ["NUMEXPR_NUM_THREADS"] = "80"
 
 import numpy as np
 from rpy2 import robjects
+rob = robjects.r
 import rpy2.robjects.numpy2ri
 rpy2.robjects.numpy2ri.activate()
 from rpy2.robjects.packages import importr
@@ -178,16 +179,23 @@ class regress_gene_cre():
             robjects.globalenv["x"] = x
             robjects.globalenv["y"] = y
             if not intercept:
-                r = stats.lm("y~x-1")
+                linear_model = stats.lm("y~x-1")
             else:
-                r = stats.lm("y~x")
+                linear_model = stats.lm("y~x")
             #print(r.rx2('coefficients'))
-            e = np.asarray(r.rx2('coefficients'))
+
+            e = np.asarray(linear_model.rx2('coefficients'))
             #print(e.shape)
             #print(e)
             e[np.where(np.isnan(e))] = 0
             print("coeff: ", e)
-            return {'coeff': e, 'R2adj': float(r.rx2('adj.r.squared')[0])}
+            summary = rob.summary(linear_model)
+            adjrsq = summary.rx2('adj.r.squared')[0]
+            try:
+                adjrsq = rob.round(float(adjrsq), digits=5)
+            except:
+                pass
+            return {'coeff': e, 'R2adj':adjrsq}
         else:
             coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
             coeff[np.where(np.isnan(coeff))] = 0
