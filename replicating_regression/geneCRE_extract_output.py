@@ -187,7 +187,7 @@ class regress_gene_cre():
             #print(e)
             e[np.where(np.isnan(e))] = 0
             print("coeff: ", e)
-            return {'coeff': e, 'R2adj': float(r.rx2('adj.r.squared'))}
+            return {'coeff': e, 'R2adj': float(r.rx2('adj.r.squared')[0])}
         else:
             coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
             coeff[np.where(np.isnan(coeff))] = 0
