@@ -181,16 +181,17 @@ class regress_gene_cre():
                 r = stats.lm("y~x-1")
             else:
                 r = stats.lm("y~x")
-            print(r.rx2('coefficients'))
+            #print(r.rx2('coefficients'))
             e = np.asarray(r.rx2('coefficients'))
-            print(e.shape)
-            print(e)
+            #print(e.shape)
+            #print(e)
             e[np.where(np.isnan(e))] = 0
-            print(e)
-            return {'coeff': e, 'R2adj': r.rx2('adj.r.squared')}
+            print("coeff: ", e)
+            return {'coeff': e, 'R2adj': float(r.rx2('adj.r.squared'))}
         else:
             coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
             coeff[np.where(np.isnan(coeff))] = 0
+            print("coeff: ", coeff)
             yhat = np.sum(x* coeff.T, axis=1)
             R2 = np.corrcoef(y, yhat)[0,1]**2
             n,k = x.shape
@@ -242,7 +243,7 @@ class regress_gene_cre():
                                 * state[pair['CRE'][tt],:], axis=0))
             else:
                 x.append(np.mean(state[pair['CRE'][tt],:], axis=0)) #Get CRE mean states for TSS
-            print('\r%s\rTSS %i of %i' % (' ' * 80, i, ut.shape[0]), end='', file=sys.stdout, flush=True)
+            #print('TSS %i of %i' % (i, ut.shape[0]), flush=True)
         y = np.array(y, dtype=np.float32)
         x = np.array(x, dtype=np.float32)
         x0 = np.array(x0, dtype=np.float32)
@@ -255,7 +256,6 @@ class regress_gene_cre():
             # So, for each cell type, there is a 2D matrix of TSSs by TSS(CRE) mean state values
         xx = np.array(xx, dtype=np.float32)
         xx0 = np.array(xx0, dtype=np.float32)
-        print('\r%s\r' % (' ' * 80), end='', file=sys.stdout, flush=True)
 
         rt = {
             'y': y.ravel(order='F'), #float array of size #TSS * #celltypes
@@ -314,12 +314,9 @@ class regress_gene_cre():
                         np.arange(self.utN * (max(i, self.lessone) +1), y.shape[0])]
             #print("Mask: ", mask.shape)
             # create a mask for all TSSs not in i or lessone cell type; leave out lessone cell type and cell type i
-            r = self.lm(np.hstack((np.ones((tx.shape[0],1), dtype=np.float32),tx))[mask, :], y[mask])
+            r = self.lm(np.hstack((np.ones((tx.shape[0],1), dtype=np.float32),tx))[mask, :], y[mask]) #Their lm includes intercept
             #do linear regression with limited set of cell type data
-            te = np.asarray(r['coeff']).reshape(-1)
-            #****#*********#*************#***********#
-            te[np.isnan(te)==True] = 0
-            #****#*********#*************#***********#
+            te = r['coeff']
             #print("te: ", te.shape)
             e[:,index] = te #uses index becasue it's not sure which i
             # test1 = np.ones((self.utN,1))
@@ -355,6 +352,11 @@ class regress_gene_cre():
                 f = np.dot(np.hstack((np.ones((self.cellN,1), dtype=np.float32),
                                       np.log2(ttt + 0.001),
                                       np.log2(x0[np.arange(self.cellN)* self.utN + i, :] + 0.001))), e)
+                #****#*********#*************#***********#
+                f = np.diag(f[np.r_[np.arange(self.lessone),
+                                    np.arange(self.lessone + 1, self.cellN)],0])
+                #print(f.shape)
+                #****#*********#*************#***********# left out lessone cell type from diag
                 me[j] = np.sum((y[np.r_[np.arange(self.lessone), np.arange(self.lessone + 1, self.cellN)]
                                 * self.utN + i] - f) ** 2)
             j = np.where(me < mm[i])[0]
@@ -367,8 +369,8 @@ class regress_gene_cre():
                 j = j[np.random.choice(j.shape[0], int(np.round(100 / (itern+1))) + 1, p=tp)]
             #****#*********#*************#***********#
             ttt = ((x[np.arange(self.cellN) * self.utN + i, :] * np.sum(sel[t])
-                    - np.sum(state[pair['CRE'][t[j]], :].reshape(1, -1)
-                            * (2 * sel[t[j]] - 1). reshape(-1, 1),
+                    - np.sum((state[pair['CRE'][t[j]], :]
+                            * (2 * sel[t[j]] - 1).reshape(-1,1)).reshape(j.shape[0], state.shape[1]),
                             axis=0).reshape(self.stateN, self.cellN, order='F').T)
                     / (np.sum(sel[t]) - np.sum(2 * sel[t[j]] -1) + 1e-10))
             #****#*********#*************#***********# changed dim of reshape to stateN
@@ -409,17 +411,18 @@ class regress_gene_cre():
         #np.savetxt('my_a00_x_minus4_2.txt', a00_x, fmt = '%.5f')
 
         a00 = self.lm(np.log2(rt['x0'][(self.lessone * self.utN):((self.lessone + 1)*self.utN),:]+0.001),
-                        rt['y'][(self.lessone*self.utN):((self.lessone+1)*self.utN)])['R2adj']
+                        rt['y'][(self.lessone*self.utN):((self.lessone+1)*self.utN)])['R2adj'] #Theirs includes intercept
         ma = self.lm(np.hstack((np.log2(r['x'][(self.lessone*self.utN):((self.lessone+1)*self.utN),:] + 0.001),
                                 np.log2(rt['x0'][(self.lessone*self.utN):((self.lessone+1)*self.utN),:] + 0.001))),
-                    rt['y'][(self.lessone*self.utN):((self.lessone + 1)*self.utN)])['R2adj']
+                    rt['y'][(self.lessone*self.utN):((self.lessone + 1)*self.utN)])['R2adj'] #Theirs includes intercept
         ms = np.ones(self.pair.shape[0], dtype=np.int32)
         sel = np.ones(self.pair.shape[0], dtype=np.int32)
+        #a0 = a = ma;n0 = n = mean(sel); WHAT DOES THIS MEAN IN R?
         a0 = ma
         n0 = 1.0
         a = np.zeros(self.B, dtype=np.float32)
         n = np.zeros(self.B, dtype=np.float32)
-        print("\r%s\rRound:%i n:%f a:%f" % (' ' * 80, 0, n0, a0), end='', file=sys.stdout, flush=True)
+        print("Round:%i n:%f a:%f" % (0, n0, a0), flush=True)
 
         for i in range(self.B):
             r = self.refineList(rt, ss, pair, sel, i)
@@ -428,9 +431,9 @@ class regress_gene_cre():
             sel = np.copy(r['sel']) #sel equal to current/returned
             a[i] = self.lm(np.hstack((np.log2(r['x'][(self.lessone*self.utN):((self.lessone+1)*self.utN),:]+0.001),
                                       np.log2(rt['x0'][(self.lessone*self.utN):((self.lessone+1)*self.utN),:]+0.001))),
-                            rt['y'][(self.lessone*self.utN):((self.lessone+1)*self.utN)])['R2adj'] #track the R2 performance for each run
+                            rt['y'][(self.lessone*self.utN):((self.lessone+1)*self.utN)])['R2adj'] #track the R2 performance for each run #Theirs includes intercept
             n[i] = np.mean(sel) #Percentage of retained CRMs
-            print("\r%s\rRound:%i n:%f a:%f" % (' ' * 80, i + 1, n, a), end='', file=sys.stdout, flush=True)
+            print("Round:%i n:%f a:%f" % (i + 1, n, a), flush=True)
             if a[i] > ma: #retain best performing set; if you have achieved a better performance, update the best performing
                 ma = a[i]
                 ms = np.copy(sel)
@@ -485,8 +488,10 @@ class regress_gene_cre():
                    4: tt_4}
 
         self.rna = self.rna[tt_dict[self.thresh_type]]
+        print("RNA: ", self.rna.shape)
         self.tss = self.tss[tt_dict[self.thresh_type]]
         self.tssN = self.tss.shape[0]
+        print("tssN: ", self.tssN)
 
         '''now set up pairs '''
         G = np.amax(self.state) + 1 #Determine number of states
@@ -503,7 +508,7 @@ class regress_gene_cre():
         for i in range(self.tcre.shape[0]): #indice of the ccre is the row in tcre
             cre[self.tcre[i,0]:min(self.tcre[i,1],self.l)] = i #mark positions and indices of CREs, in this vector, if the crre overlaps that genome bin, set the element equal to the index (upstream will be overwritten by downstream with this approach if overlap)
 
-        print("\r%s\rFind gene-CRE pairs..." % (' ' * 80), end='', file=sys.stdout, flush=True)
+        print("Find gene-CRE pairs...", flush=True)
         if self.e is None:
             sss = np.zeros((self.tssN * self.cellN, self.stateN), dtype=np.float32) #stacked two dimensional array, blocked by cell type (consider moving to 3dim array?)
             for i in range(self.tssN):
@@ -521,6 +526,7 @@ class regress_gene_cre():
             #self.e[np.isnan(self.e)] = 0
             #print(self.e)#[:,0] #Use QR decomposition to solve linear regression; e is a vector of 27 coefficients
         sse =  self.e[ss] #get state coefficients for each bin and cell type; returns an array of exact same shape as ss, but sse_i,j takes on the values of e[ss_i,j]
+        #np.savetxt('sse_{}_{}_{}.txt'.format(chrom, lessone, thresh_type), sse)
         tr = ((self.rna - np.mean(self.rna, axis=1, keepdims=True))
                 / ((np.std(self.rna, axis=1, keepdims=True, ddof =1) + 1e-5) *(self.cellN -1) ** 0.5 ))
 
@@ -542,8 +548,9 @@ class regress_gene_cre():
                                            np.arange(self.lessone +1, self.cellN)]],
                         (ts[a,:][:,np.r_[np.arange(self.lessone),
                                     np.arange(self.lessone +1, self.cellN)]]).T).ravel(order='F')
-
+            #np.savetxt('trr_{}_{}_{}_{}.txt'.format(chrom, lessone, thresh_type, i), trr)
             t = np.where((trr >= self.cut) & (cre[a] >= 0))[0]
+            #np.savetxt('t_{}_{}_{}_{}.txt'.format(chrom, lessone, thresh_type, i), t)
 
             if t.shape[0] > 0:
                 nt = []
@@ -595,16 +602,20 @@ class regress_gene_cre():
 
         self.pair = pair
 
-        print("\r%s\rPrepare training..." % (' ' * 80), end='', file=sys.stdout, flush=True)
-        #output = open('tmp_%s_py.txt' % chrom, 'a')
-        #self.pair['TSS'] += 1
-        #self.pair['CRE'] += 1
-        #self.pair['TSSidx'] += 1
-        #self.pair['CREidx'] += 1
-        #for line in self.pair:
-        #   print( "%s %i %i %i %0.15f %i" % (chrom, line[0], line[1], line[2], line[3], line[4]), file=output)
-        #output.close()
-        #return
+        print("Prepare training..." , flush=True)
+        output = open('tmp_{}_{}_{}_py.txt'.format(chrom, lessone, thresh_type), 'a+')
+        self.pair['TSS'] += 1
+        self.pair['CRE'] += 1
+        self.pair['TSSidx'] += 1
+        self.pair['CREidx'] += 1
+        for line in self.pair:
+           print( "%s %i %i %i %0.15f %i" % (chrom, line[0], line[1], line[2], line[3], line[4]), file=output)
+        output.close()
+
+        self.pair['TSS'] -= 1
+        self.pair['CRE'] -= 1
+        self.pair['TSSidx'] -= 1
+        self.pair['CREidx'] -= 1
 
         kk = np.zeros(self.stateN, dtype=np.int32) #create an array of size #ofstates
         #print("kk: ", kk.shape)
@@ -629,7 +640,7 @@ class regress_gene_cre():
             ss = 2 ** sse
 
         rt = self.genereg(self.rna, ss, self.pair, prior=None)
-        print("\r%s\rSelect CREs..." % (' ' * 80), end='', file=sys.stdout, flush=True)
+        print("Select CREs..." , flush=True)
         r = self.runRefine(rt, ss, self.pair)
 
         rt['nx'] = r['x']
@@ -642,7 +653,6 @@ class regress_gene_cre():
         rt['a00'] = r['a00']
         rt['ma'] = r['ma']
         rt['pair'] = pair
-        print("\r%s\r" % (' ' * 80), end='', file=sys.stdout, flush=True)
         return rt
 
     def extract_gene_ccRE(self, info_all, rna_g):
@@ -728,18 +738,21 @@ output_file_name = args.output_file_name[0]
 #state_by_chr_file = '/home/kweave23/VISION_regression/state_all_and_pos_all_by_chr.pickle'
 
 test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file)
+#chrom = 'chr2'
+#thresh_type = 4
+#i = 8
 
 chrom_list = []
 for i in range(1,20):
-    chrom_list.append('chr{}'.format(i))
+   chrom_list.append('chr{}'.format(i))
 for j in ['X']:
-    chrom_list.append('chr{}'.format(j))
+   chrom_list.append('chr{}'.format(j))
 
 for chrom in chrom_list:
-    for i in range(12): #lessone
-        for thresh_type in range(1,5): #threshtype
-            rt = test1.run(chrom, thresh_type, i)
-            with open("{}.{}.{}.{}.pickle".format(output_file_name, chrom, thresh_type, i), "wb") as f:
-                pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
+  for i in range(12): #lessone
+    for thresh_type in range(1,5): #threshtype
+        rt = test1.run(chrom, thresh_type, i)
+        with open("{}.{}.{}.{}.pickle".format(output_file_name, chrom, thresh_type, i), "wb") as f:
+            pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 test1.run_extract_info(chrom_list, output_file_name)
