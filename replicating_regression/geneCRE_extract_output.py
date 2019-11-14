@@ -430,7 +430,7 @@ class regress_gene_cre():
         n0 = 1.0
         a = np.zeros(self.B, dtype=np.float32)
         n = np.zeros(self.B, dtype=np.float32)
-        print("Round:%i n:%f a:%f" % (0, n0, a0), flush=True)
+        print("Round:{} n:{} a:{}".format(0, n0, a0), flush=True)
 
         for i in range(self.B):
             r = self.refineList(rt, ss, pair, sel, i)
@@ -660,7 +660,7 @@ class regress_gene_cre():
         rt['a0'] = r['a0']
         rt['a00'] = r['a00']
         rt['ma'] = r['ma']
-        rt['pair'] = pair
+        rt['pair'] = self.pair
         return rt
 
     def extract_gene_ccRE(self, info_all, rna_g):
@@ -723,6 +723,7 @@ class regress_gene_cre():
                     info_pos_mat_g = self.extract_gene_ccRE(info_all, rna_g)
                     fmt='%s %i %s %s %i %i %.5f %.5f'
                     np.savetxt(output_name, info_pos_mat_g, fmt = fmt, delimiter = '\t')
+                    output_name.close()
 
 
 
@@ -750,11 +751,12 @@ test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file)
 #thresh_type = 4
 #i = 8
 
-chrom_list = []
-for i in range(1,20):
-   chrom_list.append('chr{}'.format(i))
-for j in ['X']:
-   chrom_list.append('chr{}'.format(j))
+#chrom_list = []
+#for i in range(1,20):
+#   chrom_list.append('chr{}'.format(i))
+#for j in ['X']:
+#   chrom_list.append('chr{}'.format(j))
+chrom_list = ['chr1']
 
 for chrom in chrom_list:
   for i in range(12): #lessone
