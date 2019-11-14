@@ -296,9 +296,9 @@ class regress_gene_cre():
         itern: int, iteration number
         """
 
-        y = rt['y']
-        x = rt['x']
-        x0 = rt['x0']
+        y = np.copy(rt['y'])
+        x = np.copy(rt['x'])
+        x0 = np.copy(rt['x0'])
 
         ut = np.unique(pair['TSSidx'])
         n = ut.shape[0]
@@ -340,10 +340,13 @@ class regress_gene_cre():
             #create expression prediction for current cell type; for each TSS predict the left out cell type i expression
             index += 1
 
+        np.savetxt('e_first_refine.txt', e)
+        np.savetxt('f_first_refine.txt', f)
         #****#*********#*************#***********#
         mm = np.sum((np.r_[y[:(self.lessone * self.utN)], y[((self.lessone + 1) * self.utN):]].reshape(self.utN, self.cellN-1, order='F')
                     - f) ** 2, axis=1) #Find mean squared error for total set
         #****#*********#*************#***********#
+        np.savetxt('mm_refine.txt', mm)
         nx = np.copy(x)
 
         for i in range(self.utN): #For each TSS
@@ -367,6 +370,9 @@ class regress_gene_cre():
                 #****#*********#*************#***********# left out lessone cell type from diag
                 me[j] = np.sum((y[np.r_[np.arange(self.lessone), np.arange(self.lessone + 1, self.cellN)]
                                 * self.utN + i] - f) ** 2)
+            np.savetxt('f_2_refine.txt', f)
+            np.savetxt('me_refine.txt', me)
+            quit()
             j = np.where(me < mm[i])[0]
             if j.shape[0] == 0:
                 continue
@@ -379,8 +385,14 @@ class regress_gene_cre():
             ttt = ((x[np.arange(self.cellN) * self.utN + i, :] * np.sum(sel[t])
                     - np.sum((state[pair['CRE'][t[j]], :]
                             * (2 * sel[t[j]] - 1).reshape(-1,1)).reshape(j.shape[0], state.shape[1]),
-                            axis=0).reshape(self.stateN, self.cellN, order='F').T)
+                            axis=0).reshape(self.cellN, self.stateN, order='C'))
                     / (np.sum(sel[t]) - np.sum(2 * sel[t[j]] -1) + 1e-10))
+
+            #ttt = ((x[np.arange(self.cellN) * self.utN + i, :] * np.sum(sel[t])
+            #        - np.sum((state[pair['CRE'][t[j]], :]
+            #                * (2 * sel[t[j]] - 1).reshape(-1,1)).reshape(j.shape[0], state.shape[1]),
+            #                axis=0).reshape(self.stateN, self.cellN, order='F').T)
+            #        / (np.sum(sel[t]) - np.sum(2 * sel[t[j]] -1) + 1e-10))
             #****#*********#*************#***********# changed dim of reshape to stateN
             ttt[np.where(ttt < 0)] = 0
             f = np.dot(np.hstack((np.ones((ttt.shape[0], 1), dtype=np.float32),
@@ -711,7 +723,6 @@ class regress_gene_cre():
                 for c in range(0,12): #this is lessone cell type
                     print('cell: ', c)
                     dataset_name = '{}.{}.{}.{}.pickle'.format(output_file_name, chrom, g, c)
-                    output_name = open('{}.{}.{}.{}.gene_ccRE.txt'.format(output_file_name, chrom, g, c), 'w+')
                     with open(dataset_name, 'rb') as f:
                         rt = pickle.load(f)
                         print('PICKLE LOAD PAIR SHAPE: ', rt['pair'].shape)
@@ -725,9 +736,23 @@ class regress_gene_cre():
                     info_all['sel'] = rt['sel']
 
                     info_pos_mat_g = self.extract_gene_ccRE(info_all, rna_g)
-                    fmt='%s %i %s %s %i %i %.5f %.5f'
-                    np.savetxt(output_name, info_pos_mat_g, fmt = fmt, delimiter = '\t')
-
+                    #fmt='%s %i %s %s %i %i %.5f %.5f'
+                    #'chr', 'U5'), ('rTSS', np.int32), ('gene_cat', 'U25'), ('strand', 'U1'),
+                    #('CRE', np.int32),
+                    #('TSSidx', np.int32), ('rr', np.float32), ('sel', np.int32)]))
+                    output_name = open('{}.{}.{}.{}.gene_ccRE.txt'.format(output_file_name, chrom, g, c), 'w+')
+                    for i in range(info_pos_mat_g.shape[0]):
+                        print( '%s %i %s %s %i %i %.5f %.5f' % (info_pos_mat_g['chr'][i],
+                                                                info_pos_mat_g['rTSS'][i],
+                                                                info_pos_mat_g['gene_cat'][i],
+                                                                info_pos_mat_g['strand'][i],
+                                                                info_pos_mat_g['CRE'][i],
+                                                                info_pos_mat_g['TSSidx'][i],
+                                                                info_pos_mat_g['rr'][i],
+                                                                info_pos_mat_g['sel'][i]),
+                                                                file=output_name, sep='\t')
+                    #np.savetxt(output_name, info_pos_mat_g, fmt = fmt, delimiter = '\t')
+                    output_name.close()
 
 
 parser = ap.ArgumentParser(description = 'replicating VISION regression through regress_gene_cre class')
@@ -750,22 +775,22 @@ output_file_name = args.output_file_name[0]
 #state_by_chr_file = '/home/kweave23/VISION_regression/state_all_and_pos_all_by_chr.pickle'
 
 test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file)
-#chrom = 'chr2'
-#thresh_type = 4
-#i = 8
+chrom = 'chr1'
+thresh_type = 3
+i = 0
 
 #chrom_list = []
 #for i in range(1,20):
 #   chrom_list.append('chr{}'.format(i))
 #for j in ['X']:
 #   chrom_list.append('chr{}'.format(j))
-chrom_list = ['chr1']
+#chrom_list = ['chr1']
 
-for chrom in chrom_list:
-  for i in range(12): #lessone
-    for thresh_type in range(1,5): #threshtype
-        rt = test1.run(chrom, thresh_type, i)
-        with open("{}.{}.{}.{}.pickle".format(output_file_name, chrom, thresh_type, i), "wb") as f:
-            pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
-
-test1.run_extract_info(chrom_list, output_file_name)
+#for chrom in chrom_list:
+#  for i in range(12): #lessone
+#    for thresh_type in range(1,5): #threshtype
+#        rt = test1.run(chrom, thresh_type, i)
+#        with open("{}.{}.{}.{}.pickle".format(output_file_name, chrom, thresh_type, i), "wb") as f:
+#            pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
+rt = test1.run(chrom, thresh_type, i)
+#test1.run_extract_info(chrom_list, output_file_name)
