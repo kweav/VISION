@@ -165,7 +165,6 @@ class regress_gene_cre():
         '''subselect chromosomes'''
         tcre_all = {}
         chroms = np.unique(tcre['chr'])
-        #print(chroms)
         for chrom in chroms:
             where = np.where(tcre['chr']==chrom)[0]
             tcre_all[chrom] = tcre['coord'][where, :]
@@ -182,13 +181,9 @@ class regress_gene_cre():
                 linear_model = stats.lm("y~x-1")
             else:
                 linear_model = stats.lm("y~x")
-            #print(r.rx2('coefficients'))
 
             e = np.asarray(linear_model.rx2('coefficients'))
-            #print(e.shape)
-            #print(e)
             e[np.where(np.isnan(e))] = 0
-            print("coeff: ", e)
             summary = rob.summary(linear_model)
             adjrsq = summary.rx2('adj.r.squared')[0]
             try:
@@ -199,26 +194,11 @@ class regress_gene_cre():
         else:
             coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
             coeff[np.where(np.isnan(coeff))] = 0
-            print("coeff: ", coeff)
             yhat = np.sum(x* coeff.T, axis=1)
             R2 = np.corrcoef(y, yhat)[0,1]**2
             n,k = x.shape
             R2adj = 1 - ((1-R2)*(n-1)/(n-k-1))
             return {'coeff': coeff[:,0], 'R2adj': R2adj}
-        # print("I got to lm", flush=True)
-        #
-        # Q,R = qr(x) #Use QR decomposition to solve linear regression
-        # print(det(R))
-        # np.savetxt('R_from_sss_.txt', R)
-        # coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
-        # coeff[np.where(np.isnan(coeff))] = 0
-        # yhat = np.sum(x * coeff.T, axis=1)
-        # R2 = np.corrcoef(y,yhat)[0,1]**2
-        # n,k = x.shape
-        # #R2adj = R2 - k/ (n-k-1) * (1-R2)
-        # R2adj = 1 - ((1-R2)*(n-1)/(n-k-1))
-        # print("I finished lm", flush=True)
-        #return {'coeff': coeff, 'R2': R2, 'R2adj': R2adj}
 
     def genereg(self, rna, state, pair, prior=None):
         """
@@ -273,11 +253,6 @@ class regress_gene_cre():
             'x0': xx0
              }
 
-        #np.savetxt('my_rt_x.{}.{}.{}.txt'.format(self.chrom, self.thresh_type, self.lessone), rt['x'])
-        #np.savetxt('my_rt_x0.{}.{}.{}.txt'.format(self.chrom, self.thresh_type, self.lessone), rt['x0'])
-        #np.savetxt('my_rt_z.{}.{}.{}.txt'.format(self.chrom, self.thresh_type, self.lessone), rt['z'])
-        #np.savetxt('my_rt_y.{}.{}.{}.txt'.format(self.chrom, self.thresh_type, self.lessone), rt['y'])
-
         return (rt)
 
 
@@ -306,13 +281,10 @@ class regress_gene_cre():
         stateN = x.shape[1]
 
         tx = np.hstack((np.log2(x+0.001), np.log2(x0 + 0.001))) #n by stateN *2
-        #print("tx shape: ", tx.shape)
         #****#*********#*************#***********#
         e = np.zeros(((self.stateN * 2) + 1, self.cellN -1), dtype=np.float32) # the new betas in the refined list for x and x0s effect on transcription across cell cell_types
         #****#*********#*************#***********#
-        #print("e shape: ", e.shape)
         f = np.zeros((self.utN, self.cellN-1), dtype=np.float32) # the new expression predictions
-        #print("f shape: ", f.shape)
         index = 0
         for i in range(self.cellN):
             if i == self.lessone:
@@ -320,21 +292,11 @@ class regress_gene_cre():
             mask = np.r_[np.arange(self.utN * min(i, self.lessone)),
                         np.arange(self.utN * (min(i,self.lessone)+1), n*max(i,self.lessone)),
                         np.arange(self.utN * (max(i, self.lessone) +1), y.shape[0])]
-            #print("Mask: ", mask.shape)
             # create a mask for all TSSs not in i or lessone cell type; leave out lessone cell type and cell type i
             r = self.lm(np.hstack((np.ones((tx.shape[0],1), dtype=np.float32),tx))[mask, :], y[mask]) #Their lm includes intercept
             #do linear regression with limited set of cell type data
             te = r['coeff']
-            #print("te: ", te.shape)
             e[:,index] = te #uses index becasue it's not sure which i
-            # test1 = np.ones((self.utN,1))
-            # test2 = tx[(i*self.utN):((i+1)*self.utN),:]
-            # print("1: ",test1.shape)
-            # print("2: ", test2.shape)
-            # test3 = np.hstack((test1, test2))
-            # print("3: ", test3.shape)
-            # test4 = np.dot(test3, te)
-            # print("4: ", test4.shape)
             f[:,index] = np.dot(np.hstack((np.ones((self.utN, 1), dtype=np.float32),
                                             tx[(i*self.utN):((i+1)*self.utN),:])), te)
             #create expression prediction for current cell type; for each TSS predict the left out cell type i expression
@@ -356,14 +318,12 @@ class regress_gene_cre():
                         - (2 * sel[t[j]] - 1) * state[pair['CRE'][t[j]], :].reshape(self.cellN, self.stateN, order='C'))
                         / (np.sum(sel[t]) - (2 * sel[t[j]] - 1) + 1e-10))
                 ttt[np.where(ttt < 0)[0]] = 0
-                #np.savetxt('my_ttt_298.txt', ttt)
                 f = np.dot(np.hstack((np.ones((self.cellN,1), dtype=np.float32),
                                       np.log2(ttt + 0.001),
                                       np.log2(x0[np.arange(self.cellN)* self.utN + i, :] + 0.001))), e)
                 #****#*********#*************#***********#
                 f = np.diag(f[np.r_[np.arange(self.lessone),
-                                    np.arange(self.lessone + 1, self.cellN)],0])
-                #print(f.shape)
+                                    np.arange(self.lessone + 1, self.cellN)],:])
                 #****#*********#*************#***********# left out lessone cell type from diag
                 me[j] = np.sum((y[np.r_[np.arange(self.lessone), np.arange(self.lessone + 1, self.cellN)]
                                 * self.utN + i] - f) ** 2)
@@ -386,11 +346,9 @@ class regress_gene_cre():
             f = np.dot(np.hstack((np.ones((ttt.shape[0], 1), dtype=np.float32),
                                   np.log2(ttt + 0.001),
                                   np.log2(x0[np.arange(self.cellN) * self.utN + i, :] + 0.001))), e)
-            #f = np.diag(f[:,0])
             #****#*********#*************#***********#
             f = np.diag(f[np.r_[np.arange(self.lessone),
-                                np.arange(self.lessone + 1, self.cellN)],0])
-            #print(f.shape)
+                                np.arange(self.lessone + 1, self.cellN)],:])
             #****#*********#*************#***********# left out lessone cell type from diag
 
             mm[i] = np.sum((y[np.r_[np.arange(self.lessone),
@@ -411,12 +369,6 @@ class regress_gene_cre():
         lessone: int, cell type to skip in leave-one-out
         """
         r = {'x':np.copy(rt['x'])}
-        #print('x shape: ', rt['x'].shape)
-        #k = rt['y'].shape[0]/ self.cellN k==self.utN
-
-        #a00_x = rt['x0'][(self.lessone * self.utN):((self.lessone + 1)*self.utN),:]
-        #print(a00_x.shape)
-        #np.savetxt('my_a00_x_minus4_2.txt', a00_x, fmt = '%.5f')
 
         a00 = self.lm(np.log2(rt['x0'][(self.lessone * self.utN):((self.lessone + 1)*self.utN),:]+0.001),
                         rt['y'][(self.lessone*self.utN):((self.lessone+1)*self.utN)])['R2adj'] #Theirs includes intercept
@@ -528,13 +480,8 @@ class regress_gene_cre():
                 aaa /= np.sum(aaa, axis=1, keepdims=True) #convert to state proportions
                 sss[np.arange(self.cellN)*self.tssN + i,:] = aaa #sss has list of TSS state proportions, grouped by cell type
             self.e = self.lm(sss, self.rna.ravel(order='F'))['coeff']
-            #self.e = np.asarray(self.lm(sss, self.rna.ravel(order='F'))['coeff'])
-            #print(self.e.shape)
-            #print(self.e)
-            #self.e[np.isnan(self.e)] = 0
-            #print(self.e)#[:,0] #Use QR decomposition to solve linear regression; e is a vector of 27 coefficients
+            #Use QR decomposition to solve linear regression; e is a vector of 27 coefficients
         sse =  self.e[ss] #get state coefficients for each bin and cell type; returns an array of exact same shape as ss, but sse_i,j takes on the values of e[ss_i,j]
-        #np.savetxt('sse_{}_{}_{}.txt'.format(chrom, lessone, thresh_type), sse)
         tr = ((self.rna - np.mean(self.rna, axis=1, keepdims=True))
                 / ((np.std(self.rna, axis=1, keepdims=True, ddof =1) + 1e-5) *(self.cellN -1) ** 0.5 ))
 
@@ -549,16 +496,12 @@ class regress_gene_cre():
             #****#*********#*************#***********#
             tss_local = np.where(a==self.tss[i])[0]
             #****#*********#*************#***********#
-            #np.savetxt('my_a_{}.txt'.format(i), a)
             rr = np.dot(tr[i:(i+1), :], ts[a,:].T).ravel(order='F') #predict state contribution to rna
-            #np.savetxt('my_rr_{}.txt'.format(i), rr)
             trr = np.dot(tr[i:(i+1), np.r_[np.arange(self.lessone), #predict position correlation to RNA leaving out one cell type specified by lessone
                                            np.arange(self.lessone +1, self.cellN)]],
                         (ts[a,:][:,np.r_[np.arange(self.lessone),
                                     np.arange(self.lessone +1, self.cellN)]]).T).ravel(order='F')
-            #np.savetxt('trr_{}_{}_{}_{}.txt'.format(chrom, lessone, thresh_type, i), trr)
             t = np.where((trr >= self.cut) & (cre[a] >= 0))[0]
-            #np.savetxt('t_{}_{}_{}_{}.txt'.format(chrom, lessone, thresh_type, i), t)
 
             if t.shape[0] > 0:
                 nt = []
@@ -590,7 +533,6 @@ class regress_gene_cre():
                 #t = np.r_[ttss,t]
             #****#*********#*************#***********#
 
-            #np.savetxt('my_t_{}.txt'.format(i), t)
 
             for j in range(t.shape[0]):
                 pair.append((self.tss[i], a[t[j]], i, rr[t[j]], cre[a[t[j]]])) #TSS, global cre bin position, tss index, predicted correlation without leave one out
@@ -601,11 +543,6 @@ class regress_gene_cre():
                                                 ('TSSidx', np.int32), ('rr', np.float32),
                                                 ('CREidx', np.int32)]))
 
-        #np.savetxt('my_pair_TSS.txt', pair['TSS'])
-        #np.savetxt('my_pair_CRE.txt', pair['CRE'])
-        #np.savetxt('my_pair_TSSidx.txt', pair['TSSidx'])
-        #np.savetxt('my_pair_rr.txt', pair['rr'])
-        #np.savetxt('my_pair_CREidx.txt', pair['CREidx'])
         print("{} PAIR SHAPE: ".format(self.chrom), pair.shape, file=sys.stdout, flush=True)
 
         self.pair = pair
@@ -626,23 +563,14 @@ class regress_gene_cre():
         self.pair['CREidx'] -= 1
 
         kk = np.zeros(self.stateN, dtype=np.int32) #create an array of size #ofstates
-        #print("kk: ", kk.shape)
         kk[k] = 1 #mark most prevelant state
-        #ss = np.tile(np.repeat(kk.reshape(1, -1), repeats=self.l, axis=0), self.cellN) #make a state mask array; horizontal stacking; 2d array
-        ss = np.tile(np.repeat(kk.reshape(1, -1), repeats=self.l, axis=0), (1, self.cellN)).astype(np.float32)
+        ss = np.tile(np.repeat(kk.reshape(1, -1), repeats=self.l, axis=0), (1, self.cellN)).astype(np.float32)#make a state mask array; horizontal stacking; 2d array
 
         for i in range(self.state.shape[0]): #for each global position
             tt = np.zeros(self.cellN*self.stateN, dtype=np.int32)
 
             tt[np.arange(self.cellN) * self.stateN + self.state[i,:]] = 1 #one hot encoding all the states for all the cell types
             ss[self.pos[i], :] = tt #update state mask with valid position states for each cell type
-        # if np.product(self.tcre.shape) > 2: #if more than 1 tcre
-        #     oss = np.copy(ss) #storing your mask array before you mess with it
-        #     ss = ss.astype(np.float32)
-        #     for i in range(self.tcre.shape[0]): #for each CRE
-        #         ss[(self.tcre[i,0] + self.tcre[i,1]) //2, :] = np.mean(oss[self.tcre[i,0]:self.tcre[i,1],:], axis=0).astype(np.float32) #one-hot components and float components because ss is all genomic positions instead of all ccREs
-                #Find mean state values for CREs across all bins they span for each cell type
-
 
         if self.fixEffect:
             ss = 2 ** sse
@@ -740,23 +668,16 @@ state_by_chr_file = args.state_by_chr_file[0]
 exp_file = args.exp_file[0]
 cre_file = args.cre_file[0]
 output_file_name = args.output_file_name[0]
-#statepref = '/home/kweave23/VISION_regression/their_stuff/pknorm_2_16lim_ref1mo_0424_lesshet'
-#exp_file = '/home/kweave23/VISION_regression/their_stuff/rnaTPM.txt'
-#cre_file = '/home/kweave23/VISION_regression/their_stuff/vision_cres.txt'
-#atacsig_file = '/home/kweave23/VISION_regression/their_stuff/vision_cres.mat.atacsig.txt'
-#state_by_chr_file = '/home/kweave23/VISION_regression/state_all_and_pos_all_by_chr.pickle'
+
 
 test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file)
-#chrom = 'chr2'
-#thresh_type = 4
-#i = 8
 
-#chrom_list = []
-#for i in range(1,20):
-#   chrom_list.append('chr{}'.format(i))
-#for j in ['X']:
-#   chrom_list.append('chr{}'.format(j))
-chrom_list = ['chr1']
+
+chrom_list = []
+for i in range(1,20):
+   chrom_list.append('chr{}'.format(i))
+for j in ['X']:
+   chrom_list.append('chr{}'.format(j))
 
 for chrom in chrom_list:
   for i in range(12): #lessone
