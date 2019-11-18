@@ -257,7 +257,7 @@ class regress_gene_cre():
 
 
 
-    def refineList(self, rt, state, pair, sel, itern):
+    def refineList(self, rt, state, pair, sel, itern, counter):
                         #rt, ss, self.pair
         """
         rt: dictionary with
@@ -333,7 +333,10 @@ class regress_gene_cre():
             tp = np.exp((mm[i] - me[j] - np.amax(mm[i] - me[j])) / 2)
             tp[np.where(np.isnan(tp))] = 0
             tp += 1e-10 / j.shape[0]
+            tp = tp/np.sum(tp) #make sure it sums to one. For some reason the R equivalent of sample doesn't require that?!
+            np.savetxt('tp_does_it_sum.txt', tp)
             if j.shape[0] > np.round(1000 / (itern+1)) + 1:
+                counter += 1
                 j = j[np.random.choice(j.shape[0], int(np.round(100 / (itern+1))) + 1, p=tp)]
             #****#*********#*************#***********#
             ttt = ((x[np.arange(self.cellN) * self.utN + i, :] * np.sum(sel[t])
@@ -355,6 +358,8 @@ class regress_gene_cre():
                                     np.arange(self.lessone + 1, self.cellN)] * self.utN + i] -f) ** 2)
             nx[np.arange(self.cellN) * self.utN + i, :] = ttt
             sel[t[j]] = 1 - sel[t[j]]
+            print("chr: {} ttype: {} lessone: {} utN: {} counter: {}".format(self.chrom, self.thresh_type, self.lessone, i, counter), flush=True)
+        print("chr: {} ttype: {} lessone: {} itern: {} counter: {}".format(self.chrom, self.thresh_type, self.lessone, itern, counter ), flush=True)
 
         rt = {'x': nx,
               'sel': sel}
@@ -385,15 +390,19 @@ class regress_gene_cre():
         print("Round:{} n:{} a:{}".format(0, n0, a0), flush=True)
 
         for i in range(self.B):
-            r = self.refineList(rt, ss, pair, sel, i)
-            if np.sum(sel != r['sel']) == 0: #no change in the selected list
+            counter = 0
+            r = self.refineList(rt, ss, pair, np.copy(sel), i, counter)
+            #length(which(sel != r$sel)) == 0) R version
+            #if np.sum(sel != r['sel']) == 0: #no change in the selected list
+            if np.array_equal(sel, r['sel']): #no change in the selected list
                 break #No more changes, end early
+            print('I got here {}'.format(i))
             sel = np.copy(r['sel']) #sel equal to current/returned
             a[i] = self.lm(np.hstack((np.log2(r['x'][(self.lessone*self.utN):((self.lessone+1)*self.utN),:]+0.001),
                                       np.log2(rt['x0'][(self.lessone*self.utN):((self.lessone+1)*self.utN),:]+0.001))),
                             rt['y'][(self.lessone*self.utN):((self.lessone+1)*self.utN)])['R2adj'] #track the R2 performance for each run #Theirs includes intercept
             n[i] = np.mean(sel) #Percentage of retained CRMs
-            print("Round:%i n:%f a:%f" % (i + 1, n, a), flush=True)
+            print("Round:%i n:%f a:%f" % (i + 1, n[i], a[i]), flush=True)
             if a[i] > ma: #retain best performing set; if you have achieved a better performance, update the best performing
                 ma = a[i]
                 ms = np.copy(sel)
@@ -448,10 +457,10 @@ class regress_gene_cre():
                    4: tt_4}
 
         self.rna = self.rna[tt_dict[self.thresh_type]]
-        print("RNA: ", self.rna.shape)
+        #print("RNA: ", self.rna.shape)
         self.tss = self.tss[tt_dict[self.thresh_type]]
         self.tssN = self.tss.shape[0]
-        print("tssN: ", self.tssN)
+        #print("tssN: ", self.tssN)
 
         '''now set up pairs '''
         G = np.amax(self.state) + 1 #Determine number of states
@@ -543,7 +552,7 @@ class regress_gene_cre():
                                                 ('TSSidx', np.int32), ('rr', np.float32),
                                                 ('CREidx', np.int32)]))
 
-        print("{} PAIR SHAPE: ".format(self.chrom), pair.shape, file=sys.stdout, flush=True)
+        print("chrom: {}, thresh_type: {}, lessone: {}, PAIR SHAPE {}".format(self.chrom, self.thresh_type, self.lessone, pair.shape), flush=True)
 
         self.pair = pair
 
@@ -607,7 +616,7 @@ class regress_gene_cre():
         info_pos['rr'] = info_all['rr']
         info_pos['sel'] = info_all['sel']
 
-        print(info_pos.shape)
+        #print(info_pos.shape)
         return info_pos
 
     def run_extract_info(self, chrom_list, output_file_name):
@@ -628,13 +637,13 @@ class regress_gene_cre():
                        3: tt_3,
                        4: tt_4}
 
-            print("chr: ", chrom)
+            print("chr: ", chrom, flush=True)
             for g in range(1,5): #this is thresh_type
                 #****#*********#*************#***********#
                 used_tt = tt_dict[g]
                 #****#*********#*************#***********#
                 for c in range(0,12): #this is lessone cell type
-                    print('cell: ', c)
+                    print('cell: ', c, flush=True)
                     dataset_name = '{}.{}.{}.{}.pickle'.format(output_file_name, chrom, g, c)
                     output_name = open('{}.{}.{}.{}.gene_ccRE.txt'.format(output_file_name, chrom, g, c), 'w+')
                     with open(dataset_name, 'rb') as f:
@@ -672,18 +681,22 @@ output_file_name = args.output_file_name[0]
 
 test1 = regress_gene_cre(statepref, exp_file, cre_file, state_by_chr_file)
 
-
 chrom_list = []
 for i in range(1,20):
    chrom_list.append('chr{}'.format(i))
 for j in ['X']:
    chrom_list.append('chr{}'.format(j))
 
-for chrom in chrom_list:
-  for i in range(12): #lessone
-    for thresh_type in range(1,5): #threshtype
-        rt = test1.run(chrom, thresh_type, i)
-        with open("{}.{}.{}.{}.pickle".format(output_file_name, chrom, thresh_type, i), "wb") as f:
-            pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
+iterations = 5
+for k in range(iterations):
+    output_file_name = 'iter_{}_{}'.format(k, output_file_name)
+    for chrom in chrom_list:
+        for i in range(12): #lessone
+            for thresh_type in range(1,5): #threshtype
+                print("------------ {} iteration ------------".format(k))
+                rt = test1.run(chrom, thresh_type, i)
+                print("--------------------------------------")
+                with open("{}.{}.{}.{}.pickle".format(output_file_name, chrom, thresh_type, i), "wb") as f:
+                    pickle.dump(rt, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-test1.run_extract_info(chrom_list, output_file_name)
+    test1.run_extract_info(chrom_list, output_file_name)
