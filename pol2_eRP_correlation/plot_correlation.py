@@ -7,7 +7,7 @@ from scipy import stats
 import matplotlib.pyplot as plt
 
 '''Usage: date; time ./plot_correlation.py eRP_pol2.bed eRP_pol2_v.bed'''
-gamma = 0.7
+gamma = 1
 
 def return_cor(x, y):
     cor, pval = stats.pearsonr(x,y)
@@ -137,6 +137,11 @@ mask_4 = df_full.iloc[:,0] == 4
 #        df_full[mask_4].iloc[:,1], df_full[mask_4].iloc[:,2], 'naive_correlation_gene_groups.png')
 
 '''LESS NAIVE CORRELATIONS: LOOK AT DISTANCE CORRECTION''' #what distance function did ABC model use?
+'''ABC model paper talks about how contact could be approximated by distance^-gamma where gamma was 0.7 or 1 for the Extrusion globule model or Fractal globule module respectively. These had similar AUPRCs'''
+#so here I'm finding the middle location of the ccRE
+#then I'm finding the abs distance from the middle location to the TSS
+#finally I'm scaling this distance by ^-gamma like the ABC paper
+
 df_int_sub_dist = df_int_sub.copy()
 df_int_sub_dist.insert(3, 'dist_correction', pd.DataFrame.abs(((df_int.iloc[:,2]-df_int.iloc[:,1])/2) - df_int.iloc[:,3])**-gamma)
 df_v_sub_dist = df_v_sub.copy()
@@ -144,6 +149,9 @@ df_v_sub_dist.insert(3, 'dist_correction', pd.DataFrame.abs(((df_v.iloc[:,2]-df_
 df_full_dist = pd.concat([df_int_sub_dist, df_v_sub_dist])
 '''plot everything that intersects pol2 ChIP regardless of gene group'''
 plot_nogg(df_int_sub_dist.iloc[:,1]*df_int_sub_dist.iloc[:,3], df_int_sub_dist.iloc[:,2], 'abc_dist_correlation_only_int.png')
+
+plot_nogg(df_int_sub_dist.iloc[:,1]/df_int_sub_dist.iloc[:,3], df_int_sub_dist.iloc[:,2], 'abc_dist_div_correlation_only_int.png')
+
 
 mask_1 = df_int_sub_dist.iloc[:,0] == 1
 mask_2 = df_int_sub_dist.iloc[:,0] == 2
@@ -154,8 +162,16 @@ plot_gg(df_int_sub_dist[mask_1].iloc[:,1]*df_int_sub_dist[mask_1].iloc[:,3], df_
         df_int_sub_dist[mask_2].iloc[:,1]*df_int_sub_dist[mask_2].iloc[:,3], df_int_sub_dist[mask_2].iloc[:,2],
         df_int_sub_dist[mask_3].iloc[:,1]*df_int_sub_dist[mask_3].iloc[:,3], df_int_sub_dist[mask_3].iloc[:,2],
         df_int_sub_dist[mask_4].iloc[:,1]*df_int_sub_dist[mask_4].iloc[:,3], df_int_sub_dist[mask_4].iloc[:,2], 'abc_dist_correlation_gene_groups_only_int.png')
+
+plot_gg(df_int_sub_dist[mask_1].iloc[:,1]/df_int_sub_dist[mask_1].iloc[:,3], df_int_sub_dist[mask_1].iloc[:,2],
+        df_int_sub_dist[mask_2].iloc[:,1]/df_int_sub_dist[mask_2].iloc[:,3], df_int_sub_dist[mask_2].iloc[:,2],
+        df_int_sub_dist[mask_3].iloc[:,1]/df_int_sub_dist[mask_3].iloc[:,3], df_int_sub_dist[mask_3].iloc[:,2],
+        df_int_sub_dist[mask_4].iloc[:,1]/df_int_sub_dist[mask_4].iloc[:,3], df_int_sub_dist[mask_4].iloc[:,2], 'abc_dist_div_correlation_gene_groups_only_int.png')
+
 '''plot all eRP scores assuming no intersection means signal 0 regardless of gene group '''
 plot_nogg(df_full_dist.iloc[:,1]*df_full_dist.iloc[:,3], df_full_dist.iloc[:,2], 'abc_dist_correlation.png')
+
+plot_nogg(df_full_dist.iloc[:,1]/df_full_dist.iloc[:,3], df_full_dist.iloc[:,2], 'abc_dist_div_correlation.png')
 
 mask_1 = df_full_dist.iloc[:,0] == 1
 mask_2 = df_full_dist.iloc[:,0] == 2
@@ -166,5 +182,13 @@ plot_gg(df_full_dist[mask_1].iloc[:,1]*df_full_dist[mask_1].iloc[:,3], df_full_d
         df_full_dist[mask_2].iloc[:,1]*df_full_dist[mask_2].iloc[:,3], df_full_dist[mask_2].iloc[:,2],
         df_full_dist[mask_3].iloc[:,1]*df_full_dist[mask_3].iloc[:,3], df_full_dist[mask_3].iloc[:,2],
         df_full_dist[mask_4].iloc[:,1]*df_full_dist[mask_4].iloc[:,3], df_full_dist[mask_4].iloc[:,2], 'abc_dist_correlation_gene_groups.png')
+
+plot_gg(df_full_dist[mask_1].iloc[:,1]/df_full_dist[mask_1].iloc[:,3], df_full_dist[mask_1].iloc[:,2],
+        df_full_dist[mask_2].iloc[:,1]/df_full_dist[mask_2].iloc[:,3], df_full_dist[mask_2].iloc[:,2],
+        df_full_dist[mask_3].iloc[:,1]/df_full_dist[mask_3].iloc[:,3], df_full_dist[mask_3].iloc[:,2],
+        df_full_dist[mask_4].iloc[:,1]/df_full_dist[mask_4].iloc[:,3], df_full_dist[mask_4].iloc[:,2], 'abc_dist_div_correlation_gene_groups.png')
+
+
+#Mike's concern: What about a cCRE connected to multiple genes at the same time. That's a good question. How do I handle that? What should I be averaging?
 
 '''LESS NAIVE CORRELATIONS: LOOK AT NUMBER OF TIMES SELECTED'''
