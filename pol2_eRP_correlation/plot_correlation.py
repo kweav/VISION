@@ -112,7 +112,7 @@ df_v_sub = df_v.iloc[:,[6,8]]
 df_v_sub.insert(2,15,0)
 
 #combine the two
-df_full = pd.concat([df_int_sub, df_v_sub]) #There are NaN values - why??
+df_full = pd.concat([df_int_sub, df_v_sub])
 
 mask_1 = df_full.iloc[:,0] == 1
 mask_2 = df_full.iloc[:,0] == 2
