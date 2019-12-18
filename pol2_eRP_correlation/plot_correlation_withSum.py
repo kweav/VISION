@@ -97,20 +97,71 @@ df_int_sub.insert(0, 'ccRE_name', df_int[0] + "_" + df_int[1].astype(str) + "_" 
 
 unique_ccREs_int = np.array(df_int_sub.ccRE_name.unique())
 
-'''Plot summed raw eRP
--->only those that intersect pol2 ChIP
--->-->regardless of gene group'''
-summed_eRPs = np.zeros(unique_ccREs_int.shape[0])
+'''only those that intersect pol2 ChIP'''
+summed_eRPs = np.zeros((unique_ccREs_int.shape[0], 3))
 pol2_vals = np.zeros(unique_ccREs_int.shape[0])
+values_gg = np.full((unique_ccREs_int.shape[0], 4, 4), np.nan) # first dimension is ccRE; second dimension is sum or pol2 val ;third dimension is gg
 for i, ccRE in enumerate(unique_ccREs_int):
+    '''regardless of gene group'''
     mask = df_int_sub.iloc[:,0] == ccRE
+    '''sum of raw'''
     sum_e = pd.DataFrame.sum(df_int_sub[mask].iloc[:,2])
-    summed_eRPs[i] = sum_e
+    '''sum of distance corrected'''
+    sum_e_dc_p = pd.DataFrame.sum(df_int_sub[mask].iloc[:,2]*df_int_sub[mask].iloc[:,5])
+    sum_e_dc_d = pd.DataFrame.sum(df_int_sub[mask].iloc[:,2]/df_int_sub[mask].iloc[:,5])
+    summed_eRPs[i,[0,1,2]] = [sum_e, sum_e_dc_p, sum_e_dc_d]
     pol2_val = df_int_sub[mask].iloc[:,3].unique()[0]
     pol2_vals[i] = pol2_val
-plot_nogg(summed_eRPs, pol2_vals, 'sum_raw_onlyint.png', np.max(summed_eRPs)+5, xlim=True)
 
-quit()
+    '''taking into account gene group'''
+    mask1 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 1)
+    mask2 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 2)
+    mask3 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 3)
+    mask4 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 4)
+
+    sum_e1 = pd.DataFrame.sum(df_int_sub[mask1].iloc[:,2])
+    sum_e_dc_p1 = pd.DataFrame.sum(df_int_sub[mask1].iloc[:,2]*df_int_sub[mask1].iloc[:,5])
+    sum_e_dc_d1 = pd.DataFrame.sum(df_int_sub[mask1].iloc[:,2]/df_int_sub[mask1].iloc[:,5])
+    pol2_val = df_int_sub[mask1].iloc[:,3].unique()[0]
+    values_gg[i, [0,1,2,3], 0] = [sum_e1, sum_e_dc_p1, sum_e_dc_d1, pol2_val]
+
+    sum_e2 = pd.DataFrame.sum(df_int_sub[mask2].iloc[:,2])
+    sum_e_dc_p2 = pd.DataFrame.sum(df_int_sub[mask2].iloc[:,2]*df_int_sub[mask2].iloc[:,5])
+    sum_e_dc_d2 = pd.DataFrame.sum(df_int_sub[mask2].iloc[:,2]/df_int_sub[mask2].iloc[:,5])
+    pol2_val = df_int_sub[mask2].iloc[:,3].unique()[0]
+    values_gg[i, [0,1,2,3], 1] = [sum_e2, sum_e_dc_p2, sum_e_dc_d2, pol2_val]
+
+    sum_e3 = pd.DataFrame.sum(df_int_sub[mask3].iloc[:,2])
+    sum_e_dc_p3 = pd.DataFrame.sum(df_int_sub[mask3].iloc[:,2]*df_int_sub[mask3].iloc[:,5])
+    sum_e_dc_d3 = pd.DataFrame.sum(df_int_sub[mask3].iloc[:,2]/df_int_sub[mask3].iloc[:,5])
+    pol2_val = df_int_sub[mask3].iloc[:,3].unique()[0]
+    values_gg[i, [0,1,2,3], 2] = [sum_e3, sum_e_dc_p3, sum_e_dc_d3, pol2_val]
+
+    sum_e4 = pd.DataFrame.sum(df_int_sub[mask4].iloc[:,2])
+    sum_e_dc_p4 = pd.DataFrame.sum(df_int_sub[mask4].iloc[:,2]*df_int_sub[mask4].iloc[:,5])
+    sum_e_dc_d4 = pd.DataFrame.sum(df_int_sub[mask4].iloc[:,2]/df_int_sub[mask4].iloc[:,5])
+    pol2_val = df_int_sub[mask4].iloc[:,3].unique()[0]
+    values_gg[i, [0,1,2,3], 3] = [sum_e4, sum_e_dc_p4, sum_e_dc_d4, pol2_val]
+
+np.save('only_int_values_gg_gamma{}.npy'.format(gamma), values_gg)
+
+'''Plot summed raw eRP (1st of second dimension of summed_eRPs)
+--> only those that intersect pol2 ChIP
+--> --> regardless of gene group'''
+plot_nogg(summed_eRPs[:,0], pol2_vals, 'sum_raw_onlyint.png', np.max(summed_eRPs[:,0])+5, xlim=True)
+
+'''Plot summed distance corrected (*) eRP (2nd of second dimension of summed_eRPs)
+--> only those that intersect pol2 ChIP
+--> --> regardless of gene group'''
+plot_nogg(summed_eRPs[:,1], pol2_vals, 'sum_dc_p_gamma{}_onlyint.png'.format(gamma), np.max(summed_eRPs[:,1])+5, xlim=True)
+
+'''Plot summed distance corrected (/) eRP (3rd of second dimension of summed_eRPs)
+--> only those that intersect pol2 ChIP
+--> --> regardless of gene group'''
+plot_nogg(summed_eRPs[:,2], pol2_vals, 'sum_dc_d_gamma{}_onlyint.png'.format(gamma), np.max(summed_eRPs[:,2])+5, xlim=True)
+
+
+
 #subselect just the gene_group, eRP value, num_selected
 df_v_sub = df_v.iloc[:,[6,8,5]]
 #add a signal value of 0
@@ -123,4 +174,68 @@ df_v_sub.insert(0, 'ccRE_name', df_v[0] + "_" + df_v[1].astype(str) + "_" + df_v
 #combine the two
 df_full = pd.concat([df_int_sub, df_v_sub])
 
-unique_ccREs_full = df_full.ccRE_name.unique()
+unique_ccREs_full = np.array(df_full.ccRE_name.unique())
+
+'''Plot everything assuming no intersection means signal value of 0 '''
+summed_eRPs = np.zeros((unique_ccREs_full.shape[0], 3))
+pol2_vals = np.zeros(unique_ccREs_full.shape[0])
+values_gg = np.full((unique_ccREs_int.shape[0], 4, 4), np.nan) # first dimension is ccRE; second dimension is sum or pol2 val ;third dimension is gg
+for i, ccRE in enumerate(unique_ccREs_full):
+    '''regardless of gene group '''
+    mask = df_full.iloc[:,0] == ccRE
+    ''' sum of raw'''
+    sum_e = pd.DataFrame.sum(df_full[mask].iloc[:,2])
+    ''' sum of distance corrected '''
+    sum_e_dc_p = pd.DataFrame.sum(df_full[mask].iloc[:,2]*df_full[mask].iloc[:,5])
+    sum_e_dc_d = pd.DataFrame.sum(df_full[mask].iloc[:,2]/df_full[mask].iloc[:,5])
+    summed_eRPs[i,[0,1,2]] = [sum_e, sum_e_dc_p, sum_e_dc_d]
+    pol2_val = df_full[mask].iloc[:,3].unique()[0]
+    pol2_vals[i] = pol2_val
+
+    '''taking into account gene group'''
+    mask1 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 1)
+    mask2 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 2)
+    mask3 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 3)
+    mask4 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 4)
+
+    sum_e1 = pd.DataFrame.sum(df_full[mask1].iloc[:,2])
+    sum_e_dc_p1 = pd.DataFrame.sum(df_full[mask1].iloc[:,2]*df_full[mask1].iloc[:,5])
+    sum_e_dc_d1 = pd.DataFrame.sum(df_full[mask1].iloc[:,2]/df_full[mask1].iloc[:,5])
+    pol2_val = df_full[mask1].iloc[:,3].unique()[0]
+    values_gg[i, [0,1,2,3], 0] = [sum_e1, sum_e_dc_p1, sum_e_dc_d1, pol2_val]
+
+    sum_e2 = pd.DataFrame.sum(df_full[mask2].iloc[:,2])
+    sum_e_dc_p2 = pd.DataFrame.sum(df_full[mask2].iloc[:,2]*df_full[mask2].iloc[:,5])
+    sum_e_dc_d2 = pd.DataFrame.sum(df_full[mask2].iloc[:,2]/df_full[mask2].iloc[:,5])
+    pol2_val = df_full[mask2].iloc[:,3].unique()[0]
+    values_gg[i, [0,1,2,3], 1] = [sum_e2, sum_e_dc_p2, sum_e_dc_d2, pol2_val]
+
+    sum_e3 = pd.DataFrame.sum(df_full[mask3].iloc[:,2])
+    sum_e_dc_p3 = pd.DataFrame.sum(df_full[mask3].iloc[:,2]*df_full[mask3].iloc[:,5])
+    sum_e_dc_d3 = pd.DataFrame.sum(df_full[mask3].iloc[:,2]/df_full[mask3].iloc[:,5])
+    pol2_val = df_full[mask3].iloc[:,3].unique()[0]
+    values_gg[i, [0,1,2,3], 2] = [sum_e3, sum_e_dc_p3, sum_e_dc_d3, pol2_val]
+
+    sum_e4 = pd.DataFrame.sum(df_full[mask4].iloc[:,2])
+    sum_e_dc_p4 = pd.DataFrame.sum(df_full[mask4].iloc[:,2]*df_full[mask4].iloc[:,5])
+    sum_e_dc_d4 = pd.DataFrame.sum(df_full[mask4].iloc[:,2]/df_full[mask4].iloc[:,5])
+    pol2_val = df_full[mask4].iloc[:,3].unique()[0]
+    values_gg[i, [0,1,2,3], 3] = [sum_e4, sum_e_dc_p4, sum_e_dc_d4, pol2_val]
+
+
+np.save('all_values_gg_gamma{}.npy'.format(gamma), values_gg)
+
+'''Plot summed raw eRP (1st of second dimension of summed_eRPs)
+--> everything assuming no intersection means signal value of 0
+--> --> regardless of gene group'''
+plot_nogg(summed_eRPs[:,0], pol2_vals, 'sum_raw.png', np.max(summed_eRPs[:,0])+5, xlim=True)
+
+'''Plot summed distance corrected (*) eRP (2nd of second dimension of summed_eRPs)
+--> everything assuming no intersection means signal value of 0
+--> --> regardless of gene group'''
+plot_nogg(summed_eRPs[:,1], pol2_vals, 'sum_dc_p_gamma{}.png'.format(gamma), np.max(summed_eRPs[:,1])+5, xlim=True)
+
+'''Plot summed distance corrected (/) eRP (3rd of second dimension of summed_eRPs)
+--> everything assuming no intersection means signal value of 0
+--> --> regardless of gene group'''
+plot_nogg(summed_eRPs[:,2], pol2_vals, 'sum_dc_d_gamma{}.png'.format(gamma), np.max(summed_eRPs[:,2])+5, xlim=True)
