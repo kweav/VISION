@@ -113,37 +113,37 @@ for i, ccRE in enumerate(unique_ccREs_int):
     pol2_val = df_int_sub[mask].iloc[:,3].unique()[0]
     pol2_vals[i] = pol2_val
 
-    '''taking into account gene group'''
-    mask1 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 1)
-    mask2 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 2)
-    mask3 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 3)
-    mask4 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 4)
+    # '''taking into account gene group'''
+    # mask1 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 1)
+    # mask2 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 2)
+    # mask3 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 3)
+    # mask4 = (df_int_sub.iloc[:,0] == ccRE) & (df_int_sub.iloc[:,1] == 4)
+    #
+    # sum_e1 = pd.DataFrame.sum(df_int_sub[mask1].iloc[:,2])
+    # sum_e_dc_p1 = pd.DataFrame.sum(df_int_sub[mask1].iloc[:,2]*df_int_sub[mask1].iloc[:,5])
+    # sum_e_dc_d1 = pd.DataFrame.sum(df_int_sub[mask1].iloc[:,2]/df_int_sub[mask1].iloc[:,5])
+    # pol2_val = df_int_sub[mask1].iloc[:,3].unique()[0]
+    # values_gg[i, [0,1,2,3], 0] = [sum_e1, sum_e_dc_p1, sum_e_dc_d1, pol2_val]
+    #
+    # sum_e2 = pd.DataFrame.sum(df_int_sub[mask2].iloc[:,2])
+    # sum_e_dc_p2 = pd.DataFrame.sum(df_int_sub[mask2].iloc[:,2]*df_int_sub[mask2].iloc[:,5])
+    # sum_e_dc_d2 = pd.DataFrame.sum(df_int_sub[mask2].iloc[:,2]/df_int_sub[mask2].iloc[:,5])
+    # pol2_val = df_int_sub[mask2].iloc[:,3].unique()[0]
+    # values_gg[i, [0,1,2,3], 1] = [sum_e2, sum_e_dc_p2, sum_e_dc_d2, pol2_val]
+    #
+    # sum_e3 = pd.DataFrame.sum(df_int_sub[mask3].iloc[:,2])
+    # sum_e_dc_p3 = pd.DataFrame.sum(df_int_sub[mask3].iloc[:,2]*df_int_sub[mask3].iloc[:,5])
+    # sum_e_dc_d3 = pd.DataFrame.sum(df_int_sub[mask3].iloc[:,2]/df_int_sub[mask3].iloc[:,5])
+    # pol2_val = df_int_sub[mask3].iloc[:,3].unique()[0]
+    # values_gg[i, [0,1,2,3], 2] = [sum_e3, sum_e_dc_p3, sum_e_dc_d3, pol2_val]
+    #
+    # sum_e4 = pd.DataFrame.sum(df_int_sub[mask4].iloc[:,2])
+    # sum_e_dc_p4 = pd.DataFrame.sum(df_int_sub[mask4].iloc[:,2]*df_int_sub[mask4].iloc[:,5])
+    # sum_e_dc_d4 = pd.DataFrame.sum(df_int_sub[mask4].iloc[:,2]/df_int_sub[mask4].iloc[:,5])
+    # pol2_val = df_int_sub[mask4].iloc[:,3].unique()[0]
+    # values_gg[i, [0,1,2,3], 3] = [sum_e4, sum_e_dc_p4, sum_e_dc_d4, pol2_val]
 
-    sum_e1 = pd.DataFrame.sum(df_int_sub[mask1].iloc[:,2])
-    sum_e_dc_p1 = pd.DataFrame.sum(df_int_sub[mask1].iloc[:,2]*df_int_sub[mask1].iloc[:,5])
-    sum_e_dc_d1 = pd.DataFrame.sum(df_int_sub[mask1].iloc[:,2]/df_int_sub[mask1].iloc[:,5])
-    pol2_val = df_int_sub[mask1].iloc[:,3].unique()[0]
-    values_gg[i, [0,1,2,3], 0] = [sum_e1, sum_e_dc_p1, sum_e_dc_d1, pol2_val]
-
-    sum_e2 = pd.DataFrame.sum(df_int_sub[mask2].iloc[:,2])
-    sum_e_dc_p2 = pd.DataFrame.sum(df_int_sub[mask2].iloc[:,2]*df_int_sub[mask2].iloc[:,5])
-    sum_e_dc_d2 = pd.DataFrame.sum(df_int_sub[mask2].iloc[:,2]/df_int_sub[mask2].iloc[:,5])
-    pol2_val = df_int_sub[mask2].iloc[:,3].unique()[0]
-    values_gg[i, [0,1,2,3], 1] = [sum_e2, sum_e_dc_p2, sum_e_dc_d2, pol2_val]
-
-    sum_e3 = pd.DataFrame.sum(df_int_sub[mask3].iloc[:,2])
-    sum_e_dc_p3 = pd.DataFrame.sum(df_int_sub[mask3].iloc[:,2]*df_int_sub[mask3].iloc[:,5])
-    sum_e_dc_d3 = pd.DataFrame.sum(df_int_sub[mask3].iloc[:,2]/df_int_sub[mask3].iloc[:,5])
-    pol2_val = df_int_sub[mask3].iloc[:,3].unique()[0]
-    values_gg[i, [0,1,2,3], 2] = [sum_e3, sum_e_dc_p3, sum_e_dc_d3, pol2_val]
-
-    sum_e4 = pd.DataFrame.sum(df_int_sub[mask4].iloc[:,2])
-    sum_e_dc_p4 = pd.DataFrame.sum(df_int_sub[mask4].iloc[:,2]*df_int_sub[mask4].iloc[:,5])
-    sum_e_dc_d4 = pd.DataFrame.sum(df_int_sub[mask4].iloc[:,2]/df_int_sub[mask4].iloc[:,5])
-    pol2_val = df_int_sub[mask4].iloc[:,3].unique()[0]
-    values_gg[i, [0,1,2,3], 3] = [sum_e4, sum_e_dc_p4, sum_e_dc_d4, pol2_val]
-
-np.save('only_int_values_gg_gamma{}.npy'.format(gamma), values_gg)
+#np.save('only_int_values_gg_gamma{}.npy'.format(gamma), values_gg)
 
 '''Plot summed raw eRP (1st of second dimension of summed_eRPs)
 --> only those that intersect pol2 ChIP
@@ -192,38 +192,38 @@ for i, ccRE in enumerate(unique_ccREs_full):
     pol2_val = df_full[mask].iloc[:,3].unique()[0]
     pol2_vals[i] = pol2_val
 
-    '''taking into account gene group'''
-    mask1 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 1)
-    mask2 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 2)
-    mask3 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 3)
-    mask4 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 4)
+    # '''taking into account gene group'''
+    # mask1 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 1)
+    # mask2 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 2)
+    # mask3 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 3)
+    # mask4 = (df_full.iloc[:,0] == ccRE) & (df_full.iloc[:,1] == 4)
+    #
+    # sum_e1 = pd.DataFrame.sum(df_full[mask1].iloc[:,2])
+    # sum_e_dc_p1 = pd.DataFrame.sum(df_full[mask1].iloc[:,2]*df_full[mask1].iloc[:,5])
+    # sum_e_dc_d1 = pd.DataFrame.sum(df_full[mask1].iloc[:,2]/df_full[mask1].iloc[:,5])
+    # pol2_val = df_full[mask1].iloc[:,3].unique()[0]
+    # values_gg[i, [0,1,2,3], 0] = [sum_e1, sum_e_dc_p1, sum_e_dc_d1, pol2_val]
+    #
+    # sum_e2 = pd.DataFrame.sum(df_full[mask2].iloc[:,2])
+    # sum_e_dc_p2 = pd.DataFrame.sum(df_full[mask2].iloc[:,2]*df_full[mask2].iloc[:,5])
+    # sum_e_dc_d2 = pd.DataFrame.sum(df_full[mask2].iloc[:,2]/df_full[mask2].iloc[:,5])
+    # pol2_val = df_full[mask2].iloc[:,3].unique()[0]
+    # values_gg[i, [0,1,2,3], 1] = [sum_e2, sum_e_dc_p2, sum_e_dc_d2, pol2_val]
+    #
+    # sum_e3 = pd.DataFrame.sum(df_full[mask3].iloc[:,2])
+    # sum_e_dc_p3 = pd.DataFrame.sum(df_full[mask3].iloc[:,2]*df_full[mask3].iloc[:,5])
+    # sum_e_dc_d3 = pd.DataFrame.sum(df_full[mask3].iloc[:,2]/df_full[mask3].iloc[:,5])
+    # pol2_val = df_full[mask3].iloc[:,3].unique()[0]
+    # values_gg[i, [0,1,2,3], 2] = [sum_e3, sum_e_dc_p3, sum_e_dc_d3, pol2_val]
+    #
+    # sum_e4 = pd.DataFrame.sum(df_full[mask4].iloc[:,2])
+    # sum_e_dc_p4 = pd.DataFrame.sum(df_full[mask4].iloc[:,2]*df_full[mask4].iloc[:,5])
+    # sum_e_dc_d4 = pd.DataFrame.sum(df_full[mask4].iloc[:,2]/df_full[mask4].iloc[:,5])
+    # pol2_val = df_full[mask4].iloc[:,3].unique()[0]
+    # values_gg[i, [0,1,2,3], 3] = [sum_e4, sum_e_dc_p4, sum_e_dc_d4, pol2_val]
 
-    sum_e1 = pd.DataFrame.sum(df_full[mask1].iloc[:,2])
-    sum_e_dc_p1 = pd.DataFrame.sum(df_full[mask1].iloc[:,2]*df_full[mask1].iloc[:,5])
-    sum_e_dc_d1 = pd.DataFrame.sum(df_full[mask1].iloc[:,2]/df_full[mask1].iloc[:,5])
-    pol2_val = df_full[mask1].iloc[:,3].unique()[0]
-    values_gg[i, [0,1,2,3], 0] = [sum_e1, sum_e_dc_p1, sum_e_dc_d1, pol2_val]
 
-    sum_e2 = pd.DataFrame.sum(df_full[mask2].iloc[:,2])
-    sum_e_dc_p2 = pd.DataFrame.sum(df_full[mask2].iloc[:,2]*df_full[mask2].iloc[:,5])
-    sum_e_dc_d2 = pd.DataFrame.sum(df_full[mask2].iloc[:,2]/df_full[mask2].iloc[:,5])
-    pol2_val = df_full[mask2].iloc[:,3].unique()[0]
-    values_gg[i, [0,1,2,3], 1] = [sum_e2, sum_e_dc_p2, sum_e_dc_d2, pol2_val]
-
-    sum_e3 = pd.DataFrame.sum(df_full[mask3].iloc[:,2])
-    sum_e_dc_p3 = pd.DataFrame.sum(df_full[mask3].iloc[:,2]*df_full[mask3].iloc[:,5])
-    sum_e_dc_d3 = pd.DataFrame.sum(df_full[mask3].iloc[:,2]/df_full[mask3].iloc[:,5])
-    pol2_val = df_full[mask3].iloc[:,3].unique()[0]
-    values_gg[i, [0,1,2,3], 2] = [sum_e3, sum_e_dc_p3, sum_e_dc_d3, pol2_val]
-
-    sum_e4 = pd.DataFrame.sum(df_full[mask4].iloc[:,2])
-    sum_e_dc_p4 = pd.DataFrame.sum(df_full[mask4].iloc[:,2]*df_full[mask4].iloc[:,5])
-    sum_e_dc_d4 = pd.DataFrame.sum(df_full[mask4].iloc[:,2]/df_full[mask4].iloc[:,5])
-    pol2_val = df_full[mask4].iloc[:,3].unique()[0]
-    values_gg[i, [0,1,2,3], 3] = [sum_e4, sum_e_dc_p4, sum_e_dc_d4, pol2_val]
-
-
-np.save('all_values_gg_gamma{}.npy'.format(gamma), values_gg)
+#np.save('all_values_gg_gamma{}.npy'.format(gamma), values_gg)
 
 '''Plot summed raw eRP (1st of second dimension of summed_eRPs)
 --> everything assuming no intersection means signal value of 0
