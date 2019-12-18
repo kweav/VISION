@@ -15,7 +15,7 @@ def annotate_cor(x, y, ax, an):
     coefficients = np.polyfit(x,y,1)
     print(cor, coefficients)
     function_fit = np.poly1d(coefficients)
-    x_s = np.linspace(pd.DataFrame.min(x), pd.DataFrame.max(x), 200)
+    x_s = np.linspace(np.min(x), np.max(x), 200)
     y_s = function_fit(x_s)
     ax.annotate("Pearson R: {0:.3f}".format(cor), (-an, 100))
     ax.plot(x_s, y_s, c='black')
@@ -93,10 +93,24 @@ df_int_sub = df_int.iloc[:,[6,8,15,5]]
 #insert the distance correction using ccREstart, ccREend, TSSloc (1-find middle location of ccRE, 2-find abs distance to TSS, 3-scale the distance by ^-gamma)
 df_int_sub.insert(4,'dist_correction', pd.DataFrame.abs(((df_int.iloc[:,2]-df_int.iloc[:,1])/2) - df_int.iloc[:,3])**-gamma)
 #insert ccRE_name column so that I can find the unique ccREs more easily
-#df_int_sub.insert(0, 'ccRE_name', df_int[[0, 1, 2]].astype(str).apply(lambda x: "_".join(x), axis=1))
 df_int_sub.insert(0, 'ccRE_name', df_int[0] + "_" + df_int[1].astype(str) + "_" + df_int[2].astype(str))
-print(df_int_sub)
 
+unique_ccREs_int = np.array(df_int_sub.ccRE_name.unique())
+
+'''Plot summed raw eRP
+-->only those that intersect pol2 ChIP
+-->-->regardless of gene group'''
+summed_eRPs = np.zeros(unique_ccREs_int.shape[0])
+pol2_vals = np.zeros(unique_ccREs_int.shape[0])
+for i, ccRE in enumerate(unique_ccREs_int):
+    mask = df_int_sub.iloc[:,0] == ccRE
+    sum_e = pd.DataFrame.sum(df_int_sub[mask].iloc[:,2])
+    summed_eRPs[i] = sum_e
+    pol2_val = df_int_sub[mask].iloc[:,3].unique()[0]
+    pol2_vals[i] = pol2_val
+plot_nogg(summed_eRPs, pol2_vals, 'sum_raw_onlyint.png', np.max(summed_eRPs)+5, xlim=True)
+
+quit()
 #subselect just the gene_group, eRP value, num_selected
 df_v_sub = df_v.iloc[:,[6,8,5]]
 #add a signal value of 0
@@ -104,10 +118,9 @@ df_v_sub.insert(2,15,0)
 #add a distance correction in the same manner as df_int_sub
 df_v_sub.insert(4, 'dist_correction', pd.DataFrame.abs(((df_v.iloc[:,2]-df_v.iloc[:,1])/2) - df_v.iloc[:,3])**-gamma)
 #insert ccRE_name column so that I can find the unique ccREs more easily
-#df_v_sub.insert(0, 'ccRE_name', df_v[[0, 1, 2]].astype(str).apply(lambda x: "_".join(x), axis=1))
 df_v_sub.insert(0, 'ccRE_name', df_v[0] + "_" + df_v[1].astype(str) + "_" + df_v[2].astype(str))
-print(df_v_sub)
 
-quit()
 #combine the two
 df_full = pd.concat([df_int_sub, df_v_sub])
+
+unique_ccREs_full = df_full.ccRE_name.unique()
