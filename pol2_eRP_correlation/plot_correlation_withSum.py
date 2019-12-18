@@ -93,8 +93,9 @@ df_int_sub = df_int.iloc[:,[6,8,15,5]]
 #insert the distance correction using ccREstart, ccREend, TSSloc (1-find middle location of ccRE, 2-find abs distance to TSS, 3-scale the distance by ^-gamma)
 df_int_sub.insert(4,'dist_correction', pd.DataFrame.abs(((df_int.iloc[:,2]-df_int.iloc[:,1])/2) - df_int.iloc[:,3])**-gamma)
 #insert ccRE_name column so that I can find the unique ccREs more easily
-df_int_sub.insert(0, 'ccRE_name', df_int[[0, 1, 2]].astype(str).apply(lambda x: "_".join(x), axis=1))
-
+#df_int_sub.insert(0, 'ccRE_name', df_int[[0, 1, 2]].astype(str).apply(lambda x: "_".join(x), axis=1))
+df_int_sub.insert(0, 'ccRE_name', df_int[0] + "_" + df_int[1].astype(str) + "_" + df_int[2].astype(str))
+print(df_int_sub)
 
 #subselect just the gene_group, eRP value, num_selected
 df_v_sub = df_v.iloc[:,[6,8,5]]
@@ -103,8 +104,10 @@ df_v_sub.insert(2,15,0)
 #add a distance correction in the same manner as df_int_sub
 df_v_sub.insert(4, 'dist_correction', pd.DataFrame.abs(((df_v.iloc[:,2]-df_v.iloc[:,1])/2) - df_v.iloc[:,3])**-gamma)
 #insert ccRE_name column so that I can find the unique ccREs more easily
-df_v_sub.insert(0, 'ccRE_name', df_v[[0, 1, 2]].astype(str).apply(lambda x: "_".join(x), axis=1))
+#df_v_sub.insert(0, 'ccRE_name', df_v[[0, 1, 2]].astype(str).apply(lambda x: "_".join(x), axis=1))
+df_v_sub.insert(0, 'ccRE_name', df_v[0] + "_" + df_v[1].astype(str) + "_" + df_v[2].astype(str))
+print(df_v_sub)
 
-
+quit()
 #combine the two
 df_full = pd.concat([df_int_sub, df_v_sub])
