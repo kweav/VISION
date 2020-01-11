@@ -76,11 +76,52 @@ def setup_file_locs(args, comp):
 
 
 class regress_gene_cre():
+    '''Instance variables ordered by time of definition
+    self.binsize: binsize set in __init__
+    self.rna_all: dictionary of TPM values by chromosome set in __init__
+    self.rna_names: set in __init__
+    self.tss_all: set in __init__
+    self.rna_info_all: set in __init__
+    self.cellN: number of cell types set in __init__
+    self.state_all: set in __init__
+    self.pos_all: set in __init__
+    self.cre_all: set in __init__
+    self.rna: set in subset_based_on_chrom first, refined in subset_based_on_group
+    self.state: set in subset_based_on_chrom
+    self.stateN: set in subset_based_on_chrom
+    self.cre: set in subset_based_on_chrom
+    self.creN: set in subset_based_on_chrom
+    self.pos: set in subset_based_on_chrom
+    self.tss: location of TSS's in bins (not coordinates) set in subset_based_on_chrom first, refined in subset_based_on_group
+    self.m_thresh: mean threshold for RNA expression set in subset_based_on_group
+    self.s_thresh: standard deviation threshold for RNA expression set in subset_based_on_group
+    self.group: RNA expression group set in subset_based_on_group
+    self.tssN: number of TSS's set in subset_based_on_group
+    self.initbins: half of symmetric initial window size in bins set in set_initial_betas
+    self.largest_bin: largest_possible_bin (based on available genome state information) set in set_initial_betas
+    self.initial_coeffs: coefficients based on initial regression of states in window around TSS and expression. Note state 0's Beta set to 0
+    self.init_betas_acBinsCT: Betas across bins of the genome for every cell type based on self.initial_coeffs set in set_initial_betas
+    self.norm_rna: normalized_rna set in set_inital_betas
+    self.norm_init_betas: normalized init_betas_acBinsCT set in set_initial_betas
+    self.gamma: gamma for distance function set in find_initial_pairings
+    self.maxdist: distance for full windows around TSS in bins set in find_initial_pairings
+    self.tssdist: distance for tss windows arounds TSS in bins set in find_initial_pairings
+    self.lessone: leave-one-out cell type index set in find_initial_pairings
+    self.lessone_range: np range exluding leave-one-out cell type index set in find_initial_pairings
+    self.tss_windows: dictionary whose key is the tss_n from i for i in range(self.tssN).
+    Set in find_initial_pairings: Values include {"tss window": tss_bin_window,
+                                                  "full window": full_bin_window,
+                                                  "F_booleans": {'mx': full_max,
+                                                                 'mn': full_min},
+                                                  "T_booleans": {'mx': tss_max,
+                                                                'mn': tss_min}}
+    self.pair: initial pairings set in find_initial_pairings
+    '''
     def __init__(self, statefile, exp_file, cre_file, binsize):
         self.binsize=binsize
         self.rna_all, self.rna_names, self.tss_all, self.rna_info_all = self.load_RNA(exp_file)
-        self.chroms_possible = list(self.rna_all)
-        self.cellN = self.rna_all[self.chroms_possible[0]].shape[1]
+        chroms_possible = list(self.rna_all)
+        self.cellN = self.rna_all[chroms_possible[0]].shape[1]
         if "pickle" in statefile:
             self.state_all, self.pos_all = self.load_state_from_pickle(statefile)
         else:
@@ -232,8 +273,19 @@ class regress_gene_cre():
         r_squared = fit_model.score(X, Y)
         return {'coeffs': model_coeffs, 'rsquare': r_squared}
 
-    def adjust_by_distance(to_adjust):
-        adjusted
+    def find_TSS_bin(self, max_bool, min_bool):
+
+        return TSS_bin
+
+    def adjust_by_distance(self, to_adjust, tss_n, FoT):
+        '''
+        to_adjust: X array to be adjusted
+        tss_n: which i for i in range(self.tssN) because key of self.tss_windows based on this
+        FoT: 'F' or 'T' where 'F' is for a full_bin_window based on self.maxdist
+                              'T' is for a tss_window based on self.tssdist
+        '''
+        tss_bin = self.find_TSS_bin(self.tss_windows[tss_n]['{}_booleans'.format(FoT)]['mx'], self.tss_windows[tss_n]['{}_booleans'.format(FoT)]['mn'])
+        Y = np.zeros(to_adjust.shape[0]) #adjustment
         return adjusted
 
     # def get_overlap(self, range_1, range_2):
@@ -259,10 +311,8 @@ class regress_gene_cre():
             tss_initial_props[i] = single_initial_props
 
         initial_coeffs = self.linear_regression(tss_initial_props, self.rna)['coeffs']
-        print(initial_coeffs)
         '''set contribution of state 0 to be 0'''
         self.initial_coeffs = np.hstack(([0], initial_coeffs))
-        #print(self.initial_coeffs)
         self.init_betas_acBinsCT = self.initial_coeffs[allbin_state_array]
         self.norm_rna = ((self.rna - np.mean(self.rna, axis=1, keepdims=True))
                     / ((np.std(self.rna, axis=1, ddof=1, keepdims=True) + 1e-5) * (self.cellN  - 1) ** 0.5))
@@ -273,23 +323,40 @@ class regress_gene_cre():
         self.gamma = gamma #will be used when adjusting based on distance function
         self.maxdist = distal_dist//self.binsize #put max distance into bins
         self.tssdist = tss_dist//self.binsize #put tss distance into bins
-        self.lessone_range = np.r_[np.arange(lessone),
-                                    np.arange(lessone+1, self.cellN)]
+        self.lessone = lessone
+        self.lessone_range = np.r_[np.arange(self.lessone),
+                                    np.arange(self.lessone+1, self.cellN)]
 
         cre_loc = np.zeros((self.largest_bin, self.creN))
         for i in range(self.creN):
             cre_loc[self.cre[i,0]:min(self.cre[i,1]+1, self.largest_bin),i] = 1
 
         cre_loc_by_bin = np.sum(cre_loc, axis=1).reshape(-1, 1)
-        print(cre_loc_by_bin.shape)
 
         self.tss_windows = {} #key is tss index, value is range of windows around that TSS
         pair = [] #want to append TSS, CRE, TSSidx, predicted_contribution
         for i in range(self.tssN):
-            full_bin_window = np.arange(max(0, self.tss[i] - self.maxdist), min(self.tss[i]+self.maxdist+1, self.largest_bin))
+            '''want to track if tss is ceiling(n/2) for a window length n'''
+            full_max, tss_max, full_min, tss_min = False, False, False, False
+            if max(0, self.tss[i] - self.tssdist) == 0: #if subtraction of tssdist lowers below 0, surely maxdist will too; if tssdist doesn't, maxdist still could
+                full_max = True
+                tss_max = True
+            elif max(0, self.tss[i]- self.maxdist) == 0:
+                full_max = True
+            if min(self.tss[i] + self.tssdist + 1, self.largest_bin) == self.largest_bin: #if addition of tssdist goes over max, surely maxdist will to. if tssdist doesn't, maxdist still could
+                full_min = True
+                tss_min = True
+            elif min(0, self.tss[i] + self.maxdist +1, self.largest_bin) == self.largest_bin:
+                full_min = True
 
+            full_bin_window = np.arange(max(0, self.tss[i] - self.maxdist), min(self.tss[i]+self.maxdist+1, self.largest_bin))
             tss_bin_window = np.arange(max(0, self.tss[i] - self.tssdist), min(self.tss[i]+self.tssdist+1, self.largest_bin))
-            self.tss_windows[i] = tss_bin_window
+            self.tss_windows[i] = {"tss window": tss_bin_window,
+                                   "full window": full_bin_window,
+                                   "F_booleans": {'mx': full_max,
+                                                'mn': full_min},
+                                   "T_booleans": {'mx': tss_max,
+                                                'mn': tss_min}}
 
             '''these are based just on state'''
             predicted_contribution = np.dot(self.norm_rna[i:i+1,:], self.norm_init_betas[full_bin_window,:].T).ravel(order='F')
@@ -298,15 +365,15 @@ class regress_gene_cre():
             locsOI = np.where((position_correlation >= correlation) & (cre_loc_by_bin >= 1))[0]
             #these locsOI are bins. Want to translate to CREs
             if locsOI.shape[0] > 0:
-                for i, bin in enumerate(locsOI):
-                    if i ==  0:
+                for j, bin in enumerate(locsOI):
+                    if j ==  0:
                         cres = np.where(cre_loc[bin])[0]
                     else:
                         cres = np.hstack((cres, np.where(cre_loc[bin])[0]))
-                valid_cres = np.unique(cres) #unique CREidx
+                valid_cres = np.unique(cres) #unique CREidx's
 
             '''Let's add state and loc in contribution/correlation'''
-            adjusted_state_window_array = self.adjsut(self.norm)
+            adjusted_state_window_array = self.adjust(self.norm_init_betas[full_bin_window,:], i, 'F')
 
 
 
