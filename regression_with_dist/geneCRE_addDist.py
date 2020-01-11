@@ -7,6 +7,7 @@ from numpy.linalg import qr, inv, det
 import pickle
 from sklearn import linear_model
 
+
 def main():
     parser = generate_parser()
     args = parser.parse_args()
@@ -269,13 +270,31 @@ class regress_gene_cre():
         r_squared = fit_model.score(X, Y)
         return {'coeffs': model_coeffs, 'rsquare': r_squared}
 
-    def adjust_by_distance(self, to_adjust, tss_n):
+    def compute_distance(self, binsOI, tss_bin):
+        distance = np.abs(binsOI - tss_bin) * self.binsize #use abs because don't care if upstream or downstream
+        adjusted_distance = distance**self.gamma
+        adjusted_distance[np.where(adjusted_distance)[0]] = 1 #anywhere that distance is 0, set to identity. This will include the TSS bin
+        return adjusted_distance
+
+    def adjust_by_distance(self, to_adjust, tss_n, window):
         '''
         to_adjust: X array to be adjusted
         tss_n: which i for i in range(self.tssN) because key of self.tss_windows based on this
+        window: window of bins
         '''
         tss_bin = self.tss[tss_n]
-        Y = np.zeros(to_adjust.shape[0]) #adjustment
+        adj_dist = self.compute_distance(window, tss_bin)
+        Y = np.ones(to_adjust.shape[0]) #adjustment array
+        #could collapse the following down to just working with the window since I correct for identity adjustment when distance is 0 within compute_distance function
+        #arg_tss_bin = np.argwhere(window == tss_bin)
+        #bins_before = window[:arg_tss_bin]
+        #bins_after = window[arg_tss_bin+1:]
+        #adj_dist_b = self.compute_distance(bins_before, tss_bin)
+        #adj_dist_a = self.compute_distance(bins_after, tss_bin)
+        #Y[:arg_tss_bin] /= adj_dist_b
+        #Y[arg_tss_bin+1:] /= adj_dist_a
+        Y /= adj_dist
+        adjusted = np.multiply(to_adjust, Y)
         return adjusted
 
     # def get_overlap(self, range_1, range_2):
@@ -325,6 +344,8 @@ class regress_gene_cre():
 
         self.tss_windows = {} #key is tss index, value is range of windows around that TSS
         pair = [] #want to append TSS, CRE, TSSidx, predicted_contribution
+        goodDim = 0
+        adj_goodDim = 0
         for i in range(self.tssN):
             # '''want to track if tss is ceiling(n/2) for a window length n'''
             # full_max, tss_max, full_min, tss_min = False, False, False, False
@@ -355,6 +376,7 @@ class regress_gene_cre():
             locsOI = np.where((position_correlation >= correlation) & (cre_loc_by_bin >= 1))[0]
             #these locsOI are bins. Want to translate to CREs
             if locsOI.shape[0] > 0:
+                goodDim += 1
                 for j, bin in enumerate(locsOI):
                     if j ==  0:
                         cres = np.where(cre_loc[bin])[0]
@@ -363,18 +385,22 @@ class regress_gene_cre():
                 valid_cres = np.unique(cres) #unique CREidx's
 
             '''Let's add state and loc in contribution/correlation'''
-            adjusted_state_window_array = self.adjust(self.norm_init_betas[full_bin_window,:], i, 'F')
+            adjusted_state_window_array = self.adjust(self.norm_init_betas[full_bin_window,:], i, full_bin_window)
             adj_predicted_contribution = np.dot(self.norm_rna[i:i+1, :], adjusted_state_window_array.T).ravel(order='F')
             adj_position_correlation = np.dot(self.norm_rna[i:i+1, self.lessone_range],
                                                 adjusted_state_window_array[:,self.lessone_range].T).ravel(order='F')
             adj_locsOI = np.where((adj_position_correlation >= correlation) & (cre_loc_by_bin >= 1))[0]
             if adj_locsOI.shape[0] > 0:
+                adj_goodDim += 1
                 for j, bin in enumerate(adj_locsOI):
                     if j == 0:
                         adj_cres = np.where(cre_loc[bin])[0]
                     else:
                         adj_cres = np.hstack((adj_cres, np.where(cre_loc[bin])[0]))
                 adj_valid_cres = np.unique(adj_cres)
+
+        print(adj_goodDim)
+        print(goodDim)
 
 
 
