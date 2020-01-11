@@ -110,11 +110,7 @@ class regress_gene_cre():
     self.lessone_range: np range exluding leave-one-out cell type index set in find_initial_pairings
     self.tss_windows: dictionary whose key is the tss_n from i for i in range(self.tssN).
     Set in find_initial_pairings: Values include {"tss window": tss_bin_window,
-                                                  "full window": full_bin_window,
-                                                  "F_booleans": {'mx': full_max,
-                                                                 'mn': full_min},
-                                                  "T_booleans": {'mx': tss_max,
-                                                                'mn': tss_min}}
+                                                  "full window": full_bin_window}
     self.pair: initial pairings set in find_initial_pairings
     '''
     def __init__(self, statefile, exp_file, cre_file, binsize):
@@ -273,18 +269,12 @@ class regress_gene_cre():
         r_squared = fit_model.score(X, Y)
         return {'coeffs': model_coeffs, 'rsquare': r_squared}
 
-    def find_TSS_bin(self, max_bool, min_bool):
-
-        return TSS_bin
-
-    def adjust_by_distance(self, to_adjust, tss_n, FoT):
+    def adjust_by_distance(self, to_adjust, tss_n):
         '''
         to_adjust: X array to be adjusted
         tss_n: which i for i in range(self.tssN) because key of self.tss_windows based on this
-        FoT: 'F' or 'T' where 'F' is for a full_bin_window based on self.maxdist
-                              'T' is for a tss_window based on self.tssdist
         '''
-        tss_bin = self.find_TSS_bin(self.tss_windows[tss_n]['{}_booleans'.format(FoT)]['mx'], self.tss_windows[tss_n]['{}_booleans'.format(FoT)]['mn'])
+        tss_bin = self.tss[tss_n]
         Y = np.zeros(to_adjust.shape[0]) #adjustment
         return adjusted
 
@@ -336,27 +326,27 @@ class regress_gene_cre():
         self.tss_windows = {} #key is tss index, value is range of windows around that TSS
         pair = [] #want to append TSS, CRE, TSSidx, predicted_contribution
         for i in range(self.tssN):
-            '''want to track if tss is ceiling(n/2) for a window length n'''
-            full_max, tss_max, full_min, tss_min = False, False, False, False
-            if max(0, self.tss[i] - self.tssdist) == 0: #if subtraction of tssdist lowers below 0, surely maxdist will too; if tssdist doesn't, maxdist still could
-                full_max = True
-                tss_max = True
-            elif max(0, self.tss[i]- self.maxdist) == 0:
-                full_max = True
-            if min(self.tss[i] + self.tssdist + 1, self.largest_bin) == self.largest_bin: #if addition of tssdist goes over max, surely maxdist will to. if tssdist doesn't, maxdist still could
-                full_min = True
-                tss_min = True
-            elif min(0, self.tss[i] + self.maxdist +1, self.largest_bin) == self.largest_bin:
-                full_min = True
+            # '''want to track if tss is ceiling(n/2) for a window length n'''
+            # full_max, tss_max, full_min, tss_min = False, False, False, False
+            # if max(0, self.tss[i] - self.tssdist) == 0: #if subtraction of tssdist lowers below 0, surely maxdist will too; if tssdist doesn't, maxdist still could
+            #     full_max = True
+            #     tss_max = True
+            # elif max(0, self.tss[i]- self.maxdist) == 0:
+            #     full_max = True
+            # if min(self.tss[i] + self.tssdist + 1, self.largest_bin) == self.largest_bin: #if addition of tssdist goes over max, surely maxdist will to. if tssdist doesn't, maxdist still could
+            #     full_min = True
+            #     tss_min = True
+            # elif min(0, self.tss[i] + self.maxdist +1, self.largest_bin) == self.largest_bin:
+            #     full_min = True
 
             full_bin_window = np.arange(max(0, self.tss[i] - self.maxdist), min(self.tss[i]+self.maxdist+1, self.largest_bin))
             tss_bin_window = np.arange(max(0, self.tss[i] - self.tssdist), min(self.tss[i]+self.tssdist+1, self.largest_bin))
             self.tss_windows[i] = {"tss window": tss_bin_window,
-                                   "full window": full_bin_window,
-                                   "F_booleans": {'mx': full_max,
-                                                'mn': full_min},
-                                   "T_booleans": {'mx': tss_max,
-                                                'mn': tss_min}}
+                                   "full window": full_bin_window}
+                                   # "F_booleans": {'mx': full_max,
+                                   #              'mn': full_min},
+                                   # "T_booleans": {'mx': tss_max,
+                                   #              'mn': tss_min}}
 
             '''these are based just on state'''
             predicted_contribution = np.dot(self.norm_rna[i:i+1,:], self.norm_init_betas[full_bin_window,:].T).ravel(order='F')
@@ -374,6 +364,17 @@ class regress_gene_cre():
 
             '''Let's add state and loc in contribution/correlation'''
             adjusted_state_window_array = self.adjust(self.norm_init_betas[full_bin_window,:], i, 'F')
+            adj_predicted_contribution = np.dot(self.norm_rna[i:i+1, :], adjusted_state_window_array.T).ravel(order='F')
+            adj_position_correlation = np.dot(self.norm_rna[i:i+1, self.lessone_range],
+                                                adjusted_state_window_array[:,self.lessone_range].T).ravel(order='F')
+            adj_locsOI = np.where((adj_position_correlation >= correlation) & (cre_loc_by_bin >= 1))[0]
+            if adj_locsOI.shape[0] > 0:
+                for j, bin in enumerate(adj_locsOI):
+                    if j == 0:
+                        adj_cres = np.where(cre_loc[bin])[0]
+                    else:
+                        adj_cres = np.hstack((adj_cres, np.where(cre_loc[bin])[0]))
+                adj_valid_cres = np.unique(adj_cres)
 
 
 
