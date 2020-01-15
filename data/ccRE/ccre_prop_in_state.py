@@ -3,8 +3,9 @@
 import numpy as np
 import sys
 
-'''Usage: ./ccre_prop_in_state.py input_file_base num_locs'''
-'''Usage: ./ccre_prop_in_state.py VISIONmusHem_ccRE_collapse_{}.bed 205019'''
+'''Usage: ./ccre_prop_in_state.py input_file_base num_locs outfile'''
+'''Usage: ./ccre_prop_in_state.py VISIONmusHem_ccRE_collapse_{}.bed 205019 ccre_state_prop.npz'''
+'''Usage: ./ccre_prep_in_state.py TSS_windows_collapse_{}.bed 41814 TSS_window_state_prop.npz'''
 
 '''
 Tab-delimited 4 column input file structure; 20 different files hense an input_file_base:
@@ -18,6 +19,10 @@ Actions taken:
     2.2) If the rounded to 2 deimcal places sum sum of the overlap proprotions is greater than 1.0, the unique states which are represented is found:
         2.2.1) If a single unique state is represented, the actual covered proportion is set for that single state
         2.2.2) If more than one unique state is represented, an ad hoc standardization technique is used such that the final sum of proportions is 1
+Finally save 3 arrays:
+1 array has all the proportions
+1 array has the cell type indexing
+1 array has the ccRE indexing
 '''
 
 
@@ -97,3 +102,19 @@ for k, ct in enumerate(cellTypes):
 
         if k == 0: #build index dictionary for ccREs
             cre_index[(chr, start, stop)] = i
+
+print(np.sum(props > 1.01))
+print(props[props > 1.01])
+
+cellIndex = np.empty(cellN, dtype=np.object)
+for ct in cellTypes:
+    cellIndex[cellType_index[ct]] = ct
+
+ccREIndex = np.empty((ccREn, 3), dtype=np.object)
+for key in cre_index:
+    ccREIndex[cre_index[key], :] = key
+
+outfile = sys.argv[3]
+f = open(outfile, 'wb')
+np.savez(f, props = props, cellIndex = cellIndex, ccREIndex = ccREIndex)
+f.close()
