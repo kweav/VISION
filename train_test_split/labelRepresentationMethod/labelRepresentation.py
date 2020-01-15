@@ -13,11 +13,11 @@ parser = ap.ArgumentParser(description='Looking at the Label Representation in w
 parser.add_argument('--window', action='store', nargs=1, type=int, required=False, default=[75000], help='size of sliding window')
 parser.add_argument('--slide', action='store', nargs=1, type=int, required=False, default=[5000], help='size of slide')
 parser.add_argument('--COC', action='store', nargs=1, type=str, required=False, default=['coverage'], help='coverage or count; if count, will look at number of labels; if coverage, will look at amount of window covered by label' )
-parser.add_argument('--countQ', action='store', nargs=1, type=str, required=False, default=['no'], help='yes or no; if yes, will include quiescent in consideration; if no, will not include quiescent in considerations')
+parser.add_argument('--countQ', action='store', nargs=1, type=str, required=False, default=['yes'], help='yes or no; if yes, will include quiescent in consideration; if no, will not include quiescent in considerations')
 parser.add_argument('--TApref', action='store', nargs=1, type=str, required=False, default=['TA'], help='T or TA for limiting just transcribed or limiting transcribed & active')
 parser.add_argument('--numCellTypes', action='store', nargs=1, type=int, required=False, default=[18], help='minimum number of cell types to have threshold values to make it a candidate region')
-parser.add_argument('--thresholdRatio', action='store', nargs=1, type=float, required=False, default=[2.0], help='minimum threshold ratio of difference like such: amount_covered_Heterochromatin/total_covered_window - amount_covered_Transcribed/total_covered_window = diff_H-T/total_covered_window ~ H-T=D. If D>0, thresholdRatio*T < H')
-parser.add_argument('--thresholdTop', action='store', nargs=1, type=int, required=False, default=[150], help='after argsort of maximum dead windows and then finding the highest ratios, I take a slice of atleast this many to compare among cell types for that chromosome')
+parser.add_argument('--thresholdRatio', action='store', nargs=1, type=float, required=False, default=[3.0], help='minimum threshold ratio of difference like such: amount_covered_Heterochromatin/total_covered_window - amount_covered_Transcribed/total_covered_window = diff_H-T/total_covered_window ~ H-T=D. If D>0, thresholdRatio*T < H')
+parser.add_argument('--thresholdTop', action='store', nargs=1, type=int, required=False, default=[7500], help='after argsort of maximum dead windows and then finding the highest ratios, I take a slice of atleast this many to compare among cell types for that chromosome')
 args=parser.parse_args()
 windowG = args.window[0]
 windowAb = str(windowG).replace("0", "") + "K"
@@ -28,7 +28,7 @@ slideAb = str(slideG).replace("0", "") + "K"
 if slideAb == '1K':
     slideAb = '10K'
 coc = args.COC[0] #count or coverage
-countQ = args.countQ[0] #no or yes
+countQ = args.countQ[0] #no or yes for including quiescent labels in overall count/coverage
 TApref = args.TApref[0] #T or TA
 numCellTypes_threshold = args.numCellTypes[0]
 thresholdRatio = args.thresholdRatio[0]
@@ -68,6 +68,7 @@ chrSizes = {'chr1':195471971,
             'chr18':90702639,
             'chr19':61431566}
 
+#send labels to 1 of 8 specific overall colors/categories
 labelDict = { 2 : "Heterochromatin",
               1 : "Transcribed",
               8 : "Transcribed",
@@ -96,6 +97,7 @@ labelDict = { 2 : "Heterochromatin",
               26 : "CTCF/NucleaseAccessible",
               0 : "Quiescent"}
 
+#translate label type to depth index
 depthIndex = {'Heterochromatin':0,
               'Transcribed':1,
               'Enhancer':2,
@@ -145,15 +147,12 @@ logging.info('storage dictionaries intialized ' + str(datetime.datetime.now()))
 '''fill an array (CHR_array) with count/coverage of label types
 fill an array (window_coverage) with actual bps covered by labels in the window'''
 potentialWindows = open('potentialWindows_params_{}_{}_{}_{}_{}_{}_{}_{}.txt'.format(str(windowG), str(slideG), coc, countQ, TApref, str(numCellTypes_threshold), str(thresholdRatio), str(thresholdTop)), 'w+')
-potentialWindows.write('Chromosome\tPotential_Window_Start\tPotential_Window_End\tAverage(Heterochromatin_slice_allCellTypes_thatWindow)\tStdev(H_slice)\tAverage(Transcribed_slice_allCellTypes_thatWindow)\tStdev(T_slice)\n')
+potentialWindows.write('Chromosome\tPotential_CHB_Start\tPotential_CHB_End\tAverage(Heterochromatin_slice_allCellTypes_thatWindow)\tStdev(H_slice)\tAverage(Transcribed_slice_allCellTypes_thatWindow)\tStdev(T_slice)\n') #remove this line later using tail -n +2
 for j, chromosome in enumerate(chromosomes):
-    #CHR_array = np.full((len(cellTypes), num_windows[chromosome],len(labelTypes)), np.nan)
     CHR_array = np.full((len(cellTypes), num_windows[chromosome],len(labelTypes)), 0)
     window_coverage = np.full((len(cellTypes), num_windows[chromosome],1), 0)
     for k, cellType in enumerate(cellTypes):
-        #ideas_window_file = open(ideas_window.format(cellType, chromosome))
         ideas_window_file = open(ideas_window.format(str(windowG), str(slideG), cellType, chromosome, windowAb, slideAb))
-        #ideas_window_file = open(ideas_window.format(cellType, chromosome))
         for line in ideas_window_file:
             fields= line.strip('\r\n').split('\t')
             window_start = int(fields[1])
@@ -166,8 +165,6 @@ for j, chromosome in enumerate(chromosomes):
             if countQ == 'no' and label == 0:
                 pass
             else:
-                # if np.isnan(CHR_array[k,column_index, depthIndex[labelDict[label]]]):
-                #     CHR_array[k,column_index, depthIndex[labelDict[label]]] = 0
                 if coc == 'count':
                     CHR_array[k,column_index, depthIndex[labelDict[label]]] += 1
                     window_coverage[k,column_index,0] += 1
@@ -178,12 +175,10 @@ for j, chromosome in enumerate(chromosomes):
 
     '''store information in storage dictionary'''
     fraction_covered = np.where(window_coverage > 0, np.divide(CHR_array, window_coverage), 0)
-    #print("line180 ", fraction_covered.shape)
     logging.info('normalized counts/coverage by total count or coverage in window ' + str(datetime.datetime.now()))
     for k, cellType in enumerate(cellTypes):
-        maximum_dead_indices = np.argsort(fraction_covered[k, :, depthIndex['Heterochromatin']])
+        maximum_dead_indices = np.argsort(fraction_covered[k, :, depthIndex['Heterochromatin']])[::-1] #sort high to low
         H = fraction_covered[k,:,depthIndex['Heterochromatin']][maximum_dead_indices]
-        #print(k, " line185 ", H.shape)
         if TApref == 'T':
             T = corresponding_T = fraction_covered[k,:,depthIndex['Transcribed']][maximum_dead_indices]
         elif TApref == 'TA':
@@ -197,7 +192,7 @@ for j, chromosome in enumerate(chromosomes):
         indices_ratio = H_imp > ratioT_imp
         true_max_dead_indices = mdi_imp[indices_ratio]
         logging.info(str(true_max_dead_indices.shape[0]) + " for " + cellType)
-        if true_max_dead_indices.shape[0] > thresholdTop:
+        if true_max_dead_indices.shape[0] > thresholdTop: #because I sorted high to low earlier, grabbing regions that meet D and thresholdRatio criteria but also have higher levels of H to begin with
             cut_true_max_dead_indices=true_max_dead_indices[:thresholdTop]
         else:
             cut_true_max_dead_indices = true_max_dead_indices
@@ -207,7 +202,7 @@ for j, chromosome in enumerate(chromosomes):
                 windowsOI[chromosome][window] = 0
             windowsOI[chromosome][window] += 1
     logging.info('finished storing how many cell types a window on {} meets my criteria '.format(chromosome) + str(datetime.datetime.now()))
-    '''now go through and find potential areas according to the numCellTypes_threshold and print these potential areas to a file and plot where on chromosome the areas are'''
+    '''now go through and find potential areas according to the numCellTypes_threshold and print these potential CHB areas to a file and plot where on chromosome the areas are''' #will merge overlapping regions later
     potWindowsOI=[]
     fig, ax = plt.subplots()
     plt.suptitle("{} Heterochromatic Regions OI".format(chromosome))
@@ -223,7 +218,7 @@ for j, chromosome in enumerate(chromosomes):
         potWindowOI, actual_numCellTypes = value
         potWindow_start, potWindow_end = potWindowOI
         ax.scatter(int(potWindow_start)/chrSizes[chromosome], i, marker='>')
-        ax.scatter(int(potWindow_end)/chrSizes[chromosomes], i, marker='<')
+        ax.scatter(int(potWindow_end)/chrSizes[chromosome], i, marker='<')
         window_index_val = window_index[chromosome][potWindowOI]
         H_slice = fraction_covered[:,window_index_val,0]
         T_slice = fraction_covered[:,window_index_val,1]
