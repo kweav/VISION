@@ -9,7 +9,7 @@
 #SBATCH --mail-user=kweave23@jhu.edu
 #SBATCH --output=outfile20200115_TSS_initial.out
 
-'''Usage: sbatch runStateProp.sh ~/data/kweave23/RNAseq/rnaTPM.txt 75000 41814'''
+#'''Usage: sbatch runStateProp.sh ~/data/kweave23/RNAseq/rnaTPM.txt 75000 41814'''
 
 source activate /work-zfs/jtayl139/kweave23/my_envs/basic
 
