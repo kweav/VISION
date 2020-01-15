@@ -186,10 +186,6 @@ class regress_gene_cre():
             e[np.where(np.isnan(e))] = 0
             summary = rob.summary(linear_model)
             adjrsq = summary.rx2('adj.r.squared')[0]
-            try:
-                adjrsq = rob.round(float(adjrsq), digits=5)
-            except:
-                pass
             return {'coeff': e, 'R2adj':adjrsq}
         else:
             coeff = inv(R).dot(Q.T).dot(y.reshape(-1,1))
@@ -334,7 +330,7 @@ class regress_gene_cre():
             tp[np.where(np.isnan(tp))] = 0
             tp += 1e-10 / j.shape[0]
             tp = tp/np.sum(tp) #make sure it sums to one. For some reason the R equivalent of sample doesn't require that?!
-            np.savetxt('tp_does_it_sum.txt', tp)
+            #np.savetxt('tp_does_it_sum.txt', tp)
             if j.shape[0] > np.round(1000 / (itern+1)) + 1:
                 counter += 1
                 j = j[np.random.choice(j.shape[0], int(np.round(100 / (itern+1))) + 1, p=tp)]
@@ -420,7 +416,7 @@ class regress_gene_cre():
 
     def run(self, chrom, thresh_type, lessone):
         '''
-        chrom: str; 'chrV' where V is contained in {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,Y}
+        chrom: str; 'chrV' where V is contained in {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X}
         thresh_type: int, {1,2,3,4}
             1: m <= -4 & s <= 2
             2: m <= -4 & s > 2
