@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-
+'''Usage: ./prepare_expression.py rnaTPM.txt 41814 TSS_expression.npz'''
 
 import sys
 import numpy as np
@@ -16,7 +16,7 @@ header_to_index = {"CFU_E_ad": "Cfue",
                    "MK_imm_ad": "Imk",
                    "LSK_BM": "Lsk",
                    "MEP": "Mep",
-                   "MONO_BM": "Mono",
+                   "MONO_BM": "Mon",
                    "NEU": "Neu",
                    "ER4": "Er4",
                    "G1E": "G1e"}
