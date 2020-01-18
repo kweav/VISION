@@ -227,6 +227,7 @@ class regress_gene_cre():
                 3.2) decide whether to initally pair or not '''
         self.dist_gamma = dist_gamma
         self.lessone = lessone
+        writeNoPairings = open('noPairings_possible.txt', 'a')
         writeCorrelations = open('correlations_wrn_{}.txt'.format(self.chrom), 'a')
         writeMetrics = open('correlation_wrn_metrix_{}.txt'.format(self.chrom), 'a')
         for i in range(self.tssN): #can I collapse this from a for loop to just fancy numpy?
@@ -235,6 +236,9 @@ class regress_gene_cre():
             windowMin = max(0, TSS - cre_dist)
             windowMax = min(TSS + cre_dist, self.chrSizes[self.chrom])
             CREs_within = (self.cre_coords[:,1]>=windowMin) & (self.cre_coords[:,0]<=windowMax)
+            if np.sum(CREs_within) == 0:
+                writeNoPairings.write('{}\tTSS: {}\n'.format(self.chrom, TSS))
+                continue
             #writeNum.write('{}\t{}\t'.format(i, np.sum(CREs_within)))
             CREs_within_weighted_sum = self.cre_weighted_sum[CREs_within]
             CREs_within_starts = self.cre_coords[CREs_within, 0]
@@ -242,6 +246,9 @@ class regress_gene_cre():
             #adjust their weighted_sums by their distance
             CREs_within_adjusted = self.adjust_by_distance(CREs_within_weighted_sum, TSS, CREs_within_starts, CREs_within_stops)
             where_row_not_zero = np.sum(CREs_within_adjusted, axis=1) != 0
+            if np.sum(where_row_not_zero) == 0:
+                writeNoPairings.write('{}\tTSS: {}\n'.format(self.chrom, TSS))
+                continue
             #for each CRE within distance of interest and as long as its state isn't 0 across all 12 cell types find correlation of expression with this adjusted weighted sum
             #corr_matrix, pvalues = stats.spearmanr(self.exp_values[i].reshape((1,-1)), CREs_within_adjusted, axis=1)
             corr_matrix, pvalues = stats.spearmanr(self.exp_values[i].reshape((1,-1)), CREs_within_adjusted[where_row_not_zero], axis=1)
@@ -264,6 +271,7 @@ class regress_gene_cre():
             writeMetrics.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(avg, stdev, median, q25, q5, q75, min_val, max_val, num_nan, num_inf))
         writeCorrelations.close()
         writeMetrics.close()
+        writeNoPairings.close()
 
 
 
