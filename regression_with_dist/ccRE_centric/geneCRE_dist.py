@@ -227,23 +227,46 @@ class regress_gene_cre():
                 3.2) decide whether to initally pair or not '''
         self.dist_gamma = dist_gamma
         self.lessone = lessone
-        for i in range(self.tssN):
+        writeCorrelations = open('correlations_wrn_{}.txt'.format(self.chrom), 'a')
+        writeMetrics = open('correlation_wrn_metrix_{}.txt'.format(self.chrom), 'a')
+        for i in range(self.tssN): #can I collapse this from a for loop to just fancy numpy?
             TSS = self.TSSs[i]
             #find CREs within distance of interest using containment
             windowMin = max(0, TSS - cre_dist)
             windowMax = min(TSS + cre_dist, self.chrSizes[self.chrom])
             CREs_within = (self.cre_coords[:,1]>=windowMin) & (self.cre_coords[:,0]<=windowMax)
+            #writeNum.write('{}\t{}\t'.format(i, np.sum(CREs_within)))
             CREs_within_weighted_sum = self.cre_weighted_sum[CREs_within]
             CREs_within_starts = self.cre_coords[CREs_within, 0]
             CREs_within_stops = self.cre_coords[CREs_within, 1]
             #adjust their weighted_sums by their distance
             CREs_within_adjusted = self.adjust_by_distance(CREs_within_weighted_sum, TSS, CREs_within_starts, CREs_within_stops)
-            #for each CRE within distance of interest find correlation of expression with this adjusted weighted sum
-            corr_matrix, pvalues = stats.spearmanr(self.exp_values[i].reshape((1,-1)), CREs_within_adjusted, axis=1) #WORK ON THIS!!
-            print(CREs_within_adjusted.shape)
-            print(corr_matrix.shape)
-            print(corr_matrix)
-            quit()
+            where_row_not_zero = np.sum(CREs_within_adjusted, axis=1) != 0
+            #for each CRE within distance of interest and as long as its state isn't 0 across all 12 cell types find correlation of expression with this adjusted weighted sum
+            #corr_matrix, pvalues = stats.spearmanr(self.exp_values[i].reshape((1,-1)), CREs_within_adjusted, axis=1)
+            corr_matrix, pvalues = stats.spearmanr(self.exp_values[i].reshape((1,-1)), CREs_within_adjusted[where_row_not_zero], axis=1)
+            if isinstance(corr_matrix, np.ndarray):
+                exp_cre_corr = corr_matrix[0,1:]
+                np.savetxt(writeCorrelations, exp_cre_corr)
+            else:
+                exp_cre_corr = corr_matrix
+                writeCorrelations.write('{}\n'.format(exp_cre_corr))
+            avg = np.mean(exp_cre_corr)
+            stdev = np.std(exp_cre_corr, ddof=1)
+            median = np.median(exp_cre_corr)
+            q25 = np.quantile(exp_cre_corr, 0.25)
+            q5 = np.quantile(exp_cre_corr, 0.5)
+            q75 = np.quantile(exp_cre_corr, 0.75)
+            min_val = np.amin(exp_cre_corr)
+            max_val = np.amax(exp_cre_corr)
+            num_nan = np.sum(np.isnan(exp_cre_corr))
+            num_inf = np.sum(np.isinf(exp_cre_corr))
+            writeMetrics.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(avg, stdev, median, q25, q5, q75, min_val, max_val, num_nan, num_inf))
+        writeCorrelations.close()
+        writeMetrics.close()
+
+
+
 
 
     def refine_pairs(self, iterations):
