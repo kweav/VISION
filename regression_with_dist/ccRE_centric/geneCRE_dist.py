@@ -27,7 +27,7 @@ def main():
         model.subset_based_on_group(args.exp_type, args.m_thresh, args.s_thresh)
         model.set_initial_betas()
         model.find_weighted_sum()
-        model.find_initial_pairings(args.dist_gamma, args.lessone, args.cre_dist)
+        model.find_initial_pairings(args.dist_gamma, args.lessone, args.cre_dist, args.correlation)
     #     model.refine_pairs(args.iterations)
 
 def generate_parser():
@@ -46,7 +46,7 @@ def generate_parser():
     parser.add_argument('-i', '--iterations', action='store', dest='iterations', type=int, default=100)
     parser.add_argument('-l', '--lessone', action='store', dest='lessone', type=int, default=0, help='Cell type to leave out with 0 indexing. 0 is default')
     parser.add_argument('--otherpath', action='store', dest='other_path', default='NA', help='use to give other path if not one of the 3 previously specified. MUST be the same for ALL 3 input files')
-    parser.add_argument('--correlation', action='store', dest='correlation', type=float, default=0.1)
+    parser.add_argument('--correlation', action='store', dest='correlation', type=float, default=0.2)
     return parser
 
 def setup_threads(threads):
@@ -59,7 +59,7 @@ def setup_threads(threads):
 def setup_file_locs(args, where_run, other_path):
     argumentToAdd = {'mine': '/Users/kateweaver/taylorLab/VISION/regression_with_dist/ccRE_centric/inputs/',
                      'marcc': '/home-3/kweave23@jhu.edu/data/kweave23/regression_with_dist/inputs/',
-                     'comp': '/home/kweave23/regression_with_dist/ccRE_centric/inputs',
+                     'comp': '/home/kweave23/regression_with_dist/ccRE_centric/inputs/',
                      'other': other_path}
 
     args.exp_file = argumentToAdd[where_run] + args.exp_file
@@ -121,12 +121,12 @@ class regress_gene_cre():
             exp_cell_to_index[exp_cellIndex[i]] = i
         TSS_info = npzfile['TSS']
         TSS_chr = TSS_info[:,0]
-        TSSs = np.around(TSS_info[:,1].astype(np.float32)).astype(np.int32)
+        TSSs = np.around(TSS_info[:,1].astype(np.float64)).astype(np.int32)
         return exp_values, exp_cellIndex, exp_cell_to_index, TSS_chr, TSSs
 
     def load_TSS_window_states(self, tss_state_file):
         npzfile = np.load(tss_state_file, allow_pickle = True)
-        TSS_window_props = npzfile['props'].astype(np.float32)
+        TSS_window_props = npzfile['props'].astype(np.float64)
         TSS_cellIndex = npzfile['cellIndex']
         valid = self.find_valid_cellTypes(TSS_cellIndex)
         TSS_window_props_valid = TSS_window_props[:,valid,:]
@@ -137,7 +137,7 @@ class regress_gene_cre():
 
     def load_cre_states(self, cre_state_file):
         npzfile = np.load(cre_state_file, allow_pickle = True)
-        cre_props = npzfile['props'].astype(np.float32)
+        cre_props = npzfile['props'].astype(np.float64)
         cre_cellIndex = npzfile['cellIndex']
         valid = self.find_valid_cellTypes(cre_cellIndex)
         cre_props_valid = cre_props[:,valid,:]
@@ -211,6 +211,11 @@ class regress_gene_cre():
         adjusted_distance[np.where(adjusted_distance == 0)[0]] = 1 #anywhere that distance is 0, set to identity.
         return adjusted_distance
 
+    def compute_distance(self, starts, stops, TSS):
+        midLocs = (starts + stops) //2
+        distance = midLocs - TSS
+        return distance
+
     def adjust_by_distance(self, to_adjust, TSS, starts, stops):
         adj_dist = self.compute_adj_distance(starts, stops, TSS)
         Y = np.ones(to_adjust.shape[0]) #adjustment array
@@ -218,7 +223,7 @@ class regress_gene_cre():
         adjusted = np.multiply(to_adjust, Y.reshape(-1,1))
         return adjusted
 
-    def find_initial_pairings(self, dist_gamma, lessone, cre_dist):
+    def find_initial_pairings(self, dist_gamma, lessone, cre_dist, correlation):
         '''for each TSS:
             1) find CREs within distance of interest
             2) adjust the CREs weighted sum of proporitions by their distance from the TSS
@@ -227,9 +232,9 @@ class regress_gene_cre():
                 3.2) decide whether to initally pair or not '''
         self.dist_gamma = dist_gamma
         self.lessone = lessone
-        writeNoPairings = open('noPairings_possible.txt', 'a')
-        writeCorrelations = open('correlations_wrn_{}.txt'.format(self.chrom), 'a')
-        writeMetrics = open('correlation_wrn_metrix_{}.txt'.format(self.chrom), 'a')
+        writeNoPairings = open('noPairings_possible_{}_{}.txt'.format(correlation, self.chrom), 'a')
+        writeDistances = open('distances_afterPassing_{}_{}.txt'.format(correlation, self.chrom), 'a')
+        writeCorrShape = open('correlationShapes_{}_{}.txt'.format(correlation, self.chrom), 'a')
         for i in range(self.tssN): #can I collapse this from a for loop to just fancy numpy?
             TSS = self.TSSs[i]
             #find CREs within distance of interest using containment
@@ -239,42 +244,44 @@ class regress_gene_cre():
             if np.sum(CREs_within) == 0:
                 writeNoPairings.write('{}\tTSS: {}\n'.format(self.chrom, TSS))
                 continue
-            #writeNum.write('{}\t{}\t'.format(i, np.sum(CREs_within)))
             CREs_within_weighted_sum = self.cre_weighted_sum[CREs_within]
             CREs_within_starts = self.cre_coords[CREs_within, 0]
             CREs_within_stops = self.cre_coords[CREs_within, 1]
             #adjust their weighted_sums by their distance
             CREs_within_adjusted = self.adjust_by_distance(CREs_within_weighted_sum, TSS, CREs_within_starts, CREs_within_stops)
+
             where_row_not_zero = np.sum(CREs_within_adjusted, axis=1) != 0
             if np.sum(where_row_not_zero) == 0:
                 writeNoPairings.write('{}\tTSS: {}\n'.format(self.chrom, TSS))
                 continue
+
             #for each CRE within distance of interest and as long as its state isn't 0 across all 12 cell types find correlation of expression with this adjusted weighted sum
             #corr_matrix, pvalues = stats.spearmanr(self.exp_values[i].reshape((1,-1)), CREs_within_adjusted, axis=1)
+
             corr_matrix, pvalues = stats.spearmanr(self.exp_values[i].reshape((1,-1)), CREs_within_adjusted[where_row_not_zero], axis=1)
             if isinstance(corr_matrix, np.ndarray):
                 exp_cre_corr = corr_matrix[0,1:]
-                np.savetxt(writeCorrelations, exp_cre_corr)
             else:
                 exp_cre_corr = corr_matrix
-                writeCorrelations.write('{}\n'.format(exp_cre_corr))
-            avg = np.mean(exp_cre_corr)
-            stdev = np.std(exp_cre_corr, ddof=1)
-            median = np.median(exp_cre_corr)
-            q25 = np.quantile(exp_cre_corr, 0.25)
-            q5 = np.quantile(exp_cre_corr, 0.5)
-            q75 = np.quantile(exp_cre_corr, 0.75)
-            min_val = np.amin(exp_cre_corr)
-            max_val = np.amax(exp_cre_corr)
-            num_nan = np.sum(np.isnan(exp_cre_corr))
-            num_inf = np.sum(np.isinf(exp_cre_corr))
-            writeMetrics.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(avg, stdev, median, q25, q5, q75, min_val, max_val, num_nan, num_inf))
-        writeCorrelations.close()
-        writeMetrics.close()
+            subset_no_nan = ~np.isnan(exp_cre_corr)
+            if np.sum(subset_no_nan) == 0:
+                writeNoPairings.write('{}\tTSS: {}\n'.format(self.chrom, TSS))
+                continue
+            corr_passes = np.abs(exp_cre_corr[subset_no_nan]) >= correlation
+            writeCorrShape.write('{}\t{}\t{}\t{}\n'.format(self.chrom, TSS, np.sum(corr_passes), correlation))
+            if np.sum(corr_passes) == 0:
+                writeNoPairings.write('{}\tTSS: {}\n'.format(self.chrom, TSS))
+                continue
+            #subset cre_coords by the various booleans to then find the distance distribution for those that are passing
+            CREs_starts_subset_and_pass = CREs_within_starts[where_row_not_zero][subset_no_nan][corr_passes]
+            CREs_stops_subset_and_pass = CREs_within_stops[where_row_not_zero][subset_no_nan][corr_passes]
+            distances = self.compute_distance(CREs_starts_subset_and_pass, CREs_stops_subset_and_pass, TSS)
+            np.savetxt(writeDistances, distances)
+
+
+        writeDistances.close()
         writeNoPairings.close()
-
-
-
+        writeCorrShape.close()
 
 
     def refine_pairs(self, iterations):
