@@ -13,7 +13,7 @@ plt.rc('font', **font)
 
 '''Basic Information'''
 chroms = []
-for i in range(1, 19):
+for i in range(1, 20):
     chroms.append('chr{}'.format(i))
 chroms.append('chrX')
 
