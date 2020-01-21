@@ -25,6 +25,7 @@ def main():
     for chrom in chrom_list:
         model.subset_based_on_chrom(chrom)
         model.subset_based_on_group(args.exp_type, args.m_thresh, args.s_thresh)
+        model.build_pairing_array()
         model.set_initial_betas()
         model.find_initial_weighted_sum()
         model.drive_pairing(args.dist_gamma, args.lessone, args.cre_dist, args.correlation, args.iterations)
@@ -145,6 +146,7 @@ class regress_gene_cre():
         cre_props_adjusted = np.sum(cre_props_valid * mask, axis=2)
         where_row_not_zero = np.sum(cre_props_adjusted, axis=1) != 0
         cre_props_valid = cre_props_valid[where_row_not_zero]
+        print(cre_props_valid.shape)
         cre_index = npzfile['ccREIndex']
         cre_chr = cre_index[where_row_not_zero,0]
         cre_coords = cre_index[where_row_not_zero,1:].astype(np.int32)
@@ -162,6 +164,7 @@ class regress_gene_cre():
         where_chr = np.where(self.cre_chr_all == self.chrom)[0]
         self.cre_props = self.cre_props_all[where_chr]
         self.cre_coords = self.cre_coords_all[where_chr]
+        self.creM = self.cre_props.shape[0]
 
     def subset_based_on_group(self, group, m_thresh, s_thresh):
         self.m_thresh = m_thresh
@@ -193,6 +196,9 @@ class regress_gene_cre():
         model_coeffs = fit_model.coef_
         r_squared = fit_model.score(X,Y)
         return {'coeffs': model_coeffs, 'rsquare': r_squared}
+
+    def build_pairing_array(self):
+        self.pairing_array = np.full((self.tssN, self.creM), -1, dtype=np.int32)
 
     def set_initial_betas(self):
         '''do initial regression of proportion of states within two-sided 75kbp window against expression to find initial coefficients for all states except 0
