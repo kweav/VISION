@@ -8,7 +8,7 @@ import numpy as np
 
 file_base_num_passing, file_base_not_paired, file_base_distance, bins_arg = sys.argv[1:]
 
-font = {'size'   : 35}
+font = {'size'   : 18}
 plt.rc('font', **font)
 
 '''Basic Information'''
@@ -17,7 +17,7 @@ for i in range(1, 20):
     chroms.append('chr{}'.format(i))
 chroms.append('chrX')
 
-colors = ['dodgerblue', 'coral', 'darkslategray', 'purple', 'darkorange', 'olive', 'rosybrown','black', 'khaki','grey', 'saddlebrown', 'tan', 'darkgoldenrod', 'turquoise', 'mediumvioletred', 'cyan', 'navy', 'indigo', 'magenta', 'deeppink']
+colors = ['dodgerblue', 'coral', 'darkslategray', 'purple', 'darkorange', 'olive', 'rosybrown','black', 'khaki','grey', 'tan', 'saddlebrown', 'darkgoldenrod', 'turquoise', 'mediumvioletred', 'cyan', 'navy', 'magenta', 'indigo', 'deeppink']
 
 corrs = [0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.75]
 
@@ -108,8 +108,8 @@ for chrom in chroms:
     for corr in corrs:
         num_not_paired.append(info_overload[corr][chrom]['num_not_paired'])
         datasets.append(info_overload[corr][chrom]['num_passing'])
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(30,60))
-    fig.suptitle('Balancing # ccREs per pairing\n# genes not paired at all\n{}'.format(chrom))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7,15))
+    ax1.set_title('Balancing # ccREs per pairing\n# genes not paired at all\n{}'.format(chrom))
     ax1.plot(np.arange(len(corrs)), num_not_paired, marker='o')
     ax1.set_xticks(np.arange(len(corrs)))
     ax1.set_xticklabels(labels = corrs)
@@ -120,13 +120,15 @@ for chrom in chroms:
     ax2.set_ylabel('# of paired ccREs per TSS')
     ax2.set_xticks(np.arange(len(corrs)))
     ax2.set_xticklabels(labels = corrs)
-    fig.savefig('balance_numPerPairing_noPairing_{}.png'.format(chrom))
+    fig.savefig('balance_numPerPairing_noPairing_{}.pdf'.format(chrom), format='pdf')
+    fig.savefig('balance_numPerPairing_noPairing_{}.png'.format(chrom), format='png')
+    plt.tight_layout()
     plt.close(fig)
 
 '''plot distances from TSS that are retained'''
 for chrom in chroms:
-    fig1, axes1 = plt.subplots(len(corrs), 1, figsize=(30,60))
-    fig2, ax2 = plt.subplots(figsize=(30,30))
+    fig1, axes1 = plt.subplots(len(corrs), 1)#, figsize=(30,60))
+    fig2, ax2 = plt.subplots(figsize=(15,15))
     ax2.set_xlim(-1500, 1500)
     for i, corr in enumerate(corrs):
         if len(info_overload[corr][chrom]['dists_passing']) > 0:
@@ -137,15 +139,17 @@ for chrom in chroms:
             ax2.plot(np.linspace(-1500,1500, 4000), np.tile(0, 4000))
 
     ax2.legend(labels=corrs, loc='upper right')
-    fig2.suptitle('Distance from center of ccRE to initially paired TSS')
+    ax2.set_title('Distance from center of ccRE to initially paired TSS')
     ax2.set_xlabel('Distance from TSS (kbps)')
     ax2.set_ylabel('Number of paired ccREs')
-    fig2.savefig('distances_represented_{}_bins_{}.png'.format(chrom, bins_arg))
+    plt.tight_layout()
+    fig2.savefig('distances_represented_{}_bins_{}.pdf'.format(chrom, bins_arg), format='pdf')
+    fig2.savefig('distances_represented_{}_bins_{}.png'.format(chrom, bins_arg), format='png')
     plt.close(fig1)
     plt.close(fig2)
 
 '''plot where on the chromosomes the unpaired TSSs are'''
-fig, axes = plt.subplots(len(corrs), 1, figsize=(30, 60))
+fig, axes = plt.subplots(len(corrs), 1, figsize=(7, 15))
 for i, corr in enumerate(corrs):
     for j, chrom in enumerate(chroms, 1):
         axes[i].scatter(info_overload[corr][chrom]['locs_not_paired'], np.tile(j, info_overload[corr][chrom]['locs_not_paired'].shape[0]), c=chroms_to_colors[chrom])
@@ -163,5 +167,6 @@ for i, corr in enumerate(corrs):
     axes[i].set_xticks([0, 0.25, 0.5, 0.75, 1])
     axes[i].set_xticklabels([0, 0.25, 0.5, 0.75, 1])
 plt.tight_layout()
-fig.savefig('loc_unpaired.png')
+fig.savefig('loc_unpaired.pdf', format='pdf')
+fig.savefig('loc_unpaired.png', format='png')
 plt.close(fig)
