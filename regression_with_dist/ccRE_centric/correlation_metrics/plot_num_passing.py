@@ -108,22 +108,41 @@ for chrom in chroms:
     for corr in corrs:
         num_not_paired.append(info_overload[corr][chrom]['num_not_paired'])
         datasets.append(info_overload[corr][chrom]['num_passing'])
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7,15))
+    fig, ax1 = plt.subplots(figsize=(7,7))
+    ax1.set_title('Balancing # ccREs per pairing\n& # genes not paired\n{}'.format(chrom))
+    ax1.violinplot(datasets, positions=np.arange(len(corrs)))
+    ax1.set_ylabel('# of paired ccREs per TSS', color='C0')
+    ax1.tick_params('y', colors='C0')
+    ax1.set_xticks(np.arange(len(corrs)))
+    ax1.set_xticklabels(labels=corrs, rotation=90)
+    ax1.set_xlabel('Abs(Correlation) Thresholds')
+    ax2 = ax1.twinx()
+    ax2.plot(np.arange(len(corrs)), num_not_paired, marker='o', color='black')
+    ax2.set_ylim(0,1)
+    ax2.set_ylabel('#genes without initial pairing/total genes on chr', color='black')
+    ax2.tick_params('y', colors='black')
+    plt.tight_layout()
+    fig.savefig('balance_oneplot_{}.pdf'.format(chrom), format='pdf')
+    fig.savefig('balance_oneplot_{}.png'.format(chrom), format='png')
+    plt.close(fig)
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8,15))
     ax1.set_title('Balancing # ccREs per pairing\n# genes not paired at all\n{}'.format(chrom))
     ax1.plot(np.arange(len(corrs)), num_not_paired, marker='o')
     ax1.set_xticks(np.arange(len(corrs)))
-    ax1.set_xticklabels(labels = corrs)
-    ax1.set_xlabel('Abs(Correlation) Thresholds')
+    ax1.set_xticklabels(labels = corrs, rotation=90)
+    ax1.set_ylim(0,1)
     ax1.set_ylabel('# genes without initial pairing/total genes on chr')
     ax2.violinplot(datasets, positions=np.arange(len(corrs)))
     ax2.set_xlabel('Abs(Correlation) Thresholds')
     ax2.set_ylabel('# of paired ccREs per TSS')
     ax2.set_xticks(np.arange(len(corrs)))
-    ax2.set_xticklabels(labels = corrs)
+    ax2.set_xticklabels(labels = corrs, rotation=90)
     fig.savefig('balance_numPerPairing_noPairing_{}.pdf'.format(chrom), format='pdf')
     fig.savefig('balance_numPerPairing_noPairing_{}.png'.format(chrom), format='png')
     plt.tight_layout()
     plt.close(fig)
+
 
 '''plot distances from TSS that are retained'''
 for chrom in chroms:
@@ -149,10 +168,11 @@ for chrom in chroms:
     plt.close(fig2)
 
 '''plot where on the chromosomes the unpaired TSSs are'''
-fig, axes = plt.subplots(len(corrs), 1, figsize=(7, 15))
+fig, axes = plt.subplots(len(corrs), 1, figsize=(10, 28))
 for i, corr in enumerate(corrs):
     for j, chrom in enumerate(chroms, 1):
         axes[i].scatter(info_overload[corr][chrom]['locs_not_paired'], np.tile(j, info_overload[corr][chrom]['locs_not_paired'].shape[0]), c=chroms_to_colors[chrom])
+        axes[i].tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
     if i ==0:
         axes[i].set_title('Location of unpaired TSSs\nSpearmanr Threshold: {}'.format(corr))
     else:
@@ -161,11 +181,14 @@ for i, corr in enumerate(corrs):
         axes[i].set_ylabel('Chromosome')
     #axes[i].set_yticks(np.arange(1, 21))
     #axes[i].set_yticklabels(chroms)
-    if i == (len(corrs) - 1):
+    if i != (len(corrs) - 1):
+        axes[i].tick_params(axis='x', which='both', top=False, bottom=False, labeltop=False, labelbottom=False)
+    elif i == (len(corrs) - 1):
         axes[i].set_xlabel('Relative location on chromosome')
+        axes[i].set_xticks([0, 0.25, 0.5, 0.75, 1])
+        axes[i].set_xticklabels([0, 0.25, 0.5, 0.75, 1])
     axes[i].set_xlim(0, 1)
-    axes[i].set_xticks([0, 0.25, 0.5, 0.75, 1])
-    axes[i].set_xticklabels([0, 0.25, 0.5, 0.75, 1])
+
 plt.tight_layout()
 fig.savefig('loc_unpaired.pdf', format='pdf')
 fig.savefig('loc_unpaired.png', format='png')
