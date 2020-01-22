@@ -2,7 +2,7 @@
 
 import argparse as ap
 import numpy as np
-from sklearn import linear_model
+from sklearn import linear_model, metrics
 import os
 from scipy import stats
 
@@ -25,10 +25,11 @@ def main():
     for chrom in chrom_list:
         model.subset_based_on_chrom(chrom)
         model.subset_based_on_group(args.exp_type, args.m_thresh, args.s_thresh)
-        model.build_pairing_array()
+        model.build_pairing_array(args.iterations)
+        model.build_metric_arrays()
         model.set_initial_betas()
         model.find_initial_weighted_sum()
-        model.drive_pairing(args.dist_gamma, args.lessone, args.cre_dist, args.correlation, args.iterations)
+        model.drive_pairing(args.dist_gamma, args.lessone, args.cre_dist, args.correlation)
 
 def generate_parser():
     parser = ap.ArgumentParser(description = 'VISION regression of state and distance to assign CREs to genes based on ability to predict gene expression')
@@ -165,6 +166,7 @@ class regress_gene_cre():
         self.cre_props = self.cre_props_all[where_chr]
         self.cre_coords = self.cre_coords_all[where_chr]
         self.creM = self.cre_props.shape[0]
+        self.creIndex_range = np.arange(creM)
 
     def subset_based_on_group(self, group, m_thresh, s_thresh):
         self.m_thresh = m_thresh
@@ -197,8 +199,21 @@ class regress_gene_cre():
         r_squared = fit_model.score(X,Y)
         return {'coeffs': model_coeffs, 'rsquare': r_squared}
 
-    def build_pairing_array(self):
-        self.pairing_array = np.full((self.tssN, self.creM), -1, dtype=np.int32)
+    def build_pairing_array(self, iterations):
+        self.iter = iterations
+        self.pairing_array = np.full((self.tssN, self.creM, self.iter+1), -1, dtype=np.int32) #3D array of tssN * creM * iter+1 to store pairings for initial pairing and refinement iterations
+
+    def build_metric_arrays(self):
+        self.mse_error_array = np.empty((self.tssN, self.iter+1), dtype=np.float32) #2D array of tssN * iter+1 to store MSE for initial pairings and refined pairings
+
+    def find_yhat(self, linear_model, X):
+        X = X.reshape(-1, self.stateN)[:,1:]
+        return linear_model.predict(X)
+
+    def find_MSE(self, Y, yhat):
+        Y = Y.reshape(-1,)
+        yhat = yhat.reshape(-1,)
+        return metrics.mean_squared_error(Y, yhat)
 
     def set_initial_betas(self):
         '''do initial regression of proportion of states within two-sided 75kbp window against expression to find initial coefficients for all states except 0
@@ -275,16 +290,13 @@ class regress_gene_cre():
         corr_passes = np.abs(exp_cre_corr[subset_no_nan]) >= correlation
         if np.sum(corr_passes) == 0:
             return ((0,0,0,0))
-        #subset cre_coords by the various booleans to then find the distance distribution for those that are passing
-        CREs_starts_subset_and_pass = CREs_within_starts[subset_no_nan][corr_passes]
-        CREs_stops_subset_and_pass = CREs_within_stops[subset_no_nan][corr_passes]
-        CREs_within_adjusted_subset = CREs_within_adjusted[subset_no_nan][corr_passes]
-        CREs_subset_props = self.cre_props[CREs_within][subset_no_nan][corr_passes]
+        #subset self.creIndex_range by the 3 boolean masks to mark which CREs are initially paired in self.pairing_array
+        self.pairing_array[i, self.creIndex_range[CREs_within][subset_no_nan][corr_passes], -1] = 1
 
+    def get_dim_of_pairing(self, tss_i, iter_val): #iter_val of -1 for initial_pairing
+        return np.sum(self.pairing_array[tss_i, :, iter_val+1] == 1) #will return number of CREs paired in that slice
 
-        return (CREs_starts_subset_and_pass, CREs_stops_subset_and_pass, CREs_within_adjusted_subset, CREs_subset_props)
-
-    def refine_pairs(self, paired_starts, paired_stops, paired_props):
+    def refine_pairs(self, tss_i, iter_val):
         return 0
 
     def utilize_IC(self):
@@ -293,7 +305,9 @@ class regress_gene_cre():
     def bootstrap(self):
         return 0
 
-    def drive_pairing(self, dist_gamma, lessone, cre_dist, correlation, iterations):
+
+
+    def drive_pairing(self, dist_gamma, lessone, cre_dist, correlation):
         '''for each TSS - Model Selection:
             1) Find its initial pairings
                 1.1) If no pairings - notate and move on
@@ -306,18 +320,16 @@ class regress_gene_cre():
         self.lessone = lessone
         self.lessone_range = np.r_[np.arange(self.lessone),
                                     np.arange(self.lessone+1, self.cellN)]
-        writeNoPairings = open('noPairings_possible_{}_{}.txt'.format(correlation, self.chrom), 'a')
+        #writeNoPairings = open('noPairings_possible_{}_{}.txt'.format(correlation, self.chrom), 'a')
         for i in range(tssN):
-            initial_paired_starts, initial_paired_stops, initial_paired_adjusted, initial_paired_props = self.find_initial_pairings(cre_dist, correlation, i)
-            if initial_paired_starts == 0 and initial_paired_stops == 0 and initial_paired_adjusted == 0 and initial_paired_props == 0: #notate no pairings
+            self.find_initial_pairings(cre_dist, correlation, i)
+            if self.get_dim_of_pairing(i, -1) == 0: #notate no pairings
                 #writeNoPairings.write('{}\tTSS: {}\n'.format(self.chrom, TSS))
                 continue
             else:
-                paired_starts, paired_stops, paired_props = initial_paired_starts, initial_paired_stops, initial_paired_props
-                #compute adjustedR2 for initial pairings
                 #iteratively refine and utilize IC & bootstrapping on refined
-                for i in range(iterations):
-                    paired_starts, paired_stops, paired_props = self.refine_pairs(paired_starts, paired_stops, paired_props)
+                for j in range(self.iter):
+                    self.refine_pairs(i, j)
                     #compute adjustedR2 for refined pairing
 
         #writeNoPairings.close()
