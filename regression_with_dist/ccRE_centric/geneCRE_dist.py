@@ -147,7 +147,6 @@ class regress_gene_cre():
         cre_props_adjusted = np.sum(cre_props_valid * mask, axis=2)
         where_row_not_zero = np.sum(cre_props_adjusted, axis=1) != 0
         cre_props_valid = cre_props_valid[where_row_not_zero]
-        print(cre_props_valid.shape)
         cre_index = npzfile['ccREIndex']
         cre_chr = cre_index[where_row_not_zero,0]
         cre_coords = cre_index[where_row_not_zero,1:].astype(np.int32)
@@ -166,7 +165,7 @@ class regress_gene_cre():
         self.cre_props = self.cre_props_all[where_chr]
         self.cre_coords = self.cre_coords_all[where_chr]
         self.creM = self.cre_props.shape[0]
-        self.creIndex_range = np.arange(creM)
+        self.creIndex_range = np.arange(self.creM)
 
     def subset_based_on_group(self, group, m_thresh, s_thresh):
         self.m_thresh = m_thresh
@@ -197,23 +196,25 @@ class regress_gene_cre():
         fit_model = linear_model.LinearRegression(fit_intercept=intercept).fit(X,Y)
         model_coeffs = fit_model.coef_
         r_squared = fit_model.score(X,Y)
-        return {'coeffs': model_coeffs, 'rsquare': r_squared}
+        return {'coeffs': model_coeffs, 'rsquare': r_squared, 'fit_model': fit_model}
 
     def build_pairing_array(self, iterations):
         self.iter = iterations
         self.pairing_array = np.full((self.tssN, self.creM, self.iter+1), -1, dtype=np.int32) #3D array of tssN * creM * iter+1 to store pairings for initial pairing and refinement iterations
 
     def build_metric_arrays(self):
-        self.mse_error_array = np.empty((self.tssN, self.iter+1), dtype=np.float32) #2D array of tssN * iter+1 to store MSE for initial pairings and refined pairings
+        self.mse_array = np.empty((self.tssN, self.iter+1), dtype=np.float32) #2D array of tssN * iter+1 to store MSE for initial pairings and refined pairings
 
     def find_yhat(self, linear_model, X):
         X = X.reshape(-1, self.stateN)[:,1:]
         return linear_model.predict(X)
 
-    def find_MSE(self, Y, yhat):
-        Y = Y.reshape(-1,)
-        yhat = yhat.reshape(-1,)
-        return metrics.mean_squared_error(Y, yhat)
+    def find_MSE(self, i, iter_val):
+        X = np.sum(self.cre_props[self.creIndex_range[self.pairing_array[i,:,iter_val+1] == 1], :, :][:,self.lessone_range,:], axis=0)
+        Y = self.exp_values[i, self.lessone_range]
+        lin_reg = self.linear_regression(X,Y)
+        yhat = self.find_yhat(lin_reg['fit_model'], X)
+        self.mse_array[i, iter_val+1] = metrics.mean_squared_error(Y, yhat)
 
     def set_initial_betas(self):
         '''do initial regression of proportion of states within two-sided 75kbp window against expression to find initial coefficients for all states except 0
@@ -262,6 +263,7 @@ class regress_gene_cre():
             2) adjust the CREs weighted sum of proporitions by their distance from the TSS
             3) for each CRE within distance of interest
                 3.1) find correlation of expression with this adjusted weighted sum
+                      -> using spearmanr so no distribution assumptions are made and monotonicity is consistent with linearity which we hold this relationship to be linear
                 3.2) decide whether to initally pair or not '''
 
         TSS = self.TSSs[i]
@@ -269,11 +271,12 @@ class regress_gene_cre():
         windowMin = max(0, TSS - cre_dist)
         windowMax = min(TSS + cre_dist, self.chrSizes[self.chrom])
         CREs_within = (self.cre_coords[:,1]>=windowMin) & (self.cre_coords[:,0]<=windowMax)
-        if np.sum(CREs_within) == 0:
-            return ((0,0,0,0))
+        if np.sum(CREs_within) == 0: #no pairing possible
+            return
         CREs_within_weighted_sum = self.cre_weighted_sum[CREs_within]
         CREs_within_starts = self.cre_coords[CREs_within, 0]
         CREs_within_stops = self.cre_coords[CREs_within, 1]
+
         #adjust their weighted_sums by their distance
         CREs_within_adjusted = self.adjust_by_distance(CREs_within_weighted_sum, TSS, CREs_within_starts, CREs_within_stops)
 
@@ -284,14 +287,16 @@ class regress_gene_cre():
             exp_cre_corr = corr_matrix[0,1:] #take slice of correlations between that TSS and the CREs within the window
         else:
             exp_cre_corr = corr_matrix
-        subset_no_nan = ~np.isnan(exp_cre_corr)
-        if np.sum(subset_no_nan) == 0:
-            return ((0,0,0,0))
+        subset_no_nan = ~np.isnan(exp_cre_corr) #find loc of NaN values so correlations can be compared to threshold without these
+        if np.sum(subset_no_nan) == 0: #no pairing possible
+            return
+        #compare abs value of correlation of expression with threshold value
         corr_passes = np.abs(exp_cre_corr[subset_no_nan]) >= correlation
-        if np.sum(corr_passes) == 0:
-            return ((0,0,0,0))
+        if np.sum(corr_passes) == 0: #no pairing possible
+            return
+
         #subset self.creIndex_range by the 3 boolean masks to mark which CREs are initially paired in self.pairing_array
-        self.pairing_array[i, self.creIndex_range[CREs_within][subset_no_nan][corr_passes], -1] = 1
+        self.pairing_array[i, self.creIndex_range[CREs_within][subset_no_nan][corr_passes], 0] = 1
 
     def get_dim_of_pairing(self, tss_i, iter_val): #iter_val of -1 for initial_pairing
         return np.sum(self.pairing_array[tss_i, :, iter_val+1] == 1) #will return number of CREs paired in that slice
@@ -321,12 +326,14 @@ class regress_gene_cre():
         self.lessone_range = np.r_[np.arange(self.lessone),
                                     np.arange(self.lessone+1, self.cellN)]
         #writeNoPairings = open('noPairings_possible_{}_{}.txt'.format(correlation, self.chrom), 'a')
-        for i in range(tssN):
+        for i in range(self.tssN):
             self.find_initial_pairings(cre_dist, correlation, i)
             if self.get_dim_of_pairing(i, -1) == 0: #notate no pairings
                 #writeNoPairings.write('{}\tTSS: {}\n'.format(self.chrom, TSS))
                 continue
-            else:
+            else: #From this point forward, do not include lessone cell type in ANYTHING
+                #find MSE for initial pairing
+                self.find_MSE(i, -1)
                 #iteratively refine and utilize IC & bootstrapping on refined
                 for j in range(self.iter):
                     self.refine_pairs(i, j)
