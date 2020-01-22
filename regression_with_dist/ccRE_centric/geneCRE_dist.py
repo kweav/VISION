@@ -209,8 +209,15 @@ class regress_gene_cre():
         X = X.reshape(-1, self.stateN)[:,1:]
         return linear_model.predict(X)
 
-    def find_MSE(self, i, iter_val):
-        X = np.sum(self.cre_props[self.creIndex_range[self.pairing_array[i,:,iter_val+1] == 1], :, :][:,self.lessone_range,:], axis=0)
+    def find_MSE(self, i, iter_val): #iter_val should be -1 if calling for initial pairing.
+        cre_inclusions = self.creIndex_range[self.pairing_array[i,:,iter_val+1] == 1]
+        X = self.cre_props[cre_inclusions, :, :][:,self.lessone_range,:]
+        #adjust by distance
+        cre_starts = self.cre_coords[cre_inclusions, 0]
+        cre_ends = self.cre_coords[cre_inclusions, 1]
+        X = self.adjust_by_distance(X, self.TSSs[i], cre_starts, cre_ends)
+        #sum across cres for states
+        X = np.sum(X, axis=0)
         Y = self.exp_values[i, self.lessone_range]
         lin_reg = self.linear_regression(X,Y)
         yhat = self.find_yhat(lin_reg['fit_model'], X)
@@ -254,7 +261,10 @@ class regress_gene_cre():
         adj_dist = self.compute_adj_distance(starts, stops, TSS)
         Y = np.ones(to_adjust.shape[0]) #adjustment array
         Y /= adj_dist
-        adjusted = np.multiply(to_adjust, Y.reshape(-1,1))
+        if to_adjust.ndim == 2:
+            adjusted = np.multiply(to_adjust, Y.reshape(-1,1))
+        elif to_adjust.ndim == 3:
+            adjusted = np.multiply(to_adjust, Y.reshape(-1,1,1))
         return adjusted
 
     def find_initial_pairings(self, cre_dist, correlation, i):
@@ -334,10 +344,9 @@ class regress_gene_cre():
             else: #From this point forward, do not include lessone cell type in ANYTHING
                 #find MSE for initial pairing
                 self.find_MSE(i, -1)
-                #iteratively refine and utilize IC & bootstrapping on refined
+                #iteratively refine
                 for j in range(self.iter):
                     self.refine_pairs(i, j)
-                    #compute adjustedR2 for refined pairing
 
         #writeNoPairings.close()
 main()
