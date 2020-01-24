@@ -51,8 +51,8 @@ def generate_parser():
     #parser.add_argument('-l', '--lessone', action='store', dest='lessone', type=int, default=0, help='Cell type to leave out with 0 indexing. 0 is default')
     parser.add_argument('--otherpath', action='store', dest='other_path', default='NA', help='use to give other path if not one of the 3 previously specified. MUST be the same for ALL 3 input files')
     parser.add_argument('--correlation', action='store', dest='correlation', type=float, default=0.4)
-    parser.add_argument('--output_pair', action='store', dest='output_pair_file', type='str', default='dist_regression_randAp_pairs_{}.txt')
-    parser.add_argument('--output_beta', action='store', dest='output_beta_file', type='str', default='dist_regression_randAp_betas_{}.txt')
+    parser.add_argument('--output_pair', action='store', dest='output_pair_file', type=str, default='dist_regression_randAp_pairs_{}.txt')
+    parser.add_argument('--output_beta', action='store', dest='output_beta_file', type=str, default='dist_regression_randAp_betas_{}.txt')
     return parser
 
 def setup_threads(threads):
