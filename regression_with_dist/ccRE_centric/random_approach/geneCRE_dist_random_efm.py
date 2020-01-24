@@ -164,10 +164,9 @@ class regress_gene_cre():
         TSS_cellIndex = npzfile['cellIndex']
         valid = self.find_valid_cellTypes(TSS_cellIndex)
         TSS_window_props_valid = TSS_window_props[:,valid,:]
-        TSS_window_index = npzfile['ccREIndex']
+        #TSS_window_index = npzfile['ccREIndex']
         TSS_window_chr = TSS_window_index[:,0]
-        TSS_window_coord = TSS_window_index[:,1:].astype(np.int32)
-        return TSS_window_props_valid, TSS_window_chr, TSS_window_coord
+        return TSS_window_props_valid, TSS_window_chr
 
     def load_cre_states(self, cre_state_file):
         npzfile = np.load(cre_state_file, allow_pickle = True)
