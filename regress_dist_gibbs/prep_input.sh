@@ -11,3 +11,7 @@ tail -n+2 rnaHtseqCount_noM_withcoords.txt | awk -F '\t' -v OFS='\t' '{print $1,
 python count_to_tpm.py rnaHtseqCount_noM_withcoords.sum.txt rnaTPM_noM_withcoords.sum.txt
 
 python split_input_rna.py ../../usevision/train_genes_uniq.bed ../../usevision/test_genes_uniq.bed ../../usevision/ref_genes_uniq.bed ../data/RNAseq/rnaTPM_noM_withcoords.mean.txt
+
+python prepare_expression.py rnaTPM_train.txt 37550 exp_train.npz
+python prepare_expression.py rnaTPM_test.txt 4218 exp_test.npz
+python prepare_expression.py rnaTPM_ref.txt 1541 exp_ref.npz
