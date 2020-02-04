@@ -35,7 +35,10 @@ for i,line in enumerate(open(sys.argv[1])):
         continue
     fields = line.strip('\r\n').split('\t')
     chr = fields[0]
-    TSS = int(fields[1])
+    if fields[5] == '+':
+        TSS = int(fields[1])
+    elif fields[5] == '-':
+        TSS = int(fields[2])
     lineToWrite = '{}\t{}\t{}\n'.format(chr, max(1, TSS-window), min(chrSizes[chr], TSS+window))
     fileToWriteTo.write(lineToWrite)
 
