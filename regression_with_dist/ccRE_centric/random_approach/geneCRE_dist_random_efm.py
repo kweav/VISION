@@ -65,7 +65,7 @@ def setup_threads(threads):
 def setup_file_locs(args, where_run, other_path):
     argumentToAdd = {'mine': '/Users/kateweaver/taylorLab/VISION/regression_with_dist/ccRE_centric/inputs/',
                      'marcc': '/home-3/kweave23@jhu.edu/data/kweave23/regression_with_dist/inputs/',
-                     'comp': '/home/kweave23/regression_with_dist/ccRE_centric/inputs/',
+                     'comp': '/project/vision/Target_Genes/random_with_dist/inputs/',
                      'other': other_path}
 
     args.exp_file = argumentToAdd[where_run] + args.exp_file
@@ -164,7 +164,7 @@ class regress_gene_cre():
         TSS_cellIndex = npzfile['cellIndex']
         valid = self.find_valid_cellTypes(TSS_cellIndex)
         TSS_window_props_valid = TSS_window_props[:,valid,:]
-        #TSS_window_index = npzfile['ccREIndex']
+        TSS_window_index = npzfile['ccREIndex']
         TSS_window_chr = TSS_window_index[:,0]
         return TSS_window_props_valid, TSS_window_chr
 
@@ -246,7 +246,7 @@ class regress_gene_cre():
         self.pairing_array = np.zeros((self.creM, self.cellN, 3), dtype=np.bool) #3D array of creM * cellN * 3. Last dimension is for initial, best, and current
 
     def build_beta_array(self):
-        self.beta_array = np.zeros((self.cellN+1, self.stateN), dtype=np.float32) #store betas for initial pairing 0 in second dim and then self.lessone+1 after that
+        self.beta_array = np.zeros((self.cellN+1, self.stateN), dtype=np.float32) #store betas for initial pairing 0 in first dim and then self.lessone+1 after that
 
 
     def compute_adj_distance(self, starts, stops, TSS):
@@ -311,7 +311,7 @@ class regress_gene_cre():
 
         #subset self.creIndex_range by the 3 boolean masks to mark which CREs are initially paired in self.pairing_array
         self.pairing_array[self.creIndex_range[CREs_within][subset_no_nan][corr_passes], :, 0] = 1
-        self.passing_corrs = exp_cre_corr_matrix[subset_no_nan][corr_passes]
+        self.passing_corrs = exp_cre_corr[subset_no_nan][corr_passes]
 
     def find_yhat(self, linear_model, X):
         X = X.reshape(-1, self.stateN)[:,1:]
@@ -352,17 +352,36 @@ class regress_gene_cre():
 
     def refine_pairs_iter(self, tss_i, generated_powerset, initialIC):
         npz_dict = {}
-        prob = np.full(generated_powerset.shape[0], 1, dtype=np.float32)
-        prob /= np.square(np.abs([len(s) for s in generated_powerset] - np.mean([len(s) for s in generated_powerset])))
-        prob /= np.sum(prob)
+        prob = np.full(generated_powerset.shape[0], 1/generated_powerset.shape[0], dtype=np.float32)
+        # prob = np.full(generated_powerset.shape[0], 1, dtype=np.float32)
+        # prob /= np.square(np.abs([len(s) for s in generated_powerset] - np.mean([len(s) for s in generated_powerset])))
+        # prob /= np.sum(prob)
         for iter_val in range(self.iter):
-            npz_dict["iter{}".format(iter_val)] = np.random.choice(generated_powerset, self.psubset, p=prob)
+            npz_dict["iter{}".format(iter_val)] = np.random.choice(generated_powerset, self.psubset, p=prob, replace=False) #allows for replacement across iterations
             if iter_val == 0:
                 bestIC = self.refine_pairs(tss_i, npz_dict["iter{}".format(iter_val)], initialIC)
             else:
                 bestIC = self.refine_pairs(tss_i, npz_dict["iter{}".format(iter_val)], bestIC)
             if iter_val % 50 == 0:
-                print("Finished iteration {} for {} TSS {}".format(iter_val, self.chrom, self.TSSs[tss_i]), flush=True)
+                print("Finished iteration {} for {} TSS {}. BestIC currently {}".format(iter_val, self.chrom, self.TSSs[tss_i], bestIC), flush=True)
+
+            # if np.sum(prob != 0) > 0:
+            #     random_ints = np.random.choice(np.arange(generated_powerset.shape[0]), self.psubset, p=prob, replace=False)
+            #     npz_dict['iter{}'.format(iter_val)] = generated_powerset[random_ints]
+            #     '''remove from prob and generated_powerset for next iteration - set their probabilities to 0!'''
+            #     prob[random_ints] = 0
+            #     prob /= np.sum(prob) #reweight probabilities to sum to one
+            #     if iter_val == 0:
+            #         bestIC = self.refine_pairs(tss_i, npz_dict["iter{}".format(iter_val)], initialIC)
+            #     else:
+            #         bestIC = self.refine_pairs(tss_i, npz_dict["iter{}".format(iter_val)], bestIC)
+            #     if iter_val % 50 == 0:
+            #         print("Finished iteration {} for {} TSS {}".format(iter_val, self.chrom, self.TSSs[tss_i]), flush=True)
+            # else:
+            #     for i in range(iter_val, self.iter):
+            #         npz_dict['iter{}'.format(i)] = np.array([])
+            #     break
+
         npz_file = open('{}_{}_iteration_subsets.npz', 'wb')
         np.savez(npz_file, **npz_dict)
         npz_file.close()
@@ -416,7 +435,7 @@ class regress_gene_cre():
             for cre_i in cre_initial_inclusions.shape[0]:
                 whichCells_named = ",".join(self.cellIndex[np.where(self.pairing_array[cre_initial_inclusions[cre_i], :, 1] == 1)[0]])
                 indexOCs = [self.cell_to_index[cellType] for cellType in whichCells_named.split(',')]
-                weighted_sums = [self.find_gen_weighted_sum(self.cre_props[cre_initial_inclusions[cre_i], indexOC, :], self.beta_array[indexOC+1, :] for indexOC in indexOCs]
+                weighted_sums = [self.find_gen_weighted_sum(self.cre_props[cre_initial_inclusions[cre_i], indexOC, :], self.beta_array[indexOC+1, :]) for indexOC in indexOCs]
                 toWriteTo.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(self.chrom, TSS, cre_initial_starts[cre_i], cre_initial_ends[cre_i], numCells_paired[cre_i], whichCells_named, bestIC, self.passing_corrs[cre_i], ",".join(weighted_sums)))
         toWriteTo.close()
 
@@ -461,7 +480,7 @@ class regress_gene_cre():
                     #find MSE and IC for initial pairing
                     initial_MSE, initial_betas = self.find_MSE_and_betas(i, 0)
                     self.beta_array[0, :] = initial_betas
-                    initial_IC = self.utilize_IC(initial_MSE, self.cellN-1, 0)
+                    initialIC = self.utilize_IC(initial_MSE, self.cellN-1, 0)
                     #iteratively refine
                     bestIC = self.set_up_refinement(i, initialIC)
             self.report_pairing(i, bestIC, pairing_flag)
