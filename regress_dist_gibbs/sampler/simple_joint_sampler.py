@@ -409,7 +409,7 @@ class regress_sampler():
         self.Sigma = self.posterior_Sigma(self.stacked_beta,  self.theta)
         #don't update yhats because Sigma doesn't directly affect yhat
         self.stacked_beta = self.posterior_beta(self.sigma_sqr, self.get_stacked_X_data(), self.Sigma, self.theta, self.yhats)
-        self.update_yhats()
+        #self.update_yhats() unnecessary as no more parameters to update
 
     def run_sampler(self, init_beta, init_theta, init_Sigma, init_gamma, init_k, init_sigma_sqr, iters, burn_in):
         self.stacked_beta, self.theta, self.Sigma, self.gamma, self.k, self.sigma_sqr = np.load(init_beta), np.load(init_theta), np.load(init_Sigma), init_gamma, init_k, init_sigma_sqr
