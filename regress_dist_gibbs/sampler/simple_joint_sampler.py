@@ -8,7 +8,7 @@ from scipy import stats, linalg
 
 def main():
     parser = generate_parser()
-    args = parser.paprse_args()
+    args = parser.parse_args()
     setup_file_locs(args, args.where_run, args.other_path)
     setup_threads(args.threads)
     model = regress_gene_cre(args.train_cre, args.train_tss, args.train_exp)
