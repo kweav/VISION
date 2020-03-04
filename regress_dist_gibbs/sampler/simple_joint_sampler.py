@@ -82,12 +82,19 @@ def setup_file_locs(args, where_run, other_path):
     args.test_exp = argumentToAdd[where_run] + args.test_exp
     args.train_tss = argumentToAdd[where_run] + args.train_tss
     args.test_tss = argumentToAdd[where_run] + args.test_tss
+    args.Sigma_invwishart_S_0 = argumentToAdd[where_run] + args.Sigma_invwishart_S_0
+    args.theta_MVN_Lambda_0 = argumentToAdd[where_run] + args.theta_MVN_Lambda_0
+    args.theta_MVN_mu_0 = argumentToAdd[where_run] + args.theta_MVN_mu_0
+    args.init_beta = argumentToAdd[where_run] + args.init_beta
+    args.init_theta = argumentToAdd[where_run] + args.init_theta
+    args.init_Sigma = argumentToAdd[where_run] + args.init_Sigma
+
 
 class regress_sampler():
     def __init__(self, train_cre, train_tss, train_exp):
         self.exp_values_all, self.cellIndex, self.cell_to_index, self.TSS_chr_all, self.TSSs_all = self.load_expression(train_exp)
         self.cellN = self.cellIndex.shape[0]
-        self.TSS_window_props_all, self.TSS_window_chr_all, self.TSS_window_coord_all = self.load_TSS_window_states(train_tss)
+        self.TSS_window_props_all, self.TSS_window_chr_all = self.load_TSS_window_states(train_tss)
         self.cre_props_all, self.cre_chr_all, self.cre_coords_all = self.load_cre_states(train_cre)
         self.stateN  = self.cre_props_all.shape[2] #Note this value includes state 0 in the count although we're going to ignore the contribution of state 0
 
@@ -109,7 +116,6 @@ class regress_sampler():
                          'chr15':104043685,
                          'chr16':98207768,
                          'chr17':94987271,
-                         'chrY':91744698,
                          'chr18':90702639,
                          'chr19':61431566}
 
@@ -137,8 +143,8 @@ class regress_sampler():
         TSS_window_props_valid = TSS_window_props[:,valid,:]
         TSS_window_index = npzfile['ccREIndex']
         TSS_window_chr = TSS_window_index[:,0]
-        TSS_window_coord = TSS_window_index[:,1:].astype(np.int32)
-        return TSS_window_props_valid, TSS_window_chr, TSS_window_coord
+        #TSS_window_coord = TSS_window_index[:,1:].astype(np.int32)
+        return TSS_window_props_valid, TSS_window_chr#, TSS_window_coord
 
     def load_cre_states(self, cre_state_file):
         npzfile = np.load(cre_state_file, allow_pickle = True)
@@ -163,7 +169,6 @@ class regress_sampler():
         self.TSSs = self.TSSs_all[where_chr]
         self.tssN = self.TSSs.shape[0]
         self.TSS_window_props = self.TSS_window_props_all[where_chr]
-        self.TSS_window_coord = self.TSS_window_coord_all[where_chr]
 
         where_chr = np.where(self.cre_chr_all == self.chrom)[0]
         self.cre_props = self.cre_props_all[where_chr]
@@ -271,7 +276,7 @@ class regress_sampler():
         totalMSE = 0
         flags = np.zeros(self.tssN, dtype=np.bool)
         yhats = np.zeros((self.tssN, self.cellN), dtype=np.float32)
-        for i in range(tssN):
+        for i in range(self.tssN):
             if initialTime and i == 0:
                 yhat, PairingFlag = self.regression_equation(i, firstTimeCalled=True, withinFirstSet=True)
             elif initialTime and i != 0:
@@ -284,7 +289,7 @@ class regress_sampler():
         return yhats, totalMSE, np.sum(flags)
 
     def update_yhats(self):
-        for i in range(tssN):
+        for i in range(self.tssN):
             self.yhats[i], PairingFlag = self.regression_equation(i)
 
     # def sample_MNV(self, mu, Sigma):
