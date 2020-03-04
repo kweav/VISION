@@ -84,7 +84,7 @@ def setup_file_locs(args, where_run, other_path):
     args.test_tss = argumentToAdd[where_run] + args.test_tss
 
 class regress_sampler():
-    def __init__(self, train_cre, train_exp, train_tss):
+    def __init__(self, train_cre, train_tss, train_exp):
         self.exp_values_all, self.cellIndex, self.cell_to_index, self.TSS_chr_all, self.TSSs_all = self.load_expression(train_exp)
         self.cellN = self.cellIndex.shape[0]
         self.TSS_window_props_all, self.TSS_window_chr_all, self.TSS_window_coord_all = self.load_TSS_window_states(train_tss)
