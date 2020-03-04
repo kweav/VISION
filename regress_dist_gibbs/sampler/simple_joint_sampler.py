@@ -42,9 +42,9 @@ def generate_parser():
     parser.add_argument('--test_exp', action='store', dest='test_exp', type=str, default='testTPM.npz')
     parser.add_argument('--burn_in', action='store', dest='burn_in', type=int, default=250)
     parser.add_argument('--iterations', action='store', dest='iters', type=int, default=10**4)
-    parser.add_argument('--init_beta', action='store', dest='init_beta', type=str, default='init_beta.npz')
-    parser.add_argument('--init_theta', action='store', dest='init_theta', type=str, default='init_theta.npz')
-    parser.add_argument('--init_Sigma', action='store', dest='init_Sigma', type=str, default='init_Sigma.npz')
+    parser.add_argument('--init_beta', action='store', dest='init_beta', type=str, default='init_beta.npy')
+    parser.add_argument('--init_theta', action='store', dest='init_theta', type=str, default='init_theta.npy')
+    parser.add_argument('--init_Sigma', action='store', dest='init_Sigma', type=str, default='init_Sigma.npy')
     parser.add_argument('--init_gamma', action='store', dest='init_gamma', type=float, default=0.7)
     parser.add_argument('--init_k', action='store', dest='init_k', type=float, default=0.4)
     parser.add_argument('--init_sigma_sqr', action='store', dest='init_sigma_sqr', type=float, default=1.0)
@@ -55,9 +55,9 @@ def generate_parser():
     parser.add_argument('--k_norm_mu', action='store', dest='k_norm_mu', type=float, default=0.5)
     parser.add_argument('--k_norm_var', action='store', dest='k_norm_var', type=float, default=0.175)
     parser.add_argument('--Sigma_invwishart_v_0', action='store', dest='Sigma_invwishart_v_0', type=int, default=54)
-    parser.add_argument('--Sigma_invwishart_S_0', action='store', dest='Sigma_invwishart_S_0', type=str, default='Sigma_invwishart_S_0.npz')
-    parser.add_argument('--theta_MVN_Lambda_0', action='store', dest='theta_MVN_Lambda_0', type=str, default='theta_MVN_Lambda_0.npz')
-    parser.add_argument('--theta_MVN_mu_0', action='store', dest='theta_MVN_mu_0', type=str, default='theta_MVN_mu_0.npz')
+    parser.add_argument('--Sigma_invwishart_S_0', action='store', dest='Sigma_invwishart_S_0', type=str, default='Sigma_invwishart_S_0.npy')
+    parser.add_argument('--theta_MVN_Lambda_0', action='store', dest='theta_MVN_Lambda_0', type=str, default='theta_MVN_Lambda_0.npy')
+    parser.add_argument('--theta_MVN_mu_0', action='store', dest='theta_MVN_mu_0', type=str, default='theta_MVN_mu_0.npy')
     parser.add_argument('--beta_shape_forSamp', action='store', nargs='+', dest='bsfs', type=int, default=52)
     parser.add_argument('--chroms', action='store', nargs='+', dest='chroms', type=str, default='all')
 
@@ -327,7 +327,8 @@ class regress_sampler():
 
     def posterior_Sigma(self, Beta, theta):
         '''process taken from A First Course in Bayesian Statistical Methods - Peter D. Hoff ISBN: 978-0-387-92299-7
-           Chapter 7 The multivariate normal model 7.3 The inverse-Wishart distribution and 7.4 Gibbs sampling of the mean and covariance'''
+           Chapter 7 The multivariate normal model 7.3 The inverse-Wishart distribution and 7.4 Gibbs sampling of the mean and covariance
+           Note that within this process I am assuming that the true covariance is only loosely centered around our initial covariance input by saying Sigma_0 = S_0 and v_0 equals p+2'''
         #to Sample Sigma^(s+1)
         #a - compute S_n from Beta and Theta^(s+1)
         S_theta = np.sum(np.square(Beta-theta))
@@ -365,10 +366,7 @@ class regress_sampler():
 
     def report_iteration_hyperparameters(self, iteration):
         toWriteTo_scalar = open('output_scalar_hyperparameters.txt', 'a')
-        toWriteTo_scalar.write('Iteration:\t{}\t
-                                sigma_sqr:\t{}\t
-                                k:\t{}\t
-                                gamma:\t{}\n'.format(iteration, self.sigma_sqr, self.k, self.gamma))
+        toWriteTo_scalar.write('Iteration:\t{}\tsigma_sqr:\t{}\tk:\t{}\tgamma:\t{}\n'.format(iteration, self.sigma_sqr, self.k, self.gamma))
         toWriteTo_scalar.close()
 
         toWriteTo_Sigma = open('output_Sigma_hyperparameters.txt', 'ab')
@@ -388,10 +386,7 @@ class regress_sampler():
 
     def report_metrics(self, iteration, MSE_sum, numNP, minNotPaired):
         toWriteTo = open('output_metrics.txt', 'a')
-        toWriteTo.write('Iteration:\t{}\t
-                         MSE_sum:\t{}\t
-                         notPaired:\t{}\t
-                         notPairedRatio:\t{}\n'.format(iteration, MSE_sum, numNP, (minNotPaired - numNP)/self.tssN ))
+        toWriteTo.write('Iteration:\t{}\tMSE_sum:\t{}\tnotPaired:\t{}\tnotPairedRatio:\t{}\n'.format(iteration, MSE_sum, numNP, (minNotPaired - numNP)/self.tssN ))
 
 
     def get_stacked_X_data(self):
@@ -430,3 +425,5 @@ class regress_sampler():
             self.report_metrics(iteration, MSE_sum, numNP, minNotPaired)
         #report argmin
         self.report_iteration_hyperparameters('argmin')
+
+main()
