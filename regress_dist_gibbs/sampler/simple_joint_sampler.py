@@ -351,7 +351,7 @@ class regress_sampler():
         variance = linalg.inv(Sigma_inv + (stacked_X_data.T).dot(stacked_X_data)/sigma_sqr)
         expectation_inner_dot = Sigma_inv.dot(theta) + stacked_X_data.T.dot(mu_data.reshape(-1,))/sigma_sqr
         expectation = variance.dot(expectation_inner_dot)
-        sampled = stats.multivariate_normal(mean=expectation, cov=variance)
+        sampled = stats.multivariate_normal.rvs(mean=expectation, cov=variance)
         return sampled
 
     def posterior_sigma_sqr(self, u):
@@ -373,17 +373,17 @@ class regress_sampler():
         toWriteTo_scalar.write('Iteration:\t{}\tsigma_sqr:\t{}\tk:\t{}\tgamma:\t{}\n'.format(iteration, self.sigma_sqr, self.k, self.gamma))
         toWriteTo_scalar.close()
 
-        toWriteTo_Sigma = open('output_Sigma_hyperparameters.txt', 'ab')
+        toWriteTo_Sigma = open('output_Sigma_hyperparameters.txt', 'a')
         toWriteTo_Sigma.write('Iteration:\t{}\n'.format(iteration))
         np.savetxt(toWriteTo_Sigma, self.Sigma, fmt='%.5f')
         toWriteTo_Sigma.close()
 
-        toWriteTo_theta = open('output_theta_hyperparameters.txt', 'ab')
+        toWriteTo_theta = open('output_theta_hyperparameters.txt', 'a')
         toWriteTo_theta.write('Iteration:\t{}\n'.format(iteration))
         np.savetxt(toWriteTo_theta, self.theta, fmt='%.5f')
         toWriteTo_theta.close()
 
-        toWriteTo_beta = open('output_beta_hyperparameters.txt', 'ab')
+        toWriteTo_beta = open('output_beta_hyperparameters.txt', 'a')
         toWriteTo_beta.write('Iteration:\t{}\n'.format(iteration))
         np.savetxt(toWriteTo_beta, self.stacked_beta, fmt='%.5f')
         toWriteTo_beta.close()
@@ -391,7 +391,7 @@ class regress_sampler():
     def report_metrics(self, iteration, MSE_sum, numNP, minNotPaired):
         toWriteTo = open('output_metrics.txt', 'a')
         toWriteTo.write('Iteration:\t{}\tMSE_sum:\t{}\tnotPaired:\t{}\tnotPairedRatio:\t{}\n'.format(iteration, MSE_sum, numNP, (minNotPaired - numNP)/self.tssN ))
-
+        toWriteTo.close(0)
 
     def get_stacked_X_data(self):
         return np.hstack((self.TSS_window_props.reshape((-1, self.stateN))[:,1:], self.build_X_e.reshape((-1, self.stateN-1))))
@@ -419,6 +419,8 @@ class regress_sampler():
             # update hyperparameters
             self.update_parameters()
             #write hyperparameters for plotting later
+            print(self.stacked_beta)
+            quit()
             self.report_iteration_hyperparameters(iteration)
             yhats, MSE_sum, numNP = self.run_regression_equation()
             #update argmin if appropriate
