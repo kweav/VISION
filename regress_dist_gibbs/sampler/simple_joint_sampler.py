@@ -391,7 +391,7 @@ class regress_sampler():
     def report_metrics(self, iteration, MSE_sum, numNP, minNotPaired):
         toWriteTo = open('output_metrics.txt', 'a')
         toWriteTo.write('Iteration:\t{}\tMSE_sum:\t{}\tnotPaired:\t{}\tnotPairedRatio:\t{}\n'.format(iteration, MSE_sum, numNP, (minNotPaired - numNP)/self.tssN ))
-        toWriteTo.close(0)
+        toWriteTo.close()
 
     def get_stacked_X_data(self):
         return np.hstack((self.TSS_window_props.reshape((-1, self.stateN))[:,1:], self.build_X_e.reshape((-1, self.stateN-1))))
@@ -419,8 +419,6 @@ class regress_sampler():
             # update hyperparameters
             self.update_parameters()
             #write hyperparameters for plotting later
-            print(self.stacked_beta)
-            quit()
             self.report_iteration_hyperparameters(iteration)
             yhats, MSE_sum, numNP = self.run_regression_equation()
             #update argmin if appropriate
