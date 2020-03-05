@@ -26,7 +26,7 @@ def main():
         model.find_initial_weighted_sum()
         model.compute_spearmanr()
         model.set_up_prior_info(args.sigma_gamma_alpha, args.sigma_gamma_beta, args.gamma_norm_mu, args.gamma_norm_var, args.k_norm_mu, args.k_norm_var, args.Sigma_invwishart_v_0, args.Sigma_invwishart_S_0, args.theta_MVN_Lambda_0, args.theta_MVN_mu_0, args.bsfs)
-        model.run_sampler(args.init_beta, args.init_theta, args.init_Sigma, args.init_gamma, args.init_k, args.init_sigma_sqr, args.iters, args.burn_in)
+        model.run_sampler(args.init_beta, args.init_theta, args.init_Sigma, args.init_gamma, args.init_k, args.init_sigma_sqr, args.iters, args.burn_in, args.cre_dist)
 
 def generate_parser():
     parser = ap.ArgumentParser(description ='VISION Gibbs Sampler of paramters for regression of state and distance to assign CREs to genes based on ability to predict gene expression')
@@ -411,7 +411,8 @@ class regress_sampler():
         self.stacked_beta = self.posterior_beta(self.sigma_sqr, self.get_stacked_X_data(), self.Sigma, self.theta, self.yhats)
         #self.update_yhats() unnecessary as no more parameters to update
 
-    def run_sampler(self, init_beta, init_theta, init_Sigma, init_gamma, init_k, init_sigma_sqr, iters, burn_in):
+    def run_sampler(self, init_beta, init_theta, init_Sigma, init_gamma, init_k, init_sigma_sqr, iters, burn_in, cre_dist):
+        self.cre_dist = cre_dist
         self.stacked_beta, self.theta, self.Sigma, self.gamma, self.k, self.sigma_sqr = np.load(init_beta), np.load(init_theta), np.load(init_Sigma), init_gamma, init_k, init_sigma_sqr
         self.yhats, minMSE, minNotPaired = self.run_regression_equation(initialTime=True)
         argmin = (self.stacked_beta, self.theta, self.Sigma, self.gamma, self.k, self.sigma)
