@@ -246,8 +246,8 @@ class regress_sampler():
         if withinFirstSet:
             CREs_within_starts = self.cre_coords[CREs_within, 0]
             CREs_within_stops = self.cre_coords[CREs_within, 1]
-            self.build_X_e[tss_i] = np.sum(self.adjust_by_distance(self.cre_props[CREs_within] * inidicator_boolean, self.TSSs[tss_i], CREs_within_starts, CREs_within_stops), axis=2)[:,1:]
-        subset_weighted = np.sum(self.cre_props[CREs_within] * inidicator_boolean * beta_e, axis=2)
+            self.build_X_e[tss_i] = np.sum(self.adjust_by_distance(self.cre_props[CREs_within] * indicator_boolean, self.TSSs[tss_i], CREs_within_starts, CREs_within_stops), axis=2)[:,1:]
+        subset_weighted = np.sum(self.cre_props[CREs_within] * indicator_boolean * beta_e, axis=2)
         #adjust by distance
         CREs_within_starts = self.cre_coords[CREs_within, 0]
         CREs_within_stops = self.cre_coords[CREs_within, 1]
@@ -260,7 +260,7 @@ class regress_sampler():
         if np.sum(CREs_within) == 0: #no pairing possible
             PairingFlag = False
             return self.no_pair_justP(tss_i), PairingFlag
-        inidicator_boolean = self.indicator_function(tss_i, CREs_within)
+        indicator_boolean = self.indicator_function(tss_i, CREs_within)
         if np.sum(indicator_boolean) == 0: #no pairing happened
             PairingFlag = False
             return self.no_pair_justP(tss_i), PairingFlag
