@@ -213,7 +213,7 @@ class regress_sampler():
 
     def no_pair_justP(self, tss_i):
         beta_p = np.hstack(([0],self.stacked_beta[0:self.stateN-1])).reshape((1,-1))
-        y_hat = np.sum(self.TSS_window_props[tss_i] * beta_p, axis=2)
+        y_hat = np.sum(self.TSS_window_props[tss_i] * beta_p, axis=1)
         return y_hat
 
     def compute_adj_distance(self, starts, stops, TSS):
@@ -246,8 +246,8 @@ class regress_sampler():
         if withinFirstSet:
             CREs_within_starts = self.cre_coords[CREs_within, 0]
             CREs_within_stops = self.cre_coords[CREs_within, 1]
-            self.build_X_e[tss_i] = np.sum(self.adjust_by_distance(self.cre_props[CREs_within] * indicator_boolean, self.TSSs[tss_i], CREs_within_starts, CREs_within_stops), axis=2)[:,1:]
-        subset_weighted = np.sum(self.cre_props[CREs_within] * indicator_boolean * beta_e, axis=2)
+            self.build_X_e[tss_i] = np.sum(self.adjust_by_distance(self.cre_props[CREs_within] * indicator_boolean.reshape((-1, 1, 1)), self.TSSs[tss_i], CREs_within_starts, CREs_within_stops), axis=0)[:,1:]
+        subset_weighted = np.sum(self.cre_props[CREs_within] * indicator_boolean.reshape((-1,1,1)) * beta_e, axis=2)
         #adjust by distance
         CREs_within_starts = self.cre_coords[CREs_within, 0]
         CREs_within_stops = self.cre_coords[CREs_within, 1]
@@ -265,7 +265,6 @@ class regress_sampler():
             PairingFlag = False
             return self.no_pair_justP(tss_i), PairingFlag
         yhat = self.no_pair_justP(tss_i) + self.pair_noP(tss_i, CREs_within, indicator_boolean, firstTimeCalled, withinFirstSet)
-        print(yhat.shape)
         return yhat, PairingFlag
 
     def find_MSE(self, i, yhat):
@@ -299,8 +298,8 @@ class regress_sampler():
     #     return Z
 
     def posterior_gamma(self, sigma_sqr, mu_data):
-        norm_mu = (((self.sigma_norm_mu/self.sigma_norm_var)+(np.sum(mu_data)/sigma_sqr))/((1/self.gamma_norm_var) + (self.tssN*self.cellN/sigma_sqr)))
-        norm_var = 1/((1/self.sigma_norm_var) + (self.tssN*self.cellN/sigma_sqr))
+        norm_mu = (((self.gamma_norm_mu/self.gamma_norm_var)+(np.sum(mu_data)/sigma_sqr))/((1/self.gamma_norm_var) + (self.tssN*self.cellN/sigma_sqr)))
+        norm_var = 1/((1/self.gamma_norm_var) + (self.tssN*self.cellN/sigma_sqr))
         sampled = stats.norm.rvs(loc=norm_mu, scale=np.sqrt(norm_var))
         return sampled
 
@@ -357,8 +356,8 @@ class regress_sampler():
 
     def posterior_sigma_sqr(self, u):
         gamma_alpha = 1 + (self.tssN*self.cellN/2)
-        gamma_beta = 1 + ((1/2) * np.sum(self.exp_values-u))
-        precision = stats.gamma.rvs(x, a=gamma_alpha, scale=1/gamma_beta)
+        gamma_beta = 1 + ((1/2) * np.sum(np.square(self.exp_values-u)))
+        precision = stats.gamma.rvs(gamma_alpha, scale=1/gamma_beta)
         return 1/precision
 
     def set_up_prior_info(self, sigma_gamma_alpha, sigma_gamma_beta, gamma_norm_mu, gamma_norm_var, k_norm_mu, k_norm_var, Sigma_invwishart_v_0, Sigma_invwishart_S_0, theta_MVN_Lambda_0, theta_MVN_mu_0, bsfs):
@@ -415,7 +414,7 @@ class regress_sampler():
         self.cre_dist = cre_dist
         self.stacked_beta, self.theta, self.Sigma, self.gamma, self.k, self.sigma_sqr = np.load(init_beta), np.load(init_theta), np.load(init_Sigma), init_gamma, init_k, init_sigma_sqr
         self.yhats, minMSE, minNotPaired = self.run_regression_equation(initialTime=True)
-        argmin = (self.stacked_beta, self.theta, self.Sigma, self.gamma, self.k, self.sigma)
+        argmin = (self.stacked_beta, self.theta, self.Sigma, self.gamma, self.k, self.sigma_sqr)
         for iteration in range(iters):
             # update hyperparameters
             self.update_parameters()
