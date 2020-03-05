@@ -6,6 +6,11 @@ from sklearn import linear_model, metrics
 import os
 from scipy import stats, linalg
 
+'''outstanding questions/todo:
+1) Optimize - where is the time being spent?
+One iteration appears to take ~0.0399 minutes
+2) How are NaN's in the correlation matrix being propagated?'''
+
 def main():
     parser = generate_parser()
     args = parser.parse_args()
