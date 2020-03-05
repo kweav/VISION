@@ -394,7 +394,7 @@ class regress_sampler():
 
 
     def get_stacked_X_data(self):
-        return np.hstack((self.TSS_window_props.reshape((-1, stateN))[:,1:], self.build_X_e.reshape((-1, stateN-1))))
+        return np.hstack((self.TSS_window_props.reshape((-1, self.stateN))[:,1:], self.build_X_e.reshape((-1, self.stateN-1))))
 
     def update_parameters(self):
         self.sigma_sqr = self.posterior_sigma_sqr(self.yhats)
