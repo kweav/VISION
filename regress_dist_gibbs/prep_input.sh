@@ -10,14 +10,16 @@ python count_to_tpm.py rnaHtseqCount_noM_withcoords.mean.txt rnaTPM_noM_withcoor
 #split TPMfile into train, test, and ref inputs saving as npz's
 python split_input_rna.py ../../usevision/train_genes_uniq.bed ../../usevision/test_genes_uniq.bed ../../usevision/ref_genes_uniq.bed ../data/RNAseq/rnaTPM_noM_withcoords.mean.txt
 
-python prepare_expression.py rnaTPM_train.txt 37550 trainTPM.npz
-python prepare_expression.py rnaTPM_test.txt 4218 testTPM.npz
-python prepare_expression.py rnaTPM_ref.txt 1541 refTPM.npz
+#awk'd out chrY
+
+python prepare_expression.py rnaTPM_train_noY.txt 36225 trainTPM.npz
+python prepare_expression.py rnaTPM_test_noY.txt 3975 testTPM.npz
+python prepare_expression.py rnaTPM_ref_noY.txt 1541 refTPM.npz
 
 #prepare proportion of states in 75kbp window around train, test, and ref TSSs
-python window_around_TSS.py rnaTPM_train.txt train_TSS_window.txt 75000
-python window_around_TSS.py rnaTPM_test.txt test_TSS_window.txt 75000
-python window_around_TSS.py rnaTPM_ref.txt ref_TSS_window.txt 75000
+python window_around_TSS.py rnaTPM_train_noY.txt train_TSS_window.txt 75000
+python window_around_TSS.py rnaTPM_test_noY.txt test_TSS_window.txt 75000
+python window_around_TSS.py rnaTPM_ref_noY.txt ref_TSS_window.txt 75000
 
 date; time bedtools intersect -a train_TSS_window.txt -b /project/vision/Data/IDEAS/ideasVisionV20p8Seg*.bed -wa -wb -filenames > trainTSS_windows_int_all.bed
 date; time bedtools intersect -a train_TSS_window.txt -b /project/vision/Data/IDEAS/ideasVisionV20p8Seg*.bed -v -filenames > trainTSS_windows_v_all.bed
@@ -27,7 +29,6 @@ date; time bedtools intersect -a test_TSS_window.txt -b /project/vision/Data/IDE
 
 date; time bedtools intersect -a ref_TSS_window.txt -b /project/vision/Data/IDEAS/ideasVisionV20p8Seg*.bed -wa -wb -filenames > refTSS_windows_int_all.bed
 date; time bedtools intersect -a ref_TSS_window.txt -b /project/vision/Data/IDEAS/ideasVisionV20p8Seg*.bed -v -filenames > refTSS_windows_v_all.bed
-
 
 IDEAS=/project/vision/Data/IDEAS/ideasVisionV20p8Seg
 BED=.bed
