@@ -446,7 +446,7 @@ class regress_sampler():
             sampled = stats.invwishart.rvs(df=df, scale=scale)
         except np.linalg.LinAlgError:
             self.error_pd_Sigma += 1
-            outfile = open('scale_linalgerror_{}.npy'.format(self.error_pd_Sigma), 'w+')
+            outfile = open('scale_linalgerror_{}.npy'.format(self.error_pd_Sigma), 'wb')
             np.save(outfile, scale)
             outfile.close()
             sampled = stats.invwishart.rvs(df=df, scale=self.Sigma_invwishart_S_0)
