@@ -353,6 +353,9 @@ class regress_sampler():
                 #logging.info('begin regression_equation(): ' + str(datetime.datetime.now()))
                 yhat, PairingFlag = self.regression_equation(i)
                 #logging.info('regression_equation() complete: ' + str(datetime.datetime.now()))
+            if np.sum(np.isnan(yhat)) > 0:
+                yhat[np.isnan(yhat)] = np.mean(yhats)
+                self.yhat_nan += 1
             flags[i] = PairingFlag
             yhats[i] = yhat
             totalMSE += self.find_MSE(i, yhat)
@@ -364,7 +367,10 @@ class regress_sampler():
         #logging.info('begin update_yhats(): ' + str(datetime.datetime.now()))
         for i in range(self.tssN):
             #logging.info('begin regression_equation(): ' + str(datetime.datetime.now()))
-            self.yhats[i], PairingFlag = self.regression_equation(i)
+            yhat = self.regression_equation(i)
+            if np.sum(np.isnan(yhat)) > 0:
+                yhat[np.isnan(yhat)] = np.log2(0.001)
+            self.yhats[i], PairingFlag = yhat
             #logging.info('regression_equation() complete: ' + str(datetime.datetime.now()))
         #logging.info('end tss loop in update_yhat(): ' + str(datetime.datetime.now()))
 
@@ -392,7 +398,11 @@ class regress_sampler():
     def posterior_gamma(self, sigma_sqr, mu_data):
         #logging.info('begin posterior_gamma(): ' + str(datetime.datetime.now()))
         norm_mu = (((self.gamma_norm_mu/self.gamma_norm_var)+(np.sum(mu_data)/sigma_sqr))/((1/self.gamma_norm_var) + (self.tssN*self.cellN/sigma_sqr)))
+        if np.isnan(norm_mu):
+            norm_mu = self.gamma_norm_mu
         norm_var = 1/((1/self.gamma_norm_var) + (self.tssN*self.cellN/sigma_sqr))
+        if np.isnan(norm_var):
+            norm_var = self.gamma_norm_var
         sampled = stats.norm.rvs(loc=norm_mu, scale=np.sqrt(norm_var))
         #logging.info('end posterior_gamma(): ' + str(datetime.datetime.now()))
         return sampled
@@ -401,6 +411,8 @@ class regress_sampler():
         #logging.info('begin posterior_k(): ' + str(datetime.datetime.now()))
         generated_u = stats.uniform.rvs()
         s_sqr = 1/(2*sigma_sqr*((self.cellN * self.tssN) -1))*np.sum(np.square(self.exp_values - mu_data))
+        if np.isnan(s_sqr):
+            s_sqr = 1/(2*sigma_sqr*((self.cellN * self.tssN) -1))*(10**5)
         sampled = np.sqrt(1/3) * np.sqrt(generated_u) * np.sqrt(np.exp(-1*s_sqr))
         if sampled == 0.0:
             print('ugh True', flush=True)
@@ -542,7 +554,7 @@ class regress_sampler():
     def report_metrics(self, iteration, MSE_sum, numNP, minNotPaired):
         #logging.info('begin report_metrics(): ' + str(datetime.datetime.now()))
         toWriteTo = open('output_metrics.txt', 'a')
-        toWriteTo.write('Iteration:\t{}\tMSE_sum:\t{}\tnotPaired:\t{}\tnotPairedRatio1:\t{}\tnotPairedRatio2:\t{}\n'.format(iteration, MSE_sum, numNP, (minNotPaired - numNP)/self.tssN, numNP/self.tssN))
+        toWriteTo.write('Iteration:\t{}\tMSE_sum:\t{}\tnotPaired:\t{}\tnotPairedRatio1:\t{}\tnotPairedRatio2:\t{}\tyhat_nans:\t{}\n'.format(iteration, MSE_sum, numNP, (minNotPaired - numNP)/self.tssN, numNP/self.tssN, self.yhat_nan))
         toWriteTo.close()
         #logging.info('end report_metrics(): ' + str(datetime.datetime.now()))
 
@@ -568,6 +580,7 @@ class regress_sampler():
 
     def run_sampler(self, init_beta, init_theta, init_Sigma, init_gamma, init_k, init_sigma_sqr, iters, burn_in, cre_dist):
         #logging.info('began run_sampler(): ' + str(datetime.datetime.now()))
+        self.yhat_nan = 0
         self.cre_dist = cre_dist
         self.stacked_beta, self.theta, self.Sigma, self.gamma, self.k, self.sigma_sqr = np.load(init_beta), np.load(init_theta), np.load(init_Sigma), init_gamma, init_k, init_sigma_sqr
         argmin = {'stacked_beta': np.copy(self.stacked_beta),
@@ -581,6 +594,7 @@ class regress_sampler():
         #logging.info('run_regression_equation(initialTime=True) complete: ' + str(datetime.datetime.now()))
 
         for iteration in range(iters):
+            self.yhat_nan = 0
             #logging.info('begin iteration {}: '.format(iteration) + str(datetime.datetime.now()))
             # update hyperparameters
             self.update_parameters()
