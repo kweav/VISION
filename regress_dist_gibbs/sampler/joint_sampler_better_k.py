@@ -361,7 +361,7 @@ class regress_sampler():
             totalMSE += self.find_MSE(i, yhat)
             #logging.info('find_MSE() complete: ' + str(datetime.datetime.now()))
         #logging.info('end tss loop in run_regression_equation(): ' + str(datetime.datetime.now()))
-        return yhats, totalMSE, np.sum(flags)
+        return yhats, totalMSE, np.sum(~flags)
 
     def update_yhats(self):
         #logging.info('begin update_yhats(): ' + str(datetime.datetime.now()))
@@ -449,10 +449,12 @@ class regress_sampler():
         #to Sample Sigma^(s+1)
         #a - compute S_n from Beta and Theta^(s+1)
         #logging.info('begin posterior_Sigma(): ' + str(datetime.datetime.now()))
-        S_theta = np.sum(np.square(Beta-theta))
+        S_theta = np.square(Beta-theta)
         if np.sum(np.isnan(S_theta)) > 0:
             S_theta[np.isnan(S_theta)] = Beta[np.isnan(S_theta)]
         S_n = self.Sigma_invwishart_S_0 + S_theta
+        if np.sum(np.isnan(S_n)) > 0:
+            S_n[np.isnan(S_n)] = self.Sigma_invwishart_S_0[np.isnan(S_n)]
         #b - sample Sigma^(s+1) ~ inverse-Wishart(v_0 +n, S_n^-1)
         df = self.Sigma_invwishart_v_0 + self.stacked_beta_n
         scale = self.take_inv(S_n)
