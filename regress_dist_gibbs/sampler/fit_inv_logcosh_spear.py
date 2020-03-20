@@ -573,7 +573,7 @@ class regress_sampler():
         self.update_yhats()
         self.gamma = self.posterior_gamma(self.sigma_sqr, self.yhats)
         self.update_yhats() #run this because it will also update build_X_e
-        self.stacked_beta = self.linear_fit(self.get_stacked_X_data, self.exp_values)['coeffs']
+        self.stacked_beta = self.linear_fit(self.get_stacked_X_data(), self.exp_values)['coeffs']
         #self.update_yhats() unnecessary as no more parameters to update
         #logging.info('end update_parameters(): ' + str(datetime.datetime.now()))
 
