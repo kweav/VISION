@@ -289,10 +289,10 @@ class regress_sampler():
     def stack_X_data(self):
         stacked_XE_data = np.zeros((self.tssN, self.cellN, self.stateN-1))
         for i in range(self.tssN):
-            CREs_within_bool = self.find_cres_within(tss_i)
+            CREs_within_bool = self.find_cres_within(i)
             if np.sum(CREs_within_bool) == 0:
                 continue
-            indicator_boolean = self.indicator_function(tss_i, CREs_within_bool)
+            indicator_boolean = self.indicator_function(i, CREs_within_bool)
             if np.sum(indicator_boolean) == 0:
                 continue
             stacked_XE_data[i] = np.sum(self.adjust_by_distance(self.cre_props[CREs_within_bool] * indicator_boolean.reshape((-1,1,1)), self.TSSs[i], self.cre_coords[CREs_within_bool, 0], self.cre_coords[CREs_within_bool, 1]), axis=0)[:,1:]
