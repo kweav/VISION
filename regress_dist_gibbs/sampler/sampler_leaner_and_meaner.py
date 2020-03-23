@@ -98,273 +98,273 @@ class regress_sampler():
                          'chr18':90702639,
                          'chr19':61431566}
 
-        def find_valid_cellTypes(self, cellIndexOI):
-            valid = np.array([np.where(cellIndexOI == x) for x in self.cellIndex if np.isin(x, cellIndexOI)]).reshape(-1)
-            return valid
+    def find_valid_cellTypes(self, cellIndexOI):
+        valid = np.array([np.where(cellIndexOI == x) for x in self.cellIndex if np.isin(x, cellIndexOI)]).reshape(-1)
+        return valid
 
-        def load_expression(self, exp_file):
-            npzfile = np.load(exp_file, allow_pickle = True)
-            exp_values = npzfile['exp']
-            exp_cellIndex = npzfile['cellIndex'] #index to celltype
-            exp_cell_to_index = {} #celltype to index
-            for i in range(exp_cellIndex.shape[0]):
-                exp_cell_to_index[exp_cellIndex[i]] = i
-            TSS_info = npzfile['TSS']
-            TSS_chr = TSS_info[:,0]
-            TSSs = np.around(TSS_info[:,1].astype(np.float64)).astype(np.int32)
-            return exp_values, exp_cellIndex, exp_cell_to_index, TSS_chr, TSSs
+    def load_expression(self, exp_file):
+        npzfile = np.load(exp_file, allow_pickle = True)
+        exp_values = npzfile['exp']
+        exp_cellIndex = npzfile['cellIndex'] #index to celltype
+        exp_cell_to_index = {} #celltype to index
+        for i in range(exp_cellIndex.shape[0]):
+            exp_cell_to_index[exp_cellIndex[i]] = i
+        TSS_info = npzfile['TSS']
+        TSS_chr = TSS_info[:,0]
+        TSSs = np.around(TSS_info[:,1].astype(np.float64)).astype(np.int32)
+        return exp_values, exp_cellIndex, exp_cell_to_index, TSS_chr, TSSs
 
-        def load_TSS_window_states(self, tss_state_file):
-            npzfile = np.load(tss_state_file, allow_pickle = True)
-            TSS_window_props = npzfile['props'].astype(np.float64)
-            TSS_cellIndex = npzfile['cellIndex']
-            valid = self.find_valid_cellTypes(TSS_cellIndex)
-            TSS_window_props_valid = TSS_window_props[:,valid,:]
-            TSS_window_index = npzfile['ccREIndex']
-            TSS_window_chr = TSS_window_index[:,0]
-            return TSS_window_props_valid, TSS_window_chr
+    def load_TSS_window_states(self, tss_state_file):
+        npzfile = np.load(tss_state_file, allow_pickle = True)
+        TSS_window_props = npzfile['props'].astype(np.float64)
+        TSS_cellIndex = npzfile['cellIndex']
+        valid = self.find_valid_cellTypes(TSS_cellIndex)
+        TSS_window_props_valid = TSS_window_props[:,valid,:]
+        TSS_window_index = npzfile['ccREIndex']
+        TSS_window_chr = TSS_window_index[:,0]
+        return TSS_window_props_valid, TSS_window_chr
 
-        def load_cre_states(self, cre_state_file):
-            npzfile = np.load(cre_state_file, allow_pickle = True)
-            cre_props = npzfile['props'].astype(np.float64)
-            cre_cellIndex = npzfile['cellIndex']
-            valid = self.find_valid_cellTypes(cre_cellIndex)
-            cre_props_valid = cre_props[:,valid,:]
-            #filter out any CREs which are fully state 0 in all 12 cell types
-            mask = np.array(np.hstack(([0], np.tile([1], cre_props_valid.shape[2]-1))))
-            cre_props_adjusted = np.sum(cre_props_valid * mask, axis=2)
-            where_row_not_zero = np.sum(cre_props_adjusted, axis=1) != 0
-            cre_props_valid = cre_props_valid[where_row_not_zero]
-            cre_index = npzfile['ccREIndex']
-            cre_chr = cre_index[where_row_not_zero,0]
-            cre_coords = cre_index[where_row_not_zero,1:].astype(np.int32)
-            return cre_props_valid, cre_chr, cre_coords
+    def load_cre_states(self, cre_state_file):
+        npzfile = np.load(cre_state_file, allow_pickle = True)
+        cre_props = npzfile['props'].astype(np.float64)
+        cre_cellIndex = npzfile['cellIndex']
+        valid = self.find_valid_cellTypes(cre_cellIndex)
+        cre_props_valid = cre_props[:,valid,:]
+        #filter out any CREs which are fully state 0 in all 12 cell types
+        mask = np.array(np.hstack(([0], np.tile([1], cre_props_valid.shape[2]-1))))
+        cre_props_adjusted = np.sum(cre_props_valid * mask, axis=2)
+        where_row_not_zero = np.sum(cre_props_adjusted, axis=1) != 0
+        cre_props_valid = cre_props_valid[where_row_not_zero]
+        cre_index = npzfile['ccREIndex']
+        cre_chr = cre_index[where_row_not_zero,0]
+        cre_coords = cre_index[where_row_not_zero,1:].astype(np.int32)
+        return cre_props_valid, cre_chr, cre_coords
 
-        def subset_based_on_chrom(self, chrom):
-            self.chrom = chrom
-            where_chr = np.where(self.TSS_chr_all == self.chrom)[0]
-            self.exp_values = self.exp_values_all[where_chr]
-            self.TSSs = self.TSSs_all[where_chr]
-            self.tssN = self.TSSs.shape[0]
-            self.TSS_window_props = self.TSS_window_props_all[where_chr]
+    def subset_based_on_chrom(self, chrom):
+        self.chrom = chrom
+        where_chr = np.where(self.TSS_chr_all == self.chrom)[0]
+        self.exp_values = self.exp_values_all[where_chr]
+        self.TSSs = self.TSSs_all[where_chr]
+        self.tssN = self.TSSs.shape[0]
+        self.TSS_window_props = self.TSS_window_props_all[where_chr]
 
-            where_chr = np.where(self.cre_chr_all == self.chrom)[0]
-            self.cre_props = self.cre_props_all[where_chr]
-            self.cre_coords = self.cre_coords_all[where_chr]
-            self.creM = self.cre_props.shape[0]
-            self.creIndex_range = np.arange(self.creM)
+        where_chr = np.where(self.cre_chr_all == self.chrom)[0]
+        self.cre_props = self.cre_props_all[where_chr]
+        self.cre_coords = self.cre_coords_all[where_chr]
+        self.creM = self.cre_props.shape[0]
+        self.creIndex_range = np.arange(self.creM)
 
-        def find_cres_within(self, i):
-            '''#find CREs within distance of interest using containment
-            start location of CRE is less than or equal to window end
-            AND end locatiion of CRE is greater than or equal to window beginning'''
-            TSS = self.TSSs[i]
-            windowMin = max(0, TSS - self.cre_dist)
-            windowMax = min(TSS + self.cre_dist, self.chrSizes[self.chrom])
-            CREs_within = (self.cre_coords[:,1]>=windowMin) & (self.cre_coords[:,0]<=windowMax)
-            return CREs_within
+    def find_cres_within(self, i):
+        '''#find CREs within distance of interest using containment
+        start location of CRE is less than or equal to window end
+        AND end locatiion of CRE is greater than or equal to window beginning'''
+        TSS = self.TSSs[i]
+        windowMin = max(0, TSS - self.cre_dist)
+        windowMax = min(TSS + self.cre_dist, self.chrSizes[self.chrom])
+        CREs_within = (self.cre_coords[:,1]>=windowMin) & (self.cre_coords[:,0]<=windowMax)
+        return CREs_within
 
-        def compute_adj_distance(self, starts, stops, TSS):
-            locsTA = (starts + stops) // 2
-            distance = np.abs(locsTA- TSS) #using abs because don't care if upstream or downstream
-            adjusted_distance = distance**self.gamma
-            adjusted_distance[np.where(adjusted_distance == 0)[0]] = 1 #anywhere that distance is 0, set to identity.
-            return adjusted_distance
+    def compute_adj_distance(self, starts, stops, TSS):
+        locsTA = (starts + stops) // 2
+        distance = np.abs(locsTA- TSS) #using abs because don't care if upstream or downstream
+        adjusted_distance = distance**self.gamma
+        adjusted_distance[np.where(adjusted_distance == 0)[0]] = 1 #anywhere that distance is 0, set to identity.
+        return adjusted_distance
 
-        def adjust_by_distance(self, to_adjust, TSS, starts, stops):
-            adj_dist = self.compute_adj_distance(starts, stops, TSS)
-            Y = np.ones(to_adjust.shape[0]) #adjustment array
-            Y /= adj_dist
-            if to_adjust.ndim == 2:
-                adjusted = np.multiply(to_adjust, Y.reshape(-1,1))
-            elif to_adjust.ndim == 3:
-                adjusted = np.multiply(to_adjust, Y.reshape(-1,1,1))
-            return adjusted
+    def adjust_by_distance(self, to_adjust, TSS, starts, stops):
+        adj_dist = self.compute_adj_distance(starts, stops, TSS)
+        Y = np.ones(to_adjust.shape[0]) #adjustment array
+        Y /= adj_dist
+        if to_adjust.ndim == 2:
+            adjusted = np.multiply(to_adjust, Y.reshape(-1,1))
+        elif to_adjust.ndim == 3:
+            adjusted = np.multiply(to_adjust, Y.reshape(-1,1,1))
+        return adjusted
 
-        def find_weighted_sum(self, beta_e, CREs_within_bool):
-            '''find weighted sum of ccRE props with coeffs
-            given a 3 dimensional array ccREn * cellN * stateN with p_ijk equal to the proporition of ccRE_i for cellType_j in state_k
-                    1 dimensional array stateN with c_i equal to the initial coefficient for state_i
-            return a 2 dimensional array ccREn * cellN with w_ij equal to the sum of l = 0 to 26 of c_l*p_ijl'''
-            cre_weighted_sum = np.sum(self.cre_props[CREs_within_bool] * beta_e, axis=2)
-            return cre_weighted_sum
+    def find_weighted_sum(self, beta_e, CREs_within_bool):
+        '''find weighted sum of ccRE props with coeffs
+        given a 3 dimensional array ccREn * cellN * stateN with p_ijk equal to the proporition of ccRE_i for cellType_j in state_k
+                1 dimensional array stateN with c_i equal to the initial coefficient for state_i
+        return a 2 dimensional array ccREn * cellN with w_ij equal to the sum of l = 0 to 26 of c_l*p_ijl'''
+        cre_weighted_sum = np.sum(self.cre_props[CREs_within_bool] * beta_e, axis=2)
+        return cre_weighted_sum
 
-        def take_inv(self, x):
-            '''approximate inverses with pinv if matrix singular'''
-            try:
-                inv = linalg.inv(x)
-            except linalg.LinAlgError:
-                inv = linalg.pinv(x)
-            return inv
+    def take_inv(self, x):
+        '''approximate inverses with pinv if matrix singular'''
+        try:
+            inv = linalg.inv(x)
+        except linalg.LinAlgError:
+            inv = linalg.pinv(x)
+        return inv
 
-        def take_logcosh_loss(self, true, yhat):
-            '''rewrote to implement without keras and tf
-            keras documentation says: logcosh = log((exp(x) + exp(-x))/2) where x is yhat - true'''
-            x = yhat - true
-            loss = np.sum(np.log((np.exp(x)+np.exp(-x))/2))
-            return loss
+    def take_logcosh_loss(self, true, yhat):
+        '''rewrote to implement without keras and tf
+        keras documentation says: logcosh = log((exp(x) + exp(-x))/2) where x is yhat - true'''
+        x = yhat - true
+        loss = np.sum(np.log((np.exp(x)+np.exp(-x))/2))
+        return loss
 
-        def posterior_k(self):
-            '''prior of beta(3,1)
-            use inverse transform method to generate from the approximate posterior
-            use logcosh loss rather than S^2/RSS/MSE as to be less sensitive to outliers'''
-            generated_u = stats.uniform.rvs()
-            sampled = np.sqrt(generated_u/3 * np.exp(1/(2*self.sigma_sqr)*self.logcosh_expression))
-            return sampled
+    def posterior_k(self):
+        '''prior of beta(3,1)
+        use inverse transform method to generate from the approximate posterior
+        use logcosh loss rather than S^2/RSS/MSE as to be less sensitive to outliers'''
+        generated_u = stats.uniform.rvs()
+        sampled = np.sqrt(generated_u/3 * np.exp(1/(2*self.sigma_sqr)*self.logcosh_expression))
+        return sampled
 
-        def posterior_gamma(self):
-            '''prior of normal(0.7, 0.075)
-            use inverse transform method to generate from the approximate posterior
-            use logcosh loss rather than S^2/RSS/MSE as to be less senstive to outliers'''
-            generated_u = stats.uniform.rvs()
-            sampled = 0.7 + np.sqrt((-6.67)*(np.log(generated_u/2*np.sqrt(0.6*np.pi))+(1/(2*self.sigma_sqr)*self.logcosh_expression)))
-            return sampled
+    def posterior_gamma(self):
+        '''prior of normal(0.7, 0.075)
+        use inverse transform method to generate from the approximate posterior
+        use logcosh loss rather than S^2/RSS/MSE as to be less senstive to outliers'''
+        generated_u = stats.uniform.rvs()
+        sampled = 0.7 + np.sqrt((-6.67)*(np.log(generated_u/2*np.sqrt(0.6*np.pi))+(1/(2*self.sigma_sqr)*self.logcosh_expression)))
+        return sampled
 
-        def posterior_sigma_sqr(self):
-            '''prior of gamma(1,1)
-            this setup generates the precision which is why we return 1/precision
-            use inverse transform method to generate from the approximate posterior
-            use logcosh loss rather than S^2/RSS/MSE as to be less sensitive to outliers'''
-            generated_u = stats.uniform.rvs()
-            precision = -np.log(generated_u)/(0.5*self.logcosh_expression + 1)
-            return 1/precision
+    def posterior_sigma_sqr(self):
+        '''prior of gamma(1,1)
+        this setup generates the precision which is why we return 1/precision
+        use inverse transform method to generate from the approximate posterior
+        use logcosh loss rather than S^2/RSS/MSE as to be less sensitive to outliers'''
+        generated_u = stats.uniform.rvs()
+        precision = -np.log(generated_u)/(0.5*self.logcosh_expression + 1)
+        return 1/precision
 
-        def compute_spearmanr(self, tss_i, cre_weighted_sum):
-            corr_matrix, pvalues = stats.spearmanr(self.exp_values[tss_i].reshape((1,-1)), cre_weighted_sum, axis=1)
-            if isinstance(corr_matrix, np.ndarray):
-                corr = corr_matrix[0, 1:]
-            else:
-                corr = corr_matrix
-            return corr
+    def compute_spearmanr(self, tss_i, cre_weighted_sum):
+        corr_matrix, pvalues = stats.spearmanr(self.exp_values[tss_i].reshape((1,-1)), cre_weighted_sum, axis=1)
+        if isinstance(corr_matrix, np.ndarray):
+            corr = corr_matrix[0, 1:]
+        else:
+            corr = corr_matrix
+        return corr
 
-        def indicator_function(self, tss_i, CREs_within_bool):
-            weighted_sum = self.find_weighted_sum(self.get_beta_e(), CREs_within_bool)
-            spearman = self.compute_spearmanr(tss_i, weighted_sum)
-            indicator_boolean = np.abs(spearman) >= self.k
-            return indicator_boolean
+    def indicator_function(self, tss_i, CREs_within_bool):
+        weighted_sum = self.find_weighted_sum(self.get_beta_e(), CREs_within_bool)
+        spearman = self.compute_spearmanr(tss_i, weighted_sum)
+        indicator_boolean = np.abs(spearman) >= self.k
+        return indicator_boolean
 
-        def get_beta_e(self):
-            beta_e = np.hstack(([0], self.stacked_beta[self.stateN-1:])).reshape((1, -1))
-            return beta_e
+    def get_beta_e(self):
+        beta_e = np.hstack(([0], self.stacked_beta[self.stateN-1:])).reshape((1, -1))
+        return beta_e
 
-        def get_beta_p(self):
-            beta_p = np.hstack(([0], self.stacked_beta[0:self.stateN-1])).reshape((1,-1))
-            return beta_p
+    def get_beta_p(self):
+        beta_p = np.hstack(([0], self.stacked_beta[0:self.stateN-1])).reshape((1,-1))
+        return beta_p
 
-        def justP(self, tss_i):
-            y_hat = np.sum(self.TSS_window_props[tss_i] * self.get_beta_p(), axis=1)
-            if np.sum(np.isnan(y_hat)) > 0:
-                print('justP has NaNs', flush=True)
-                quit()
-            return y_hat
+    def justP(self, tss_i):
+        y_hat = np.sum(self.TSS_window_props[tss_i] * self.get_beta_p(), axis=1)
+        if np.sum(np.isnan(y_hat)) > 0:
+            print('justP has NaNs', flush=True)
+            quit()
+        return y_hat
 
-        def justPair(self, tss_i, CREs_within, indicator_boolean):
-            subset_weighted = np.sum(self.cre_props[CREs_within] * indicator_boolean.reshape((-1,1,1))*self.get_beta_e(), axis=2)
-            subset_adjusted = self.adjust_by_distance(subset_weighted, self.TSSs[tss_i], self.cre_coords[CREs_within, 0], self.cre_coords[CREs_within, 1])
-            sum_all_E = np.sum(subset_adjusted, axis=0)
-            if np.sum(np.isnan(sum_all_E)) > 0:
-                print('justPair has NaNs', flush=True)
-                quit()
-            return sum_all_E
+    def justPair(self, tss_i, CREs_within, indicator_boolean):
+        subset_weighted = np.sum(self.cre_props[CREs_within] * indicator_boolean.reshape((-1,1,1))*self.get_beta_e(), axis=2)
+        subset_adjusted = self.adjust_by_distance(subset_weighted, self.TSSs[tss_i], self.cre_coords[CREs_within, 0], self.cre_coords[CREs_within, 1])
+        sum_all_E = np.sum(subset_adjusted, axis=0)
+        if np.sum(np.isnan(sum_all_E)) > 0:
+            print('justPair has NaNs', flush=True)
+            quit()
+        return sum_all_E
 
-        def regression_equation(self, tss_i):
-            PairingFlag = True
-            CREs_within = self.find_cres_within(tss_i)
-            if np.sum(CREs_within) == 0:
-                PairingFlag = False
-                return self.justP(tss_i), PairingFlag
-            indicator_boolean = self.indicator_function(tss_i, CREs_within)
+    def regression_equation(self, tss_i):
+        PairingFlag = True
+        CREs_within = self.find_cres_within(tss_i)
+        if np.sum(CREs_within) == 0:
+            PairingFlag = False
+            return self.justP(tss_i), PairingFlag
+        indicator_boolean = self.indicator_function(tss_i, CREs_within)
+        if np.sum(indicator_boolean) == 0:
+            PairingFlag = False
+            return self.justP(tss_i), PairingFlag
+        yhat = self.justP(tss_i) + self.justPair(tss_i, CREs_within, indicator_boolean)
+        return yhat, PairingFlag
+
+    def update_yhats(self):
+        yhats = np.zeros((self.tssN, self.cellN), dtype=np.float32)
+        for i in range(self.tssN):
+            yhats[i], self.flags[i] = self.regression_equation(i)
+        self.logcosh_expression = self.take_logcosh_loss(self.exp_values, yhats)
+
+    def stack_X_data(self):
+        stacked_XE_data = np.zeros((self.tssN, self.cellN, self.stateN-1))
+        for i in range(self.tssN):
+            CREs_within_bool = self.find_cres_within(tss_i)
+            if np.sum(CREs_within_bool) == 0:
+                continue
+            indicator_boolean = self.indicator_function(tss_i, CREs_within_bool)
             if np.sum(indicator_boolean) == 0:
-                PairingFlag = False
-                return self.justP(tss_i), PairingFlag
-            yhat = self.justP(tss_i) + self.justPair(tss_i, CREs_within, indicator_boolean)
-            return yhat, PairingFlag
+                continue
+            stacked_XE_data[i] = np.sum(self.adjust_by_distance(self.cre_props[CREs_within_bool] * indicator_boolean.reshape((-1,1,1)), self.TSSs[i], self.cre_coords[CREs_within_bool, 0], self.cre_coords[CREs_within_bool, 1]), axis=0)[:,1:]
+        stacked_data = np.hstack((self.TSS_window_props.reshape((-1, self.stateN))[:,1:], stacked_XE_data.reshape((-1,self.stateN-1))))
+        return stacked_data
 
-        def update_yhats(self):
-            yhats = np.zeros((self.tssN, self.cellN), dtype=np.float32)
-            for i in range(self.tssN):
-                yhats[i], self.flags[i] = self.regression_equation(i)
-            self.logcosh_expression = self.take_logcosh_loss(self.exp_values, yhats)
+    def linear_fit(self, X, Y, intercept=False):
+        Y = Y.reshape(-1,)
+        fit_model = linear_model.LinearRegression(fit_intercept=intercept).fit(X, Y)
+        return fit_model.coef_
 
-        def stack_X_data(self):
-            stacked_XE_data = np.zeros((self.tssN, self.cellN, self.stateN-1))
-            for i in range(self.tssN):
-                CREs_within_bool = self.find_cres_within(tss_i)
-                if np.sum(CREs_within_bool) == 0:
-                    continue
-                indicator_boolean = self.indicator_function(tss_i, CREs_within_bool)
-                if np.sum(indicator_boolean) == 0:
-                    continue
-                stacked_XE_data[i] = np.sum(self.adjust_by_distance(self.cre_props[CREs_within_bool] * indicator_boolean.reshape((-1,1,1)), self.TSSs[i], self.cre_coords[CREs_within_bool, 0], self.cre_coords[CREs_within_bool, 1]), axis=0)[:,1:]
-            stacked_data = np.hstack((self.TSS_window_props.reshape((-1, self.stateN))[:,1:], stacked_XE_data.reshape((-1,self.stateN-1))))
-            return stacked_data
+    def update_parameters(self):
+        self.sigma_sqr = self.posterior_sigma_sqr()
+        self.update_yhats()
+        self.k = self.posterior_k()
+        self.update_yhats()
+        self.gamma = self.posterior_gamma()
+        stacked_data = self.stack_X_data()
+        self.stacked_beta = self.linear_fit(stacked_data, self.exp_values)
 
-        def linear_fit(self, X, Y, intercept=False):
-            Y = Y.reshape(-1,)
-            fit_model = linear_model.LinearRegression(fit_intercept=intercept).fit(X, Y)
-            return fit_model.coef_
+    def report_iteration_hyperparameters(self, iteration, param_dict):
+        toWriteTo_scalar = open('output_scalar_hyperparameters.txt', 'a')
+        toWriteTo_scalar.write('Iteration:\t{}\tsigma_sqr:\t{}\tk:\t{}\tgamma:\t{}\n'.format(iteration, param_dict['sigma_sqr'], param_dict['k'], param_dict['gamma']))
+        toWriteTo_scalar.close()
 
-        def update_parameters(self):
-            self.sigma_sqr = self.posterior_sigma_sqr()
+        toWriteTo_beta = open('output_beta_hyperparameters.txt', 'a')
+        toWriteTo_beta.write('Iteration:\t{}\n'.format(iteration))
+        np.savetxt(toWriteTo_beta, param_dict['stacked_beta'], fmt='%.5f')
+        toWriteTo_beta.close()
+
+    def report_metrics(self, iteration, logcosh_sum, numNP):
+        toWriteTo = open('output_metrics.txt', 'a')
+        toWriteTo.write('Iteration:\t{}\tLoss:\t{}\tnumNP:\t{}\tnumNPRatio:\t{}\n'.format(iteration, logcosh_sum, numNP, numNP/self.tssN))
+        toWriteTo.close()
+
+    def run_sampler(self, init_beta, init_gamma, init_k, init_sigma_sqr, iters, burn_in, cre_dist):
+        self.cre_dist = cre_dist
+        self.stacked_beta, self.gamma, self.k, self.sigma_sqr = np.load(init_beta), init_gamma, init_k, init_sigma_sqr
+        argmin = {'stacked_beta': np.copy(self.stacked_beta),
+                  'gamma': self.gamma,
+                  'k': self.k,
+                  'sigma_sqr': self.sigma_sqr}
+
+        self.flags = np.zeros(self.tssN, dtype=np.bool)
+
+        self.update_yhats()
+        minLoss = self.logcosh_expression
+        minNP = np.sum(~self.flags)
+        self.report_metrics(-1, minLoss, minNP)
+        self.report_iteration_hyperparameters(-1, argmin)
+
+        for iteration in range(iters):
+            self.update_parameters()
             self.update_yhats()
-            self.k = self.posterior_k()
-            self.update_yhats()
-            self.gamma = self.posterior_gamma()
-            stacked_data = self.stack_X_data()
-            self.stacked_beta = self.linear_fit(stacked_data, self.exp_values)
+            if (iteration > burn_in) and (self.logcosh_expression < minLoss):
+                argmin['stacked_beta'] = np.copy(self.stacked_beta)
+                argmin['gamma'] = self.gamma
+                argmin['k'] = self.k
+                argmin['sigma_sqr'] = self.sigma_sqr
+                minLoss = self.logcosh_expression
+                minNP = np.sum(~self.flags)
+                self.report_metrics(iteration, minLoss, minNP)
+                self.report_iteration_hyperparameters(iteration, argmin)
+            else:
+                iter_dict = {'stacked_beta': np.copy(self.stacked_beta),
+                             'gamma': self.gamma,
+                             'k': self.k,
+                             'sigma_sqr': self.sigma_sqr}
+                self.report_metrics(iteration, self.logcosh_expression, np.sum(~self.flags))
+                self.report_iteration_hyperparameters(iteration, iter_dict)
 
-        def report_iteration_hyperparameters(self, iteration, param_dict):
-            toWriteTo_scalar = open('output_scalar_hyperparameters.txt', 'a')
-            toWriteTo_scalar.write('Iteration:\t{}\tsigma_sqr:\t{}\tk:\t{}\tgamma:\t{}\n'.format(iteration, param_dict['sigma_sqr'], param_dict['k'], param_dict['gamma']))
-            toWriteTo_scalar.close()
-
-            toWriteTo_beta = open('output_beta_hyperparameters.txt', 'a')
-            toWriteTo_beta.write('Iteration:\t{}\n'.format(iteration))
-            np.savetxt(toWriteTo_beta, param_dict['stacked_beta'], fmt='%.5f')
-            toWriteTo_beta.close()
-
-        def report_metrics(self, iteration, logcosh_sum, numNP):
-            toWriteTo = open('output_metrics.txt', 'a')
-            toWriteTo.write('Iteration:\t{}\tLoss:\t{}\tnumNP:\t{}\tnumNPRatio:\t{}\n'.format(iteration, logcosh_sum, numNP, numNP/self.tssN))
-            toWriteTo.close()
-
-        def run_sampler(self, init_beta, init_gamma, init_k, init_sigma_sqr, iters, burn_in, cre_dist):
-            self.cre_dist = cre_dist
-            self.stacked_beta, self.gamma, self.k, self.sigma_sqr = np.load(init_beta), init_gamma, init_k, init_sigma_sqr
-            argmin = {'stacked_beta': np.copy(self.stacked_beta),
-                      'gamma': self.gamma,
-                      'k': self.k,
-                      'sigma_sqr': self.sigma_sqr}
-
-            self.flags = np.zeros(self.tssN, dtype=np.bool)
-
-            self.update_yhats()
-            minLoss = self.logcosh_expression
-            minNP = np.sum(~self.flags)
-            self.report_metrics(-1, minLoss, minNP)
-            self.report_iteration_hyperparameters(-1, argmin)
-
-            for iteration in range(iters):
-                self.update_parameters()
-                self.update_yhats()
-                if (iteration > burn_in) and (self.logcosh_expression < minLoss):
-                    argmin['stacked_beta'] = np.copy(self.stacked_beta)
-                    argmin['gamma'] = self.gamma
-                    argmin['k'] = self.k
-                    argmin['sigma_sqr'] = self.sigma_sqr
-                    minLoss = self.logcosh_expression
-                    minNP = np.sum(~self.flags)
-                    self.report_metrics(iteration, minLoss, minNP)
-                    self.report_iteration_hyperparameters(iteration, argmin)
-                else:
-                    iter_dict = {'stacked_beta': np.copy(self.stacked_beta),
-                                 'gamma': self.gamma,
-                                 'k': self.k,
-                                 'sigma_sqr': self.sigma_sqr}
-                    self.report_metrics(iteration, self.logcosh_expression, np.sum(~self.flags))
-                    self.report_iteration_hyperparameters(iteration, iter_dict)
-
-            self.report_metrics('argmin', minLoss, minNP)
-            self.report_iteration_hyperparameters('argmin', argmin)
+        self.report_metrics('argmin', minLoss, minNP)
+        self.report_iteration_hyperparameters('argmin', argmin)
 
 main()
