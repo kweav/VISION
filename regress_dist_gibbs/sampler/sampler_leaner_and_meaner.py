@@ -366,3 +366,5 @@ class regress_sampler():
 
             self.report_metrics('argmin', minLoss, minNP)
             self.report_iteration_hyperparameters('argmin', argmin)
+
+main()
