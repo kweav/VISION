@@ -6,9 +6,9 @@ import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 
-'''Usage: date; time ./plot_correlation.py eRP_pol2.bed eRP_pol2_v.bed'''
-gamma = 1
-num = 11
+'''Usage: date; time ./plot_correlation.py eRP_pol2.bed eRP_pol2_v.bed gamma num'''
+gamma = float(sys.argv[3])
+num = int(sys.argv[4])
 
 def annotate_cor(x, y, ax, an):
     cor, pval = stats.pearsonr(x,y)
@@ -93,7 +93,7 @@ df_int_sub = df_int.iloc[:,[6,8,15]]
 
 '''NAIVE CORRELATIONS'''
 '''plot everything that intersects pol2 ChIP regardless of gene group'''
-#plot_nogg(df_int_sub.iloc[:,1], df_int_sub.iloc[:,2],'naive_correlation_only_int.png', 40, xlim=True)
+plot_nogg(df_int_sub.iloc[:,1], df_int_sub.iloc[:,2],'pc_naive_correlation_only_int.png', 40, xlim=True)
 
 mask_1 = df_int_sub.iloc[:,0] == 1
 mask_2 = df_int_sub.iloc[:,0] == 2
@@ -101,10 +101,10 @@ mask_3 = df_int_sub.iloc[:,0] == 3
 mask_4 = df_int_sub.iloc[:,0] == 4
 
 '''plot everything that intersects pol2 ChIP subselected by gene group'''
-#plot_gg(df_int_sub[mask_1].iloc[:,1], df_int_sub[mask_1].iloc[:,2],
-#        df_int_sub[mask_2].iloc[:,1], df_int_sub[mask_2].iloc[:,2],
-#        df_int_sub[mask_3].iloc[:,1], df_int_sub[mask_3].iloc[:,2],
-#        df_int_sub[mask_4].iloc[:,1], df_int_sub[mask_4].iloc[:,2], 'naive_correlation_gene_groups_only_int.png', 40, xlim=True)
+plot_gg(df_int_sub[mask_1].iloc[:,1], df_int_sub[mask_1].iloc[:,2],
+        df_int_sub[mask_2].iloc[:,1], df_int_sub[mask_2].iloc[:,2],
+        df_int_sub[mask_3].iloc[:,1], df_int_sub[mask_3].iloc[:,2],
+        df_int_sub[mask_4].iloc[:,1], df_int_sub[mask_4].iloc[:,2], 'pc_naive_correlation_gene_groups_only_int.png', 40, xlim=True)
 
 #subselect just the gene_group and eRP value
 df_v_sub = df_v.iloc[:,[6,8]]
@@ -120,13 +120,13 @@ mask_3 = df_full.iloc[:,0] == 3
 mask_4 = df_full.iloc[:,0] == 4
 
 '''plot all eRP scores assuming no intersection means signal 0 regardless of gene group '''
-#plot_nogg(df_full.iloc[:,1], df_full.iloc[:,2], 'naive_correlation.png', 40, xlim=True)
+plot_nogg(df_full.iloc[:,1], df_full.iloc[:,2], 'pc_naive_correlation.png', 40, xlim=True)
 
 '''plot all eRP scores assuming no intersection means signal 0 subselected by gene group '''
-#plot_gg(df_full[mask_1].iloc[:,1], df_full[mask_1].iloc[:,2],
-#        df_full[mask_2].iloc[:,1], df_full[mask_2].iloc[:,2],
-#        df_full[mask_3].iloc[:,1], df_full[mask_3].iloc[:,2],
-#        df_full[mask_4].iloc[:,1], df_full[mask_4].iloc[:,2], 'naive_correlation_gene_groups.png', 40, xlim=True)
+plot_gg(df_full[mask_1].iloc[:,1], df_full[mask_1].iloc[:,2],
+        df_full[mask_2].iloc[:,1], df_full[mask_2].iloc[:,2],
+        df_full[mask_3].iloc[:,1], df_full[mask_3].iloc[:,2],
+        df_full[mask_4].iloc[:,1], df_full[mask_4].iloc[:,2], 'pc_naive_correlation_gene_groups.png', 40, xlim=True)
 
 '''LESS NAIVE CORRELATIONS: LOOK AT NUMBER SELECTED'''
 
@@ -143,9 +143,9 @@ df_v_sub_dist = df_v_sub.copy()
 df_v_sub_dist.insert(3, 'dist_correction', pd.DataFrame.abs(((df_v.iloc[:,2]-df_v.iloc[:,1])/2) - df_v.iloc[:,3])**-gamma)
 df_full_dist = pd.concat([df_int_sub_dist, df_v_sub_dist])
 '''plot everything that intersects pol2 ChIP regardless of gene group'''
-#plot_nogg(df_int_sub_dist.iloc[:,1]*df_int_sub_dist.iloc[:,3], df_int_sub_dist.iloc[:,2], 'abc_dist_correlation_only_int.png', 0.002)
+plot_nogg(df_int_sub_dist.iloc[:,1]*df_int_sub_dist.iloc[:,3], df_int_sub_dist.iloc[:,2], 'abc_dist_g{}_correlation_only_int.png'.format(gamma), 0.002)
 
-#plot_nogg(df_int_sub_dist.iloc[:,1]/df_int_sub_dist.iloc[:,3], df_int_sub_dist.iloc[:,2], 'abc_dist_div_correlation_only_int.png', 0.002)
+plot_nogg(df_int_sub_dist.iloc[:,1]/df_int_sub_dist.iloc[:,3], df_int_sub_dist.iloc[:,2], 'abc_dist_div_g{}_correlation_only_int.png'.format(gamma), 0.002)
 
 
 mask_1 = df_int_sub_dist.iloc[:,0] == 1
@@ -153,35 +153,35 @@ mask_2 = df_int_sub_dist.iloc[:,0] == 2
 mask_3 = df_int_sub_dist.iloc[:,0] == 3
 mask_4 = df_int_sub_dist.iloc[:,0] == 4
 
-#plot_gg(df_int_sub_dist[mask_1].iloc[:,1]*df_int_sub_dist[mask_1].iloc[:,3], df_int_sub_dist[mask_1].iloc[:,2],
-#        df_int_sub_dist[mask_2].iloc[:,1]*df_int_sub_dist[mask_2].iloc[:,3], df_int_sub_dist[mask_2].iloc[:,2],
-#        df_int_sub_dist[mask_3].iloc[:,1]*df_int_sub_dist[mask_3].iloc[:,3], df_int_sub_dist[mask_3].iloc[:,2],
-#        df_int_sub_dist[mask_4].iloc[:,1]*df_int_sub_dist[mask_4].iloc[:,3], df_int_sub_dist[mask_4].iloc[:,2], 'abc_dist_correlation_gene_groups_only_int.png', 0.002)
+plot_gg(df_int_sub_dist[mask_1].iloc[:,1]*df_int_sub_dist[mask_1].iloc[:,3], df_int_sub_dist[mask_1].iloc[:,2],
+        df_int_sub_dist[mask_2].iloc[:,1]*df_int_sub_dist[mask_2].iloc[:,3], df_int_sub_dist[mask_2].iloc[:,2],
+        df_int_sub_dist[mask_3].iloc[:,1]*df_int_sub_dist[mask_3].iloc[:,3], df_int_sub_dist[mask_3].iloc[:,2],
+        df_int_sub_dist[mask_4].iloc[:,1]*df_int_sub_dist[mask_4].iloc[:,3], df_int_sub_dist[mask_4].iloc[:,2], 'abc_dist_g{}_correlation_gene_groups_only_int.png'.format(gamma), 0.002)
 
-#plot_gg(df_int_sub_dist[mask_1].iloc[:,1]/df_int_sub_dist[mask_1].iloc[:,3], df_int_sub_dist[mask_1].iloc[:,2],
-#        df_int_sub_dist[mask_2].iloc[:,1]/df_int_sub_dist[mask_2].iloc[:,3], df_int_sub_dist[mask_2].iloc[:,2],
-#        df_int_sub_dist[mask_3].iloc[:,1]/df_int_sub_dist[mask_3].iloc[:,3], df_int_sub_dist[mask_3].iloc[:,2],
-#        df_int_sub_dist[mask_4].iloc[:,1]/df_int_sub_dist[mask_4].iloc[:,3], df_int_sub_dist[mask_4].iloc[:,2], 'abc_dist_div_correlation_gene_groups_only_int.png', 0.002)
+plot_gg(df_int_sub_dist[mask_1].iloc[:,1]/df_int_sub_dist[mask_1].iloc[:,3], df_int_sub_dist[mask_1].iloc[:,2],
+        df_int_sub_dist[mask_2].iloc[:,1]/df_int_sub_dist[mask_2].iloc[:,3], df_int_sub_dist[mask_2].iloc[:,2],
+        df_int_sub_dist[mask_3].iloc[:,1]/df_int_sub_dist[mask_3].iloc[:,3], df_int_sub_dist[mask_3].iloc[:,2],
+        df_int_sub_dist[mask_4].iloc[:,1]/df_int_sub_dist[mask_4].iloc[:,3], df_int_sub_dist[mask_4].iloc[:,2], 'abc_dist_div_g{}_correlation_gene_groups_only_int.png'.format(gamma), 0.002)
 
 '''plot all eRP scores assuming no intersection means signal 0 regardless of gene group '''
-#plot_nogg(df_full_dist.iloc[:,1]*df_full_dist.iloc[:,3], df_full_dist.iloc[:,2], 'abc_dist_correlation.png', 0.002)
+plot_nogg(df_full_dist.iloc[:,1]*df_full_dist.iloc[:,3], df_full_dist.iloc[:,2], 'abc_dist_g{}_correlation.png'.format(gamma), 0.002)
 
-#plot_nogg(df_full_dist.iloc[:,1]/df_full_dist.iloc[:,3], df_full_dist.iloc[:,2], 'abc_dist_div_correlation.png', 0.002)
+plot_nogg(df_full_dist.iloc[:,1]/df_full_dist.iloc[:,3], df_full_dist.iloc[:,2], 'abc_dist_div_g{}_correlation.png'.format(gamma), 0.002)
 
 mask_1 = df_full_dist.iloc[:,0] == 1
 mask_2 = df_full_dist.iloc[:,0] == 2
 mask_3 = df_full_dist.iloc[:,0] == 3
 mask_4 = df_full_dist.iloc[:,0] == 4
 
-#plot_gg(df_full_dist[mask_1].iloc[:,1]*df_full_dist[mask_1].iloc[:,3], df_full_dist[mask_1].iloc[:,2],
-#        df_full_dist[mask_2].iloc[:,1]*df_full_dist[mask_2].iloc[:,3], df_full_dist[mask_2].iloc[:,2],
-#        df_full_dist[mask_3].iloc[:,1]*df_full_dist[mask_3].iloc[:,3], df_full_dist[mask_3].iloc[:,2],
-#        df_full_dist[mask_4].iloc[:,1]*df_full_dist[mask_4].iloc[:,3], df_full_dist[mask_4].iloc[:,2], 'abc_dist_correlation_gene_groups.png', 0.002)
+plot_gg(df_full_dist[mask_1].iloc[:,1]*df_full_dist[mask_1].iloc[:,3], df_full_dist[mask_1].iloc[:,2],
+        df_full_dist[mask_2].iloc[:,1]*df_full_dist[mask_2].iloc[:,3], df_full_dist[mask_2].iloc[:,2],
+        df_full_dist[mask_3].iloc[:,1]*df_full_dist[mask_3].iloc[:,3], df_full_dist[mask_3].iloc[:,2],
+        df_full_dist[mask_4].iloc[:,1]*df_full_dist[mask_4].iloc[:,3], df_full_dist[mask_4].iloc[:,2], 'abc_dist_g{}_correlation_gene_groups.png'.format(gamma), 0.002)
 
-#plot_gg(df_full_dist[mask_1].iloc[:,1]/df_full_dist[mask_1].iloc[:,3], df_full_dist[mask_1].iloc[:,2],
-#        df_full_dist[mask_2].iloc[:,1]/df_full_dist[mask_2].iloc[:,3], df_full_dist[mask_2].iloc[:,2],
-#        df_full_dist[mask_3].iloc[:,1]/df_full_dist[mask_3].iloc[:,3], df_full_dist[mask_3].iloc[:,2],
-#        df_full_dist[mask_4].iloc[:,1]/df_full_dist[mask_4].iloc[:,3], df_full_dist[mask_4].iloc[:,2], 'abc_dist_div_correlation_gene_groups.png', 0.002)
+plot_gg(df_full_dist[mask_1].iloc[:,1]/df_full_dist[mask_1].iloc[:,3], df_full_dist[mask_1].iloc[:,2],
+        df_full_dist[mask_2].iloc[:,1]/df_full_dist[mask_2].iloc[:,3], df_full_dist[mask_2].iloc[:,2],
+        df_full_dist[mask_3].iloc[:,1]/df_full_dist[mask_3].iloc[:,3], df_full_dist[mask_3].iloc[:,2],
+        df_full_dist[mask_4].iloc[:,1]/df_full_dist[mask_4].iloc[:,3], df_full_dist[mask_4].iloc[:,2], 'abc_dist_div_g{}_correlation_gene_groups.png'.format(gamma), 0.002)
 
 
 #Mike's concern: What about a cCRE connected to multiple genes at the same time. That's a good question. How do I handle that? What should I be averaging?
@@ -237,8 +237,8 @@ df_full_num_dist = pd.concat([df_int_sub_num_dist, df_v_sub_num_dist])
 '''-->just intersection with pol2'''
 mask = df_int_sub_num_dist.iloc[:,3] >= num
 '''-->-->regardless of gene group'''
-plot_nogg(df_int_sub_num_dist[mask].iloc[:,1]*df_int_sub_num_dist[mask].iloc[:,4], df_int_sub_num_dist[mask].iloc[:,2], 'abc_dist_{}_correlation_sel_atleast_{}_only_int.png'.format(gamma, num), 0.002)
-plot_nogg(df_int_sub_num_dist[mask].iloc[:,1]/df_int_sub_num_dist[mask].iloc[:,4], df_int_sub_num_dist[mask].iloc[:,2], 'abc_dist_{}_div_correlation_sel_atleast_{}_only_int.png'.format(gamma,num), 0.002)
+plot_nogg(df_int_sub_num_dist[mask].iloc[:,1]*df_int_sub_num_dist[mask].iloc[:,4], df_int_sub_num_dist[mask].iloc[:,2], 'abc_dist_g{}_correlation_sel_atleast_{}_only_int.png'.format(gamma, num), 0.002)
+plot_nogg(df_int_sub_num_dist[mask].iloc[:,1]/df_int_sub_num_dist[mask].iloc[:,4], df_int_sub_num_dist[mask].iloc[:,2], 'abc_dist_div_g{}_correlation_sel_atleast_{}_only_int.png'.format(gamma,num), 0.002)
 '''-->-->gene groups'''
 mask_1 = (df_int_sub_num_dist.iloc[:,3] >= num) & (df_int_sub_num_dist.iloc[:,0] == 1)
 mask_2 = (df_int_sub_num_dist.iloc[:,3] >= num) & (df_int_sub_num_dist.iloc[:,0] == 2)
@@ -249,18 +249,18 @@ mask_4 = (df_int_sub_num_dist.iloc[:,3] >= num) & (df_int_sub_num_dist.iloc[:,0]
 plot_gg(df_int_sub_num_dist[mask_1].iloc[:,1]*df_int_sub_num_dist[mask_1].iloc[:,4], df_int_sub_num_dist[mask_1].iloc[:,2],
         df_int_sub_num_dist[mask_2].iloc[:,1]*df_int_sub_num_dist[mask_2].iloc[:,4], df_int_sub_num_dist[mask_2].iloc[:,2],
         df_int_sub_num_dist[mask_3].iloc[:,1]*df_int_sub_num_dist[mask_3].iloc[:,4], df_int_sub_num_dist[mask_3].iloc[:,2],
-        df_int_sub_num_dist[mask_4].iloc[:,1]*df_int_sub_num_dist[mask_4].iloc[:,4], df_int_sub_num_dist[mask_4].iloc[:,2], 'abc_dist_{}_correlation_sel_atleast_{}_only_int_gg.png'.format(gamma,num), 0.002)
+        df_int_sub_num_dist[mask_4].iloc[:,1]*df_int_sub_num_dist[mask_4].iloc[:,4], df_int_sub_num_dist[mask_4].iloc[:,2], 'abc_dist_g{}_correlation_sel_atleast_{}_only_int_gg.png'.format(gamma,num), 0.002)
 
 plot_gg(df_int_sub_num_dist[mask_1].iloc[:,1]/df_int_sub_num_dist[mask_1].iloc[:,4], df_int_sub_num_dist[mask_1].iloc[:,2],
         df_int_sub_num_dist[mask_2].iloc[:,1]/df_int_sub_num_dist[mask_2].iloc[:,4], df_int_sub_num_dist[mask_2].iloc[:,2],
         df_int_sub_num_dist[mask_3].iloc[:,1]/df_int_sub_num_dist[mask_3].iloc[:,4], df_int_sub_num_dist[mask_3].iloc[:,2],
-        df_int_sub_num_dist[mask_4].iloc[:,1]/df_int_sub_num_dist[mask_4].iloc[:,4], df_int_sub_num_dist[mask_4].iloc[:,2], 'abc_dist_{}_div_correlation_sel_atleast_{}_only_int_gg.png'.format(gamma,num), 0.002)
+        df_int_sub_num_dist[mask_4].iloc[:,1]/df_int_sub_num_dist[mask_4].iloc[:,4], df_int_sub_num_dist[mask_4].iloc[:,2], 'abc_dist_div_g{}_correlation_sel_atleast_{}_only_int_gg.png'.format(gamma,num), 0.002)
 
 '''-->assume no intersection is 0'''
 mask = df_full_num_dist.iloc[:,3] >= num
 '''-->-->regardless of gene group'''
-plot_nogg(df_full_num_dist[mask].iloc[:,1]*df_full_num_dist[mask].iloc[:,4], df_full_num_dist[mask].iloc[:,2], 'abc_dist_{}_correlation_sel_atleast_{}.png'.format(gamma, num), 0.002)
-plot_nogg(df_full_num_dist[mask].iloc[:,1]/df_full_num_dist[mask].iloc[:,4], df_full_num_dist[mask].iloc[:,2], 'abc_dist_{}_div_correlation_sel_atleast_{}.png'.format(gamma, num), 0.002)
+plot_nogg(df_full_num_dist[mask].iloc[:,1]*df_full_num_dist[mask].iloc[:,4], df_full_num_dist[mask].iloc[:,2], 'abc_dist_g{}_correlation_sel_atleast_{}.png'.format(gamma, num), 0.002)
+plot_nogg(df_full_num_dist[mask].iloc[:,1]/df_full_num_dist[mask].iloc[:,4], df_full_num_dist[mask].iloc[:,2], 'abc_dist_div_g{}_correlation_sel_atleast_{}.png'.format(gamma, num), 0.002)
 '''-->-->gene groups'''
 mask_1 = (df_full_num_dist.iloc[:,3] >= num) & (df_full_num_dist.iloc[:,0] == 1)
 mask_2 = (df_full_num_dist.iloc[:,3] >= num) & (df_full_num_dist.iloc[:,0] == 2)
@@ -270,11 +270,11 @@ mask_4 = (df_full_num_dist.iloc[:,3] >= num) & (df_full_num_dist.iloc[:,0] == 4)
 plot_gg(df_full_num_dist[mask_1].iloc[:,1]*df_full_num_dist[mask_1].iloc[:,4], df_full_num_dist[mask_1].iloc[:,2],
         df_full_num_dist[mask_2].iloc[:,1]*df_full_num_dist[mask_2].iloc[:,4], df_full_num_dist[mask_2].iloc[:,2],
         df_full_num_dist[mask_3].iloc[:,1]*df_full_num_dist[mask_3].iloc[:,4], df_full_num_dist[mask_3].iloc[:,2],
-        df_full_num_dist[mask_4].iloc[:,1]*df_full_num_dist[mask_4].iloc[:,4], df_full_num_dist[mask_4].iloc[:,2], 'abc_dist_{}_correlation_sel_atleast_{}_gg.png'.format(gamma,num), 0.002)
+        df_full_num_dist[mask_4].iloc[:,1]*df_full_num_dist[mask_4].iloc[:,4], df_full_num_dist[mask_4].iloc[:,2], 'abc_dist_g{}_correlation_sel_atleast_{}_gg.png'.format(gamma,num), 0.002)
 
 plot_gg(df_full_num_dist[mask_1].iloc[:,1]/df_full_num_dist[mask_1].iloc[:,4], df_full_num_dist[mask_1].iloc[:,2],
         df_full_num_dist[mask_2].iloc[:,1]/df_full_num_dist[mask_2].iloc[:,4], df_full_num_dist[mask_2].iloc[:,2],
         df_full_num_dist[mask_3].iloc[:,1]/df_full_num_dist[mask_3].iloc[:,4], df_full_num_dist[mask_3].iloc[:,2],
-        df_full_num_dist[mask_4].iloc[:,1]/df_full_num_dist[mask_4].iloc[:,4], df_full_num_dist[mask_4].iloc[:,2], 'abc_dist_{}_div_correlation_sel_atleast_{}_gg.png'.format(gamma,num), 0.002)
+        df_full_num_dist[mask_4].iloc[:,1]/df_full_num_dist[mask_4].iloc[:,4], df_full_num_dist[mask_4].iloc[:,2], 'abc_dist_div_g{}_correlation_sel_atleast_{}_gg.png'.format(gamma,num), 0.002)
 
 '''LESS NAIVE CORRELATIONS: LOOK AT NUMBER OF TIMES SELECTED -- weight based on number of times'''
