@@ -39,7 +39,7 @@ def generate_parser():
     parser.add_argument('--train_exp', action='store', dest='train_exp', type=str, default='trainTPM.npz')
     parser.add_argument('--test_exp', action='store', dest='test_exp', type=str, default='testTPM.npz')
     parser.add_argument('--chroms', action='store', nargs='+', dest='chroms', type=str, default='chr1', help='use all if you want to run all')
-    parser.add_argument('--which_with', action='store', dest='which_with', type=str, default='within')
+    parser.add_argument('--which_with', action='store', dest='which_with', type=str, default='within', help='{TT, EE, within, not}')
     return parser
 
 def setup_threads(threads):
@@ -235,11 +235,10 @@ class regress_sampler():
             angle = np.nan
         return angle
 
-    # def report_T_T_values(self, Pdistance, Tdistance, angle):
-    #     for arg, argT in zip([Pdistance, Tdistance, angle], ['Pdistance', 'Tdistance', 'angle']):
-    #         toWriteTo = open('outputTT_{}_{}.txt'.format(argT, self.chrom), 'a')
-    #         toWriteTo.write('{}\n'.format(arg))
-    #         toWriteTo.close()
+    def report_T_T_values(self, Pdistance, Tdistance, angle):
+        for arg, argT in zip([Pdistance, Tdistance, angle], ['Pdistance', 'Tdistance', 'angle']):
+            toWriteTo = 'outputTT_{}_{}.txt'.format(argT, self.chrom)
+            np.savetxt(toWriteTo, arg)
 
     def report_T_E_W(self, DEdistance, TEdistance, angle):
         for arg, argT in zip([DEdistance, TEdistance, angle], ['DEdistance', 'TEdistance', 'angle']):
@@ -251,19 +250,34 @@ class regress_sampler():
             toWriteTo = 'outputTENW_{}_{}.txt'.format(argT, self.chrom)
             np.savetxt(toWriteTo, arg)
 
-    # def report_E_E_values(self, distance):
-    #     toWriteTo = open('outputEE_distance_{}.txt'.format(self.chrom), 'a')
-    #     toWriteTo.write('{}\n'.format(distance))
-    #     toWriteTo.close()
+    def report_E_E_values(self, distance):
+        toWriteTo = 'outputEE_distance_{}.txt'.format(self.chrom)
+        np.savetxt(toWriteTo, distance)
 
     def save_distances(self, which_with):
-        # for a, b in itertools.combinations(range(self.tssN), 2):
-        #     Pdistance, Tdistance = self.distance_T_T(a, b)
-        #     angle = self.angle_T_T(a, b)
-        #     self.report_T_T_values(Pdistance, Tdistance, angle)
-        # for a,b in itertools.combinations(range(self.creM), 2):
-        #     distance = self.distance_E_E(self.cre_props[a], self.cre_props[b])
-        #     self.report_E_E_values(distance)
+        if which_with == "TT":
+            TT_Pdistances = []
+            TT_Tdistances = []
+            TT_angles = []
+            for a, b in itertools.combinations(range(self.tssN), 2):
+                Pdistance, Tdistance = self.distance_T_T(a, b)
+                TT_Pdistances.append(Pdistance)
+                TT_Tdistances.append(Tdistance)
+                angle = self.angle_T_T(a, b)
+                TT_angles.append(angle)
+            TT_Pdistances = np.array(TT_Pdistances).reshape(-1,)
+            TT_Tdistances = np.array(TT_Tdistances).reshape(-1,)
+            TT_angles = np.array(TT_angles).reshape(-1,)
+            self.report_T_T_values(TT_Pdistances, TT_Tdistances, TT_angles)
+
+        if which_with == 'EE':
+            distances = []
+            for a,b in itertools.combinations(range(self.creM), 2):
+                distance = self.distance_E_E(self.cre_props[a], self.cre_props[b])
+                distances.append(distance)
+            distances = np.array(distances).reshape(-1,)
+            self.report_E_E_values(distances)
+
         if which_with == 'within':
             DE_dist_within = []
             TE_dist_within = []
