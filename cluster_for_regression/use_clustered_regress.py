@@ -192,6 +192,7 @@ class regress_sampler():
             PairingFlag = False
             return self.justP(tss_i), PairingFlag
         yhat = self.justP(tss_i) + self.justPair(tss_i, indicator_boolean)
+        return yhat, PairingFlag
 
     def update_yhats(self):
         yhats = np.zeros((self.tssN, self.cellN), dtype=np.float32)
