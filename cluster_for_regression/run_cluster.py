@@ -248,9 +248,7 @@ class regress_sampler():
     def find_initial_little_d(self, tss_i):
         within_bool = self.find_cres_within(tss_i)
         withinN = np.sum(within_bool)
-        print('initial withinN ', withinN, flush=True)
         self.distances = np.zeros((withinN+1, withinN), dtype=np.float32)
-        print('initial little d ', self.distances.shape, flush=True)
 
         cre_j_to_index = {} #these indices are zero-based; for rows, must add one; for columns good as is
         index_to_cre_j = {} #these indices are zero-based; for rows, must add one; for columns good as is
@@ -276,15 +274,16 @@ class regress_sampler():
     def find_initial_capital_D(self, dist_thresh, within_bool, index_dict):
         min_D_ij = dist_thresh
         index_min = -1
+        all_cap_dists = []
         for cre_j in np.arange(self.creM)[within_bool]:
             capital_dist = self.get_D_ij(index_dict[cre_j])
+            all_cap_dists.append(capital_dist)
             if capital_dist < min_D_ij:
                 min_D_ij = capital_dist
                 index_min = index_dict[cre_j]
-        return index_min
+        return index_min, min_D_ij, all_cap_dists
 
     def update_little_d(self, withinN, current_n, index_min):
-        print('withinN update ', withinN, flush=True)
         new_distances = np.zeros((withinN+1-current_n, withinN-current_n))
         '''copy information for not clustered distances'''
         new_distances[1:index_min+1, 0:index_min] = self.distances[1:index_min+1, 0:index_min]
@@ -298,16 +297,12 @@ class regress_sampler():
         updated_cluster = 1/2*((d_im + d_jm) - d_ij)
         new_distances[0, :] = updated_cluster
         self.distances = new_distances
-        print('update little d ', self.distances.shape, flush=True)
 
     def update_index_dict(self, tss_i, within_bool, clustered):
         clustered_bool = clustered[tss_i, within_bool] == 0
-        print(np.sum(clustered_bool), flush=True)
-        print(np.sum(clustered[tss_i, within_bool]), flush=True)
         cre_j_to_index = {} #these indices are zero-based; for rows, must add one; for columns good as is
         index_to_cre_j = {} #these indices are zero-based; for rows, must add one; for columns good as is
         for enum_j, cre_j in enumerate(np.arange(self.creM)[within_bool][clustered_bool]):
-            print(cre_j, enum_j, flush=True)
             cre_j_to_index[cre_j] = enum_j
             index_to_cre_j[enum_j] = cre_j
         return clustered_bool, cre_j_to_index, index_to_cre_j
@@ -315,49 +310,51 @@ class regress_sampler():
     def find_next_capital_D(self, dist_thresh, within_bool, index_dict, clustered_bool):
         min_D_ij = dist_thresh
         index_min = -1
+        all_cap_dists = []
         for cre_j in np.arange(self.creM)[within_bool][clustered_bool]:
             capital_dist = self.get_D_ij(index_dict[cre_j])
+            all_cap_dists.append(capital_dist)
             if capital_dist < min_D_ij:
                 min_D_ij = capital_dist
                 index_min = index_dict[cre_j]
-        return index_min
+        return index_min, min_D_ij, all_cap_dists
 
     def run_clustering(self, n_thresh, dist_thresh, clustering_available=False):
         clustered = np.zeros((self.tssN, self.creM), dtype=np.int32)
+        all_cap_dists_full = np.array([])
+        all_min_Ds = np.array([])
         for tss_i in range(self.tssN):
             current_n = 0
             '''find little d distances'''
             within_bool, withinN, cre_j_to_index, index_to_cre_j = self.find_initial_little_d(tss_i)
-            if withinN > 0:
+            if withinN > 0 and (current_n < (withinN - 1)):
                 clustering_available = True
                 '''Find close and far capital D distances'''
-                index_min = self.find_initial_capital_D(dist_thresh, within_bool, cre_j_to_index)
+                index_min, min_D_ij, all_cap_dists = self.find_initial_capital_D(dist_thresh, within_bool, cre_j_to_index)
+                all_cap_dists_full = np.hstack((all_cap_dists_full, all_cap_dists))
                 if index_min != -1:
-                    print('got here', index_min, type(index_min), flush=True)
-                    print(type(clustered), flush=True)
-                    print(clustered.dtype, flush=True)
-                    print(clustered.shape, flush=True)
-                    print(clustered[tss_i].shape, flush=True)
-                    print(clustered[tss_i, within_bool].shape, flush=True)
-                    print('before set ', clustered[tss_i, within_bool][index_min], flush=True)
-                    clustered[tss_i, within_bool][index_min] =
-                    print('after set ', clustered[tss_i, within_bool][index_min], flush=True)
+                    clustered[tss_i, index_to_cre_j[index_min]] = 1
                     current_n += 1
-                    quit()
+                    all_min_Ds = np.hstack((all_min_Ds, min_D_ij))
                 else:
                     clustering_available = False
-                while (current_n < n_thresh) and clustering_available:
+                while (current_n < n_thresh) and (current_n < (withinN -1)) and clustering_available:
                     self.update_little_d(withinN, current_n, index_min)
                     clustered_bool, updated_cre_j_to_index, updated_index_to_cre_j = self.update_index_dict(tss_i, within_bool, clustered)
-                    index_min = self.find_next_capital_D(dist_thresh, within_bool, updated_cre_j_to_index, clustered_bool)
+                    index_min, min_D_ij, all_cap_dists = self.find_next_capital_D(dist_thresh, within_bool, updated_cre_j_to_index, clustered_bool)
+                    all_cap_dists_full = np.hstack((all_cap_dists_full, all_cap_dists))
                     if index_min != -1:
-                        clustered[tss_i, within_bool][clustered_bool][index_min] = 1
+                        clustered[tss_i, updated_index_to_cre_j[index_min]] = 1
                         current_n += 1
+                        all_min_Ds = np.hstack((all_min_Ds, min_D_ij))
                     else:
                         clustering_available = False
-                print(tss_i, np.sum(clustered[tss_i]), flush=True)
-                quit()
+                    if current_n == withinN - 1:
+                        clustering_available = False
             else:
                 continue
+        npz_file = open('{}_with_dists_{}_{}_nj_clustered.npz'.format(self.chrom, n_thresh, dist_thresh), 'wb')
+        np.savez(npz_file, clustered=clustered, full_cap_D=all_cap_dists_full, min_cap_D=all_min_Ds)
+        npz_file.close()
 
 main()
