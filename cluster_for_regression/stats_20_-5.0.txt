@@ -1,0 +1,441 @@
+# clustered/TSS chr1
+Max: 16
+Min: 0
+Average: 6.9042724060391905
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr1
+Max: 843.919654308349
+Min: -622.7770195007324
+Average: -2.6816751775511185
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr1
+Max: -5.000266894434837
+Min: -622.7770195007324
+Average: -41.3081609550446
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr2
+Max: 20
+Min: 1
+Average: 7.398648648648648
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr2
+Max: 629.1994021926796
+Min: -288.1051642894745
+Average: -2.8688477037974804
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr2
+Max: -5.00004167906485
+Min: -288.1051642894745
+Average: -36.20272877087671
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr3
+Max: 20
+Min: 0
+Average: 6.760828625235405
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr3
+Max: 695.567710070106
+Min: -283.1929700751054
+Average: -2.7913534242809344
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr3
+Max: -5.000209632019202
+Min: -283.1929700751054
+Average: -36.57200826516543
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr4
+Max: 20
+Min: 1
+Average: 7.216459977452086
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr4
+Max: 541.8042508844743
+Min: -341.794485727946
+Average: -2.9134319408224396
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr4
+Max: -5.000041341857502
+Min: -341.794485727946
+Average: -29.58226821140254
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr5
+Max: 20
+Min: 0
+Average: 7.761486835312339
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr5
+Max: 472.79389335579947
+Min: -314.7232904434204
+Average: -2.9778926366892193
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr5
+Max: -5.000185350855848
+Min: -314.7232904434204
+Average: -24.976563163878414
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr6
+Max: 18
+Min: 0
+Average: 6.713544369486248
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr6
+Max: 596.6851010131836
+Min: -380.3219528198242
+Average: -2.7142080760602285
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr6
+Max: -5.000469371194153
+Min: -380.3219528198242
+Average: -33.03983398234725
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr7
+Max: 20
+Min: 0
+Average: 6.721600542556799
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr7
+Max: 433.4971013262989
+Min: -423.86771726608276
+Average: -3.029500899558485
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr7
+Max: -5.0000734386689185
+Min: -423.86771726608276
+Average: -28.516639218595923
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr8
+Max: 20
+Min: 2
+Average: 7.27076064200977
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr8
+Max: 330.32179237479596
+Min: -257.8587427139282
+Average: -2.9933023752378696
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr8
+Max: -5.000231249575352
+Min: -257.8587427139282
+Average: -29.561750392200135
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr9
+Max: 19
+Min: 4
+Average: 6.970232088799193
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr9
+Max: 346.84601404276464
+Min: -135.89617729187012
+Average: -2.903763430923666
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr9
+Max: -5.0001337223996725
+Min: -135.89617729187012
+Average: -27.334870786156507
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr10
+Max: 18
+Min: 0
+Average: 6.496840442338073
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr10
+Max: 478.8044197882533
+Min: -139.77912425994873
+Average: -2.7970394006779147
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr10
+Max: -5.000687453964794
+Min: -139.77912425994873
+Average: -27.956913780978933
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr11
+Max: 20
+Min: 0
+Average: 7.916970802919708
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr11
+Max: 372.8796860351563
+Min: -282.082403421402
+Average: -3.09722074665049
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr11
+Max: -5.000114053085044
+Min: -282.082403421402
+Average: -24.775892611518177
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr12
+Max: 19
+Min: 2
+Average: 7.0094614264919946
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr12
+Max: 544.8094593048096
+Min: -180.15457143281637
+Average: -2.830463112513745
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr12
+Max: -5.001020983763738
+Min: -180.15457143281637
+Average: -27.93540928293637
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr13
+Max: 13
+Min: 0
+Average: 5.917482517482518
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr13
+Max: 423.2813761620548
+Min: -146.68093369223854
+Average: -2.6794787895296754
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr13
+Max: -5.000110824831895
+Min: -146.68093369223854
+Average: -27.23551186908788
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr14
+Max: 13
+Min: 1
+Average: 6.940330697340043
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr14
+Max: 775.5568911177002
+Min: -636.0126883983612
+Average: -2.6676145480859055
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr14
+Max: -5.000010427694317
+Min: -636.0126883983612
+Average: -49.337961058756655
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr15
+Max: 19
+Min: 0
+Average: 6.807504078303426
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr15
+Max: 267.6843890908324
+Min: -147.09809684753418
+Average: -2.9692987152145314
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr15
+Max: -5.000487655121811
+Min: -147.09809684753418
+Average: -24.87560844988013
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr16
+Max: 17
+Min: 0
+Average: 6.800424628450106
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr16
+Max: 466.0545810433322
+Min: -158.82980426152545
+Average: -2.750292445589863
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr16
+Max: -5.0004848326510345
+Min: -158.82980426152545
+Average: -31.798171452230022
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr17
+Max: 20
+Min: 4
+Average: 6.856041131105399
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr17
+Max: 438.12713881670413
+Min: -115.79632203073213
+Average: -3.0351421171638906
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr17
+Max: -5.000668707853596
+Min: -115.79632203073213
+Average: -24.849160477529725
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr18
+Max: 14
+Min: 0
+Average: 6.55956678700361
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr18
+Max: 528.7870461443346
+Min: -154.02698001861572
+Average: -2.756075004714944
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr18
+Max: -5.00029013440013
+Min: -154.02698001861572
+Average: -35.15422809108511
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chr19
+Max: 18
+Min: 1
+Average: 6.852441613588111
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chr19
+Max: 420.38645474872897
+Min: -144.32517623901367
+Average: -3.0273650744094707
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chr19
+Max: -5.001210565905927
+Min: -144.32517623901367
+Average: -26.68337747631203
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS chrX
+Max: 11
+Min: 0
+Average: 5.963782696177063
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij chrX
+Max: 1377.3778750770969
+Min: -935.0635095596314
+Average: -2.506214391050045
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij chrX
+Max: -5.000411016695823
+Min: -935.0635095596314
+Average: -70.52059719840442
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+All D_ij
+Max: 1377.3778750770969
+Min: -935.0635095596314
+Average: -2.881496791386102
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Clustered D_ij
+Max: -5.000010427694317
+Min: -935.0635095596314
+Average: -33.16155703218959
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+# clustered/TSS
+Max: 20.0
+Min: 0.0
+Average: 6.942662323321555
+numNaNs: 0
+NaNRatio: 0.0
+--------------
