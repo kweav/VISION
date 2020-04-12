@@ -1,0 +1,1911 @@
+EE distance chr1
+Max: 4.8913655281066895
+Min: 7.450580596923828e-09
+Average: 3.4446706771850586
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr1
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 12461
+NaNRatio: 0.00030781344701853985
+--------------
+Within TE angle chr1
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 139
+NaNRatio: 0.0002235661208865442
+--------------
+TE angle chr1
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 12600
+NaNRatio: 0.00030653912173914143
+--------------
+Not within TE DE distance chr1
+Max: 990.5672607421875
+Min: 1.244550347328186
+Average: 145.5692596435547
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr1
+Max: 974.0018920898438
+Min: 1.863292932510376
+Average: 148.2415008544922
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr1
+Max: 990.5672607421875
+Min: 1.244550347328186
+Average: 145.60964965820312
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr1
+Max: 4.371761798858643
+Min: 0.7378618717193604
+Average: 2.698352575302124
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr1
+Max: 4.326530933380127
+Min: 1.0018020868301392
+Average: 2.686427354812622
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr1
+Max: 4.371761798858643
+Min: 0.7378618717193604
+Average: 2.6981728076934814
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr1
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 13
+NaNRatio: 2.68382774945766e-06
+--------------
+TT P distance chr1
+Max: 2.77449107170105
+Min: 2.63417798684884e-09
+Average: 1.0282069444656372
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr1
+Max: 79.82984161376953
+Min: 0.0009999275207519531
+Average: 23.52662467956543
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr2
+Max: 4.891049385070801
+Min: 6.24612657702528e-05
+Average: 3.556121587753296
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr2
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 21288
+NaNRatio: 0.0005956572590146254
+--------------
+Within TE angle chr2
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 272
+NaNRatio: 0.00043319896733010874
+--------------
+TE angle chr2
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 21560
+NaNRatio: 0.0005928523346722923
+--------------
+Not within TE DE distance chr2
+Max: 766.0370483398438
+Min: 1.113619327545166
+Average: 138.5419158935547
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr2
+Max: 753.3193359375
+Min: 1.5209965705871582
+Average: 145.0999755859375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr2
+Max: 766.0370483398438
+Min: 1.113619327545166
+Average: 138.6551513671875
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr2
+Max: 4.3526129722595215
+Min: 0.6369526386260986
+Average: 2.742009401321411
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr2
+Max: 4.3505988121032715
+Min: 1.0561105012893677
+Average: 2.751638650894165
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr2
+Max: 4.3526129722595215
+Min: 0.6369526386260986
+Average: 2.742175579071045
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr2
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 10
+NaNRatio: 2.2834595325301647e-06
+--------------
+TT P distance chr2
+Max: 3.251328706741333
+Min: 2.1082061721244827e-05
+Average: 1.0868040323257446
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr2
+Max: 68.7769775390625
+Min: 0.0009999275207519531
+Average: 23.238956451416016
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr3
+Max: 4.891965866088867
+Min: 1.4901161193847656e-08
+Average: 3.4114975929260254
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr3
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 10595
+NaNRatio: 0.00048457937618283446
+--------------
+Within TE angle chr3
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 169
+NaNRatio: 0.0004230870332586464
+--------------
+TE angle chr3
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 10764
+NaNRatio: 0.00048347611239930275
+--------------
+Not within TE DE distance chr3
+Max: 829.0673217773438
+Min: 1.6512049436569214
+Average: 119.02765655517578
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr3
+Max: 826.4356079101562
+Min: 1.6526212692260742
+Average: 128.48573303222656
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr3
+Max: 829.0673217773438
+Min: 1.6512049436569214
+Average: 119.19734191894531
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr3
+Max: 4.283850193023682
+Min: 0.8560469150543213
+Average: 2.687469005584717
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr3
+Max: 4.252246379852295
+Min: 1.018417239189148
+Average: 2.71565318107605
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr3
+Max: 4.283850193023682
+Min: 0.8560469150543213
+Average: 2.687974452972412
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr3
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 5
+NaNRatio: 2.217662707695201e-06
+--------------
+TT P distance chr3
+Max: 2.893188238143921
+Min: 9.313225746154785e-10
+Average: 1.0379436016082764
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr3
+Max: 73.1286849975586
+Min: 0.0009999275207519531
+Average: 23.77747344970703
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr4
+Max: 4.889964580535889
+Min: 5.265232175588608e-05
+Average: 3.5722620487213135
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr4
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 21556
+NaNRatio: 0.0007427233628705645
+--------------
+Within TE angle chr4
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 287
+NaNRatio: 0.0005204602537017055
+--------------
+TE angle chr4
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 21843
+NaNRatio: 0.0007385791081015666
+--------------
+Not within TE DE distance chr4
+Max: 677.0629272460938
+Min: 1.8402600288391113
+Average: 108.84937286376953
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr4
+Max: 676.72119140625
+Min: 2.2389400005340576
+Average: 112.95844268798828
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr4
+Max: 677.0629272460938
+Min: 1.8402600288391113
+Average: 108.92599487304688
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr4
+Max: 4.436668395996094
+Min: 0.6928014755249023
+Average: 2.740097999572754
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr4
+Max: 4.427293300628662
+Min: 0.81749027967453
+Average: 2.767913818359375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr4
+Max: 4.436668395996094
+Min: 0.6928014755249023
+Average: 2.740617275238037
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr4
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 9
+NaNRatio: 2.5429978554051418e-06
+--------------
+TT P distance chr4
+Max: 3.502152442932129
+Min: 2.0372681319713593e-10
+Average: 1.094256043434143
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr4
+Max: 86.19019317626953
+Min: 0.0009999275207519531
+Average: 23.357967376708984
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr5
+Max: 4.89047908782959
+Min: 3.5472490708343685e-05
+Average: 3.6086905002593994
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr5
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 17317
+NaNRatio: 0.0007872960415880711
+--------------
+Within TE angle chr5
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 255
+NaNRatio: 0.0005637165500547137
+--------------
+TE angle chr5
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 17572
+NaNRatio: 0.0007827906164734481
+--------------
+Not within TE DE distance chr5
+Max: 579.4736938476562
+Min: 1.5505555868148804
+Average: 96.51504516601562
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr5
+Max: 577.8997192382812
+Min: 1.9952137470245361
+Average: 100.81636810302734
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr5
+Max: 579.4736938476562
+Min: 1.5505555868148804
+Average: 96.6017074584961
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr5
+Max: 4.336418628692627
+Min: 0.5443183779716492
+Average: 2.764112710952759
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr5
+Max: 4.313045978546143
+Min: 0.8044517040252686
+Average: 2.7787580490112305
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr5
+Max: 4.336418628692627
+Min: 0.5443183779716492
+Average: 2.76440691947937
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr5
+Max: 3.0981500148773193
+Min: 0.0
+Average: 1.4098198413848877
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT P distance chr5
+Max: 3.402414321899414
+Min: 2.3901050028030113e-09
+Average: 1.107681155204773
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr5
+Max: 76.05717468261719
+Min: 0.0009999275207519531
+Average: 24.62468147277832
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr6
+Max: 4.889678955078125
+Min: 6.0392289014998823e-05
+Average: 3.460993766784668
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr6
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 7258
+NaNRatio: 0.0003848239597399273
+--------------
+Within TE angle chr6
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 134
+NaNRatio: 0.0003434506020637793
+--------------
+TE angle chr6
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 7392
+NaNRatio: 0.00038398543847428123
+--------------
+Not within TE DE distance chr6
+Max: 720.7346801757812
+Min: 1.4382576942443848
+Average: 116.00198364257812
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr6
+Max: 713.6705322265625
+Min: 1.8174384832382202
+Average: 117.4278335571289
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr6
+Max: 720.7346801757812
+Min: 1.4382576942443848
+Average: 116.0309066772461
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr6
+Max: 4.194262981414795
+Min: 0.8494930863380432
+Average: 2.6936540603637695
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr6
+Max: 4.188361167907715
+Min: 0.9764389395713806
+Average: 2.693338632583618
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr6
+Max: 4.194262981414795
+Min: 0.8494930863380432
+Average: 2.6936473846435547
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr6
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 8
+NaNRatio: 4.3110393323062285e-06
+--------------
+TT P distance chr6
+Max: 2.841874122619629
+Min: 1.8855766029446386e-05
+Average: 1.0389577150344849
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr6
+Max: 66.84172058105469
+Min: 0.0009999275207519531
+Average: 24.124845504760742
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr7
+Max: 4.891741752624512
+Min: 6.43986786599271e-05
+Average: 3.6224544048309326
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr7
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 24641
+NaNRatio: 0.0008240876667944775
+--------------
+Within TE angle chr7
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 279
+NaNRatio: 0.0005179779181743413
+--------------
+TE angle chr7
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 24920
+NaNRatio: 0.0008186710078569421
+--------------
+Not within TE DE distance chr7
+Max: 568.1239013671875
+Min: 1.2784985303878784
+Average: 100.64674377441406
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr7
+Max: 534.9881591796875
+Min: 2.4648923873901367
+Average: 103.02449035644531
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr7
+Max: 568.1239013671875
+Min: 1.2784985303878784
+Average: 100.68881225585938
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr7
+Max: 4.2358174324035645
+Min: 1.0259078741073608
+Average: 2.773803949356079
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr7
+Max: 4.197999000549316
+Min: 1.1506602764129639
+Average: 2.823063373565674
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr7
+Max: 4.2358174324035645
+Min: 1.0259078741073608
+Average: 2.774674892425537
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr7
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 10
+NaNRatio: 2.3005291677191588e-06
+--------------
+TT P distance chr7
+Max: 2.446855068206787
+Min: 1.3333279639482498e-05
+Average: 1.0577629804611206
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr7
+Max: 72.89691925048828
+Min: 0.0009999275207519531
+Average: 22.333040237426758
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr8
+Max: 4.888180732727051
+Min: 8.295262523461133e-05
+Average: 3.548082113265991
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr8
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 6728
+NaNRatio: 0.0005996520983946382
+--------------
+Within TE angle chr8
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 119
+NaNRatio: 0.0003891686833671267
+--------------
+TE angle chr8
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 6847
+NaNRatio: 0.000594067876094117
+--------------
+Not within TE DE distance chr8
+Max: 444.7132568359375
+Min: 1.8239970207214355
+Average: 107.56547546386719
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr8
+Max: 431.0808410644531
+Min: 3.391232967376709
+Average: 114.31526184082031
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr8
+Max: 444.7132568359375
+Min: 1.8239970207214355
+Average: 107.74453735351562
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr8
+Max: 4.32706356048584
+Min: 0.7379409670829773
+Average: 2.7425339221954346
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr8
+Max: 4.321903705596924
+Min: 1.0402445793151855
+Average: 2.8069896697998047
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr8
+Max: 4.32706356048584
+Min: 0.7379409670829773
+Average: 2.74424409866333
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr8
+Max: 3.082270383834839
+Min: 0.0
+Average: 1.4059562683105469
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT P distance chr8
+Max: 2.6277194023132324
+Min: 7.745924813207239e-05
+Average: 1.0824930667877197
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr8
+Max: 67.54618072509766
+Min: 0.002000093460083008
+Average: 24.555509567260742
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr9
+Max: 4.889346122741699
+Min: 4.3406529584899545e-05
+Average: 3.545599937438965
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr9
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 10239
+NaNRatio: 0.0005783578590806421
+--------------
+Within TE angle chr9
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 161
+NaNRatio: 0.00041909620991253645
+--------------
+TE angle chr9
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 10400
+NaNRatio: 0.0005749753479319574
+--------------
+Not within TE DE distance chr9
+Max: 492.26568603515625
+Min: 1.0671236515045166
+Average: 98.3314208984375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr9
+Max: 461.9767761230469
+Min: 1.9899109601974487
+Average: 102.69632720947266
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr9
+Max: 492.26568603515625
+Min: 1.0671236515045166
+Average: 98.42413330078125
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr9
+Max: 4.23259162902832
+Min: 0.7655805349349976
+Average: 2.728086471557617
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr9
+Max: 4.2241740226745605
+Min: 1.1590269804000854
+Average: 2.762749671936035
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr9
+Max: 4.23259162902832
+Min: 0.7655805349349976
+Average: 2.728822708129883
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr9
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 2
+NaNRatio: 1.0187599551949372e-06
+--------------
+TT P distance chr9
+Max: 2.6208579540252686
+Min: 7.580444716381862e-09
+Average: 1.0454274415969849
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr9
+Max: 96.2811050415039
+Min: 0.0009999275207519531
+Average: 24.46092414855957
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr10
+Max: 4.891425609588623
+Min: 4.531080412562005e-05
+Average: 3.3949697017669678
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr10
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 4594
+NaNRatio: 0.00041049329517193225
+--------------
+Within TE angle chr10
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 87
+NaNRatio: 0.00031959796779774957
+--------------
+TE angle chr10
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 4681
+NaNRatio: 0.00040833488170849896
+--------------
+Not within TE DE distance chr10
+Max: 600.0652465820312
+Min: 1.6626107692718506
+Average: 93.43626403808594
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr10
+Max: 590.6025390625
+Min: 2.965761184692383
+Average: 100.6703109741211
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr10
+Max: 600.0652465820312
+Min: 1.6626107692718506
+Average: 93.60806274414062
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr10
+Max: 4.283663749694824
+Min: 0.6139861941337585
+Average: 2.664903163909912
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr10
+Max: 4.271139144897461
+Min: 0.9264072179794312
+Average: 2.719365358352661
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr10
+Max: 4.283663749694824
+Min: 0.6139861941337585
+Average: 2.666196346282959
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr10
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 1
+NaNRatio: 1.2488370205246364e-06
+--------------
+TT P distance chr10
+Max: 3.1545932292938232
+Min: 0.0001602739212103188
+Average: 1.0276826620101929
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr10
+Max: 70.74212646484375
+Min: 0.0009999275207519531
+Average: 24.151611328125
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr11
+Max: 4.888524055480957
+Min: 5.3065283282194287e-05
+Average: 3.688734531402588
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr11
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 9765
+NaNRatio: 0.0005337615523983303
+--------------
+Within TE angle chr11
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 300
+NaNRatio: 0.0005246057587722827
+--------------
+TE angle chr11
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 10065
+NaNRatio: 0.0005334840339597968
+--------------
+Not within TE DE distance chr11
+Max: 485.0384216308594
+Min: 1.1694622039794922
+Average: 94.71945190429688
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr11
+Max: 464.6272888183594
+Min: 2.277858018875122
+Average: 99.18287658691406
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr11
+Max: 485.0384216308594
+Min: 1.1694622039794922
+Average: 94.85475158691406
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr11
+Max: 4.223111629486084
+Min: 0.9463042616844177
+Average: 2.7993359565734863
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr11
+Max: 4.2191853523254395
+Min: 1.0182909965515137
+Average: 2.8413984775543213
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr11
+Max: 4.223111629486084
+Min: 0.9463042616844177
+Average: 2.8006114959716797
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr11
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 8
+NaNRatio: 3.3314788101290283e-06
+--------------
+TT P distance chr11
+Max: 2.788707971572876
+Min: 3.266068233642727e-05
+Average: 1.047163724899292
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr11
+Max: 72.52699279785156
+Min: 0.0009999275207519531
+Average: 25.02711296081543
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr12
+Max: 4.888911247253418
+Min: 8.070313924690709e-05
+Average: 3.498525857925415
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr12
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 8597
+NaNRatio: 0.0007961610903285829
+--------------
+Within TE angle chr12
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 277
+NaNRatio: 0.0009779554024092303
+--------------
+TE angle chr12
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 8874
+NaNRatio: 0.000800807846725703
+--------------
+Not within TE DE distance chr12
+Max: 660.2593383789062
+Min: 0.989511251449585
+Average: 98.30647277832031
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr12
+Max: 634.6121826171875
+Min: 1.856610655784607
+Average: 103.33369445800781
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr12
+Max: 660.2593383789062
+Min: 0.989511251449585
+Average: 98.43496704101562
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr12
+Max: 4.298151969909668
+Min: 0.6380636096000671
+Average: 2.708303213119507
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr12
+Max: 4.277656078338623
+Min: 0.5803589820861816
+Average: 2.7235796451568604
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr12
+Max: 4.298151969909668
+Min: 0.5803589820861816
+Average: 2.7086942195892334
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr12
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 4
+NaNRatio: 4.24065280609297e-06
+--------------
+TT P distance chr12
+Max: 3.0217227935791016
+Min: 3.7118014006409794e-05
+Average: 1.108495831489563
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr12
+Max: 80.63793182373047
+Min: 0.0009999275207519531
+Average: 24.775270462036133
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr13
+Max: 4.893586158752441
+Min: 5.7010987802641466e-05
+Average: 3.3933167457580566
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr13
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 6365
+NaNRatio: 0.0004888144433494011
+--------------
+Within TE angle chr13
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 112
+NaNRatio: 0.0004229144089204732
+--------------
+TE angle chr13
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 6477
+NaNRatio: 0.00048750087497262184
+--------------
+Not within TE DE distance chr13
+Max: 536.369384765625
+Min: 1.6756837368011475
+Average: 85.95762634277344
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr13
+Max: 515.00341796875
+Min: 2.848644495010376
+Average: 89.25006103515625
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr13
+Max: 536.369384765625
+Min: 1.6756837368011475
+Average: 86.02326965332031
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr13
+Max: 4.25113582611084
+Min: 0.8006064295768738
+Average: 2.641045093536377
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr13
+Max: 4.181331634521484
+Min: 0.9396250247955322
+Average: 2.6662819385528564
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr13
+Max: 4.25113582611084
+Min: 0.8006064295768738
+Average: 2.641547441482544
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr13
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 7
+NaNRatio: 6.851091525689146e-06
+--------------
+TT P distance chr13
+Max: 2.506852149963379
+Min: 2.581939406809397e-05
+Average: 1.0023586750030518
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr13
+Max: 82.23027801513672
+Min: 0.0009999275207519531
+Average: 25.5054931640625
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr14
+Max: 4.890513896942139
+Min: 4.73431937280111e-05
+Average: 3.4203431606292725
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr14
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 7008
+NaNRatio: 0.0006964485200021744
+--------------
+Within TE angle chr14
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 102
+NaNRatio: 0.00047002658875899155
+--------------
+TE angle chr14
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 7110
+NaNRatio: 0.0006916685555411796
+--------------
+Not within TE DE distance chr14
+Max: 976.6416625976562
+Min: 1.3653587102890015
+Average: 163.44923400878906
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr14
+Max: 949.1495361328125
+Min: 1.534355878829956
+Average: 169.22412109375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr14
+Max: 976.6416625976562
+Min: 1.3653587102890015
+Average: 163.5710906982422
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr14
+Max: 4.290985107421875
+Min: 0.7339767217636108
+Average: 2.676513433456421
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr14
+Max: 4.2742133140563965
+Min: 1.1507701873779297
+Average: 2.6877593994140625
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr14
+Max: 4.290985107421875
+Min: 0.7339767217636108
+Average: 2.676751136779785
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr14
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 1
+NaNRatio: 1.034398936637893e-06
+--------------
+TT P distance chr14
+Max: 2.471078872680664
+Min: 1.5444238110617903e-09
+Average: 0.9893766641616821
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr14
+Max: 91.9283218383789
+Min: 0.0009999275207519531
+Average: 22.074142456054688
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr15
+Max: 4.889527320861816
+Min: 8.496859663864598e-05
+Average: 3.559772491455078
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr15
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 4145
+NaNRatio: 0.00046597824797799727
+--------------
+Within TE angle chr15
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 135
+NaNRatio: 0.0004656344528105351
+--------------
+TE angle chr15
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 4280
+NaNRatio: 0.00046596739621773827
+--------------
+Not within TE DE distance chr15
+Max: 345.62255859375
+Min: 1.8199676275253296
+Average: 82.01907348632812
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr15
+Max: 343.5201416015625
+Min: 1.8238104581832886
+Average: 89.16319274902344
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr15
+Max: 345.62255859375
+Min: 1.8199676275253296
+Average: 82.24459075927734
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr15
+Max: 4.264123439788818
+Min: 0.8445233106613159
+Average: 2.7219126224517822
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr15
+Max: 4.260435581207275
+Min: 1.1355304718017578
+Average: 2.7988815307617188
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr15
+Max: 4.264123439788818
+Min: 0.8445233106613159
+Average: 2.724342107772827
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr15
+Max: 3.088322162628174
+Min: 0.0
+Average: 1.3887981176376343
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT P distance chr15
+Max: 2.809555768966675
+Min: 7.700149962097669e-10
+Average: 1.0606416463851929
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr15
+Max: 78.14998626708984
+Min: 0.00099945068359375
+Average: 25.071481704711914
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr16
+Max: 4.886559963226318
+Min: 8.411279850406572e-05
+Average: 3.4295310974121094
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr16
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 2207
+NaNRatio: 0.00041204239163817187
+--------------
+Within TE angle chr16
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 81
+NaNRatio: 0.0004114912748609312
+--------------
+TE angle chr16
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 2288
+NaNRatio: 0.0004120228557433789
+--------------
+Not within TE DE distance chr16
+Max: 587.7147827148438
+Min: 2.016671895980835
+Average: 110.99762725830078
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr16
+Max: 585.8095703125
+Min: 3.0836362838745117
+Average: 115.26703643798828
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr16
+Max: 587.7147827148438
+Min: 2.016671895980835
+Average: 111.14897918701172
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr16
+Max: 4.158951282501221
+Min: 1.125502347946167
+Average: 2.68707013130188
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr16
+Max: 4.119193077087402
+Min: 1.1115524768829346
+Average: 2.72259259223938
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr16
+Max: 4.158951282501221
+Min: 1.1115524768829346
+Average: 2.688328981399536
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr16
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 1
+NaNRatio: 2.2562616902558828e-06
+--------------
+TT P distance chr16
+Max: 2.3715245723724365
+Min: 5.656699795508757e-05
+Average: 1.0656862258911133
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr16
+Max: 81.06593322753906
+Min: 0.0009999275207519531
+Average: 24.415929794311523
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr17
+Max: 4.890584468841553
+Min: 5.7010987802641466e-05
+Average: 3.565762519836426
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr17
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 4522
+NaNRatio: 0.0004159830589473384
+--------------
+Within TE angle chr17
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 182
+NaNRatio: 0.0004609870695659883
+--------------
+TE angle chr17
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 4704
+NaNRatio: 0.0004175602550810266
+--------------
+Not within TE DE distance chr17
+Max: 518.837646484375
+Min: 1.2978670597076416
+Average: 82.92129516601562
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr17
+Max: 513.5790405273438
+Min: 1.9512463808059692
+Average: 93.58624267578125
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr17
+Max: 518.837646484375
+Min: 1.2978670597076416
+Average: 83.2950439453125
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr17
+Max: 4.273247241973877
+Min: 0.9310120344161987
+Average: 2.715543508529663
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr17
+Max: 4.270320892333984
+Min: 1.0610765218734741
+Average: 2.8147690296173096
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr17
+Max: 4.273247241973877
+Min: 0.9310120344161987
+Average: 2.7190213203430176
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr17
+Max: 3.0827863216400146
+Min: 0.0
+Average: 1.4059642553329468
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT P distance chr17
+Max: 3.058718204498291
+Min: 6.470285973669831e-10
+Average: 1.0196698904037476
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr17
+Max: 80.39146423339844
+Min: 0.0009999275207519531
+Average: 25.23822784423828
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr18
+Max: 4.888146877288818
+Min: 6.52004819130525e-05
+Average: 3.463839530944824
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr18
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 2057
+NaNRatio: 0.0004404671307024648
+--------------
+Within TE angle chr18
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 68
+NaNRatio: 0.0004257183997996619
+--------------
+TE angle chr18
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 2125
+NaNRatio: 0.00043997936134459347
+--------------
+Not within TE DE distance chr18
+Max: 640.1480102539062
+Min: 1.483030080795288
+Average: 115.95960998535156
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr18
+Max: 633.9850463867188
+Min: 1.570479154586792
+Average: 123.4089126586914
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr18
+Max: 640.1480102539062
+Min: 1.483030080795288
+Average: 116.2059555053711
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr18
+Max: 4.322976112365723
+Min: 0.7184946537017822
+Average: 2.6801202297210693
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr18
+Max: 4.31840181350708
+Min: 0.5240168571472168
+Average: 2.7190451622009277
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr18
+Max: 4.322976112365723
+Min: 0.5240168571472168
+Average: 2.6814072132110596
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr18
+Max: 3.0727686882019043
+Min: 0.0
+Average: 1.34579598903656
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT P distance chr18
+Max: 2.4141547679901123
+Min: 0.0001580424141138792
+Average: 1.0491154193878174
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr18
+Max: 68.84610748291016
+Min: 0.0009999275207519531
+Average: 24.418598175048828
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chr19
+Max: 4.887903690338135
+Min: 0.00010751401714514941
+Average: 3.5903937816619873
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chr19
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 1717
+NaNRatio: 0.00037791247925553223
+--------------
+Within TE angle chr19
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 65
+NaNRatio: 0.0002794977640178879
+--------------
+TE angle chr19
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 1782
+NaNRatio: 0.00037312026532996645
+--------------
+Not within TE DE distance chr19
+Max: 521.362548828125
+Min: 1.7438926696777344
+Average: 92.21680450439453
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chr19
+Max: 522.0799560546875
+Min: 2.288780450820923
+Average: 99.2074966430664
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chr19
+Max: 522.0799560546875
+Min: 1.7438926696777344
+Average: 92.55719757080078
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chr19
+Max: 4.196128845214844
+Min: 1.094669222831726
+Average: 2.733187437057495
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chr19
+Max: 4.185667037963867
+Min: 1.242531657218933
+Average: 2.8067049980163574
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chr19
+Max: 4.196128845214844
+Min: 1.094669222831726
+Average: 2.736767530441284
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chr19
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 1
+NaNRatio: 2.2562616902558828e-06
+--------------
+TT P distance chr19
+Max: 2.3406407833099365
+Min: 5.497406891663559e-05
+Average: 1.015400767326355
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chr19
+Max: 77.8795166015625
+Min: 0.0009999275207519531
+Average: 25.679452896118164
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance chrX
+Max: 4.885798931121826
+Min: 9.959466115105897e-05
+Average: 3.228818416595459
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle chrX
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 8942
+NaNRatio: 0.0011911741217621864
+--------------
+Within TE angle chrX
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 187
+NaNRatio: 0.001223141577002322
+--------------
+TE angle chrX
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 9129
+NaNRatio: 0.001191812175936491
+--------------
+Not within TE DE distance chrX
+Max: 1613.0911865234375
+Min: 2.084089756011963
+Average: 243.15457153320312
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance chrX
+Max: 1611.2728271484375
+Min: 2.8865013122558594
+Average: 258.75537109375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance chrX
+Max: 1613.0911865234375
+Min: 2.084089756011963
+Average: 243.46597290039062
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance chrX
+Max: 4.314500331878662
+Min: 0.9864607453346252
+Average: 2.67572021484375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance chrX
+Max: 4.3004279136657715
+Min: 1.1967281103134155
+Average: 2.666274070739746
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance chrX
+Max: 4.314500331878662
+Min: 0.9864607453346252
+Average: 2.6755316257476807
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle chrX
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 13
+NaNRatio: 6.582018532938953e-06
+--------------
+TT P distance chrX
+Max: 2.839916229248047
+Min: 4.61878371424973e-05
+Average: 0.9611722230911255
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance chrX
+Max: 65.39347839355469
+Min: 0.0009999275207519531
+Average: 19.03363037109375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+EE distance allChr
+Max: 4.885798931121826
+Min: 9.959466115105897e-05
+Average: 3.228818416595459
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE angle allChr
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 8942
+NaNRatio: 0.0011911741217621864
+--------------
+Within TE angle allChr
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 187
+NaNRatio: 0.001223141577002322
+--------------
+TE angle allChr
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 9129
+NaNRatio: 0.001191812175936491
+--------------
+Not within TE DE distance allChr
+Max: 1613.0911865234375
+Min: 2.084089756011963
+Average: 243.15457153320312
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE DE distance allChr
+Max: 1611.2728271484375
+Min: 2.8865013122558594
+Average: 258.75537109375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE DE distance allChr
+Max: 1613.0911865234375
+Min: 2.084089756011963
+Average: 243.46597290039062
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Not within TE TE distance allChr
+Max: 4.314500331878662
+Min: 0.9864607453346252
+Average: 2.67572021484375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+Within TE TE distance allChr
+Max: 4.3004279136657715
+Min: 1.1967281103134155
+Average: 2.666274070739746
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TE TE distance allChr
+Max: 4.314500331878662
+Min: 0.9864607453346252
+Average: 2.6755316257476807
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT angle allChr
+Max: nan
+Min: nan
+Average: nan
+numNaNs: 13
+NaNRatio: 6.582018532938953e-06
+--------------
+TT P distance allChr
+Max: 2.839916229248047
+Min: 4.61878371424973e-05
+Average: 0.9611722230911255
+numNaNs: 0
+NaNRatio: 0.0
+--------------
+TT T distance allChr
+Max: 65.39347839355469
+Min: 0.0009999275207519531
+Average: 19.03363037109375
+numNaNs: 0
+NaNRatio: 0.0
+--------------
