@@ -5,7 +5,6 @@ import argparse as ap
 import os
 from sklearn import linear_model
 import itertools
-from scipy import stats
 
 def main():
     parser = generate_parser()
@@ -24,8 +23,7 @@ def main():
 
     for chrom in chrom_list:
         model.subset_based_on_chrom(chrom)
-        model.compute_spearmanr()
-        model.save_distances()
+        model.save_distances(args.which_with)
 
 def generate_parser():
     parser = ap.ArgumentParser(description='looking at distances for clustering')
@@ -170,17 +168,11 @@ class regress_sampler():
 
     def find_weighted_sum(self, E):
         '''find weighted sum of ccRE props with coeffs
-        given a 2 dimensional array 1 ccRE  cellN * stateN with p_ij equal to the proporition of the 1 ccRE for cellType_i in state_j
+        given a 2 dimensional array 1 ccRE  cellN * stateN with p_ijk equal to the proporition of ccRE_i for cellType_j in state_k
                 1 dimensional array stateN with c_i equal to the initial coefficient for state_i
-        return a 1 dimensional array cellN with w_ij equal to the sum of l = 0 to 26 of c_l*p_ijl
-        given a 3 dimensional array k ccRE * cellN * stateN with p_kij equal to the proportion of ccRE_k for cellType_i in state_j
-                1 dimensional array stateN with c_i equal to the initial coefficient for state_i
-        return a 1 dimensional array cellN with w_ij equal to the sum of l=0 to 26 of c_l*p_ijl'''
-        cre_weighted_sum = np.sum(E * self.beta_e, axis=(E.ndim-1))
+        return a 1 dimensional array cellN with w_ij equal to the sum of l = 0 to 26 of c_l*p_ijl'''
+        cre_weighted_sum = np.sum(E * self.beta_e, axis=1)
         return cre_weighted_sum
-
-    def compute_spearmanr(self):
-        self.corr_matrix, pvalues = stats.spearmanr(self.exp_values, self.find_weighted_sum(self.cre_props), axis=1)
 
     def magnitude(self, C):
         magnitude = np.sqrt(np.sum(np.square(C)))
@@ -262,111 +254,63 @@ class regress_sampler():
         toWriteTo = 'outputEE_distance_{}.txt'.format(self.chrom)
         np.savetxt(toWriteTo, distance)
 
-    def get_r_i(self, index_j):
-        bool_all_but_j = np.full((self.distances.shape[1]), True)
-        bool_all_but_j[index_j] = False
-        summed = np.sum(self.distances[0, bool_all_but_j])
-        return summed/(bool_all_but_j.shape[0] - 1)
+    def save_distances(self, which_with):
+        if which_with == "TT":
+            TT_Pdistances = []
+            TT_Tdistances = []
+            TT_angles = []
+            for a, b in itertools.combinations(range(self.tssN), 2):
+                Pdistance, Tdistance = self.distance_T_T(a, b)
+                TT_Pdistances.append(Pdistance)
+                TT_Tdistances.append(Tdistance)
+                angle = self.angle_T_T(a, b)
+                TT_angles.append(angle)
+            TT_Pdistances = np.array(TT_Pdistances).reshape(-1,)
+            TT_Tdistances = np.array(TT_Tdistances).reshape(-1,)
+            TT_angles = np.array(TT_angles).reshape(-1,)
+            self.report_T_T_values(TT_Pdistances, TT_Tdistances, TT_angles)
 
-    def get_r_j(self, index_j):
-        summand = np.hstack((self.distances[1:index_j+1, index_j].reshape(-1,), self.distances[index_j+1, index_j+1:].reshape(-1,)))
-        return np.sum(summand)/summand.shape[0]
+        if which_with == 'EE':
+            distances = []
+            for a,b in itertools.combinations(range(self.creM), 2):
+                distance = self.distance_E_E(self.cre_props[a], self.cre_props[b])
+                distances.append(distance)
+            distances = np.array(distances).reshape(-1,)
+            self.report_E_E_values(distances)
 
-    def get_D_ij(self, index_j):
-        sum = self.distances[0, index_j] - self.get_r_j(index_j) - self.get_r_i(index_j)
-        return sum
+        if which_with == 'within':
+            DE_dist_within = []
+            TE_dist_within = []
+            angle_within = []
+            for i in range(self.tssN):
+                CREs_within = self.find_cres_within(i)
+                for j in np.arange(self.creM)[CREs_within]:
+                    DEdistance, TEdistance = self.distance_T_E(i, self.cre_props[j])
+                    DE_dist_within.append(DEdistance)
+                    TE_dist_within.append(TEdistance)
+                    angle = self.angle_T_E(i, self.cre_props[j])
+                    angle_within.append(angle)
+            DE_dist_within = np.array(DE_dist_within).reshape(-1,)
+            TE_dist_within = np.array(TE_dist_within).reshape(-1,)
+            angle_within = np.array(angle_within).reshape(-1,)
+            self.report_T_E_W(DE_dist_within, TE_dist_within, angle_within)
 
-    #def save_distances(self, which_with):
-    def save_distances(self):
-        to_save = np.full((self.tssN, self.creM, 3), np.nan) #3 dim 0 index is little d distance, 1 index is Cap D distance assuming only two clustered, 2 index is spearmanr
-        for i in range(self.tssN):
-            CREs_within = self.find_cres_within(i)
-            withinN = np.sum(CREs_within)
-            self.distances = np.zeros((withinN+1, withinN), dtype=np.float32) #save all distances so can compute cap D
-            cre_j_to_index = {} #these indices are zero-based; for rows, must add one; for columns good as is
-            index_to_cre_j = {} #these indices are zero-based; for rows, must add one; for columns good as is
-            '''find the distances between the TSS and each CRE...'''
-            for enum_j, cre_j in enumerate(np.arange(self.creM)[CREs_within]):
-                DEdistance, TEdistance = self.distance_T_E(i, self.cre_props[cre_j])
-                adjusted_distance = DEdistance + TEdistance
-                to_save[i, cre_j, 0] = adjusted_distance
-                to_save[i, cre_j, 2] = self.corr_matrix[i, self.tssN+cre_j]
-                '''only storing in upper right of matrix'''
-                self.distances[0, enum_j] = adjusted_distance
-                cre_j_to_index[cre_j] = enum_j
-                index_to_cre_j[enum_j] = cre_j
-
-            '''...as well as then the distances between each CRE and each CRE'''
-            for cre_a,cre_b in itertools.combinations(np.arange(self.creM)[CREs_within], 2):
-                distance = self.distance_E_E(self.cre_props[cre_a], self.cre_props[cre_b])
-                '''only storing in upper right of matrix'''
-                enum_a, enum_b = cre_j_to_index[cre_a], cre_j_to_index[cre_b]
-                self.distances[min(enum_a, enum_b)+1, max(enum_a, enum_b)] = distance
-
-            for cre_j in np.arange(self.creM)[CREs_within]:
-                capital_dist = self.get_D_ij(cre_j_to_index[cre_j])
-                to_save[i, cre_j, 1] = capital_dist
-
-        npz_file = open('{}_corrs_and_dists.npz'.format(self.chrom), 'wb')
-        np.savez(npz_file, corrs_and_dists=to_save)
-        npz_file.close()
-
-        # if which_with == "TT":
-        #     TT_Pdistances = []
-        #     TT_Tdistances = []
-        #     TT_angles = []
-        #     for a, b in itertools.combinations(range(self.tssN), 2):
-        #         Pdistance, Tdistance = self.distance_T_T(a, b)
-        #         TT_Pdistances.append(Pdistance)
-        #         TT_Tdistances.append(Tdistance)
-        #         angle = self.angle_T_T(a, b)
-        #         TT_angles.append(angle)
-        #     TT_Pdistances = np.array(TT_Pdistances).reshape(-1,)
-        #     TT_Tdistances = np.array(TT_Tdistances).reshape(-1,)
-        #     TT_angles = np.array(TT_angles).reshape(-1,)
-        #     self.report_T_T_values(TT_Pdistances, TT_Tdistances, TT_angles)
-        #
-        # if which_with == 'EE':
-        #     distances = []
-        #     for a,b in itertools.combinations(range(self.creM), 2):
-        #         distance = self.distance_E_E(self.cre_props[a], self.cre_props[b])
-        #         distances.append(distance)
-        #     distances = np.array(distances).reshape(-1,)
-        #     self.report_E_E_values(distances)
-        #
-        # if which_with == 'within':
-        #     DE_dist_within = []
-        #     TE_dist_within = []
-        #     angle_within = []
-        #     for i in range(self.tssN):
-        #         CREs_within = self.find_cres_within(i)
-        #         for j in np.arange(self.creM)[CREs_within]:
-        #             DEdistance, TEdistance = self.distance_T_E(i, self.cre_props[j])
-        #             DE_dist_within.append(DEdistance)
-        #             TE_dist_within.append(TEdistance)
-        #             angle = self.angle_T_E(i, self.cre_props[j])
-        #             angle_within.append(angle)
-        #     DE_dist_within = np.array(DE_dist_within).reshape(-1,)
-        #     TE_dist_within = np.array(TE_dist_within).reshape(-1,)
-        #     angle_within = np.array(angle_within).reshape(-1,)
-        #     self.report_T_E_W(DE_dist_within, TE_dist_within, angle_within)
-        #
-        # if which_with == 'not':
-        #     DE_dist_nw = []
-        #     TE_dist_nw = []
-        #     angle_nw = []
-        #     for i in range(self.tssN):
-        #         CREs_within = self.find_cres_within(i)
-        #         CREs_notwithin = ~CREs_within
-        #         for j in np.arange(self.creM)[CREs_notwithin]:
-        #             DEdistance, TEdistance = self.distance_T_E(i, self.cre_props[j])
-        #             DE_dist_nw.append(DEdistance)
-        #             TE_dist_nw.append(TEdistance)
-        #             angle = self.angle_T_E(i, self.cre_props[j])
-        #             angle_nw.append(angle)
-        #     DE_dist_nw = np.array(DE_dist_nw).reshape(-1,)
-        #     TE_dist_nw = np.array(TE_dist_nw).reshape(-1,)
-        #     angle_nw = np.array(angle_nw).reshape(-1,)
-        #     self.report_T_E_NW(DE_dist_nw, TE_dist_nw, angle_nw)
+        if which_with == 'not':
+            DE_dist_nw = []
+            TE_dist_nw = []
+            angle_nw = []
+            for i in range(self.tssN):
+                CREs_within = self.find_cres_within(i)
+                CREs_notwithin = ~CREs_within
+                for j in np.arange(self.creM)[CREs_notwithin]:
+                    DEdistance, TEdistance = self.distance_T_E(i, self.cre_props[j])
+                    DE_dist_nw.append(DEdistance)
+                    TE_dist_nw.append(TEdistance)
+                    angle = self.angle_T_E(i, self.cre_props[j])
+                    angle_nw.append(angle)
+            DE_dist_nw = np.array(DE_dist_nw).reshape(-1,)
+            TE_dist_nw = np.array(TE_dist_nw).reshape(-1,)
+            angle_nw = np.array(angle_nw).reshape(-1,)
+            self.report_T_E_NW(DE_dist_nw, TE_dist_nw, angle_nw)
 
 main()
