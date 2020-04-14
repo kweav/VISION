@@ -11,7 +11,7 @@ def main():
     args = parser.parse_args()
     setup_file_locs(args, args.where_run, args.other_path)
     setup_threads(args.threads)
-    model = regress_sampler(args.train_cre, args.train_tss, args.train_exp, args.cre_dist)
+    model = little_d_NNJ(args.train_cre, args.train_tss, args.train_exp, args.cre_dist)
 
     if args.chroms == 'all':
         chrom_list = []
@@ -62,7 +62,7 @@ def setup_file_locs(args, where_run, other_path):
     args.train_tss = argumentToAdd[where_run] + args.train_tss
     args.test_tss = argumentToAdd[where_run] + args.test_tss
 
-class regress_sampler():
+class little_d_NNJ():
     def __init__(self, train_cre, train_tss, train_exp, cre_dist):
         self.cre_dist = cre_dist
         self.exp_values_all, self.cellIndex, self.cell_to_index, self.TSS_chr_all, self.TSSs_all = self.load_expression(train_exp)

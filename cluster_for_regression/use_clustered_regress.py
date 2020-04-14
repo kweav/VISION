@@ -10,7 +10,7 @@ def main():
     args = parser.parse_args()
     setup_file_locs(args, args.where_run, args.other_path)
     setup_threads(args.threads)
-    model = regress_sampler(args.train_cre, args.train_tss, args.train_exp)
+    model = regress_clustered(args.train_cre, args.train_tss, args.train_exp, args.n_thresh, args.dist_thresh)
 
     if args.chroms == 'all':
         chrom_list = []
@@ -26,7 +26,7 @@ def main():
 
 
 def generate_parser():
-    parser = ap.ArgumentParser(description='VISION Gibbs Sampler of parameters for regression of state and distance to assign CREs to genes based on the ability to predict gene expression')
+    parser = ap.ArgumentParser(description='VISION NNJ for regression of state and distance to assign CREs to genes based on the ability to predict gene expression')
 
     parser.add_argument('--where', action='store', dest='where_run', type=str, default='mine', help='{comp, mine, marcc, other}; adds path to files; if "other" used provide the other path in the --otherpath argument')
     parser.add_argument('--threads', action='store', dest='threads', type=str, default="1")
@@ -37,8 +37,10 @@ def generate_parser():
     parser.add_argument('--test_tss', action='store', dest='test_tss', type=str, default='testTSS_window_state_prop.npz')
     parser.add_argument('--train_exp', action='store', dest='train_exp', type=str, default='trainTPM.npz')
     parser.add_argument('--test_exp', action='store', dest='test_exp', type=str, default='testTPM.npz')
-    parser.add_argument('--train_clustered', action='store', dest='train_clustered', type=str, default='{}_with_dists_20_-5.0_nj_clustered.npz')
+    parser.add_argument('--train_clustered', action='store', dest='train_clustered', type=str, default='{}_with_dists_{}_{}_nj_clustered.npz')
     parser.add_argument('--chroms', action='store', nargs='+', dest='chroms', type=str, default='chr1', help='use all if you want to run all')
+    parser.add_argument('--n_thresh', action='store', dest='n_thresh', type=int, default=20)
+    parser.add_argument('--dist_thresh', action='store', dest='dist_thresh', type=float, default=-5.0)
 
     return parser
 
@@ -63,8 +65,9 @@ def setup_file_locs(args, where_run, other_path):
     args.test_tss = argumentToAdd[where_run] + args.test_tss
     args.train_clustered = argumentToAdd[where_run] + args.train_clustered
 
-class regress_sampler():
-    def __init__(self, train_cre, train_tss, train_exp):
+class regress_clustered():
+    def __init__(self, train_cre, train_tss, train_exp, n_thresh, dist_thresh):
+        self.n_thresh, self.dist_thresh = n_thresh, dist_thresh
         self.exp_values_all, self.cellIndex, self.cell_to_index, self.TSS_chr_all, self.TSSs_all = self.load_expression(train_exp)
         self.cellN = self.cellIndex.shape[0]
         self.TSS_window_props_all, self.TSS_window_chr_all = self.load_TSS_window_states(train_tss)
@@ -114,7 +117,7 @@ class regress_sampler():
         return cre_props_valid, cre_chr, cre_coords
 
     def load_clustered(self, clustered_file):
-        npz_file = np.load(clustered_file.format(self.chrom))
+        npz_file = np.load(clustered_file.format(self.chrom, self.n_thresh, self.dist_thresh))
         clustered = npz_file['clustered']
         return clustered
 
@@ -216,12 +219,12 @@ class regress_sampler():
         return fit_model.coef_
 
     def report_iteration_hyperparameters(self, stacked_beta):
-        toWriteTo_beta = open('output_beta_hyperparameters_{}_g{}_clustering_20_-5.txt'.format(self.chrom, self.gamma), 'a')
+        toWriteTo_beta = open('output_beta_hyperparameters_{}_g{}_clustering_{}_{}.txt'.format(self.chrom, self.gamma, self.n_thresh, self.dist_thresh), 'a')
         np.savetxt(toWriteTo_beta, stacked_beta)
         toWriteTo_beta.close()
 
     def report_metrics(self, logcosh_sum, numNP):
-        toWriteTo = open('output_metrics_clustering_20_-5.txt', 'a')
+        toWriteTo = open('output_metrics_clustering_{}_{}.txt'.format(self.n_thresh, self.dist_thresh), 'a')
         toWriteTo.write('chrom:\t{}\tgamma:\t{}\tLoss:\t{}\tnumNP:\t{}\tnumNPRatio:\t{}\n'.format(self.chrom, self.gamma, logcosh_sum, numNP, numNP/self.tssN))
         toWriteTo.close()
 
