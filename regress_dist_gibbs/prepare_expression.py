@@ -14,7 +14,14 @@ for i, line in enumerate(open(input_file)):
         header_cellTypes = fields[6:]
         exp = np.zeros((tssN, len(header_cellTypes)+2), dtype=np.object)
     else:
-        exp[i-1, 0:2] = fields[0:2] #set chr and TSS/start
+        #Find TSS
+        if fields[5] == '+':
+            TSS = fields[1]
+        elif fields[5] == '-':
+            TSS = fields[2]
+        #Store info
+        exp[i-1, 0] = fields[0] #set chr
+        exp[i-1, 1] = TSS #set TSS
         exp[i-1, 2:] = fields[6:] #set expression
 
 cellIndex = np.empty(len(header_cellTypes), dtype=np.object)
