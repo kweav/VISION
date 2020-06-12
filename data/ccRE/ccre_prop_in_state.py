@@ -103,8 +103,15 @@ for k, ct in enumerate(cellTypes):
         if k == 0: #build index dictionary for ccREs
             cre_index[(chr, start, stop)] = i
 
+num_to_adjust = np.sum(np.sum(props, axis=2)>1.01)
+if num_to_adjust > 0:
+    props[np.where(np.sum(props, axis=2)>1.01)] /= np.sum(props[np.where(np.sum(props, axis=2)>1.01)], axis=1).reshape(num_to_adjust, -1)
+
 print(np.sum(props > 1.01))
 print(props[props > 1.01])
+
+print(np.sum(np.sum(props, axis=2)>1.01))
+print(props[np.sum(props, axis=2)>1.01])
 
 cellIndex = np.empty(cellN, dtype=np.object)
 for ct in cellTypes:
@@ -118,3 +125,6 @@ outfile = sys.argv[3]
 f = open(outfile, 'wb')
 np.savez(f, props = props, cellIndex = cellIndex, ccREIndex = ccREIndex)
 f.close()
+
+#num_to_adjust = np.sum(np.sum(props, axis=2)>1.01)
+#props[np.where(np.sum(props, axis=2)>1.01)] /= np.sum(props[np.where(np.sum(props, axis=2)>1.01)], axis=1).reshape(num_to_adjust, -1)
