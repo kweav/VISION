@@ -38,7 +38,7 @@ for i,line in enumerate(open(sys.argv[1])):
         TSS = int(fields[1])
     elif fields[5] == '-':
         TSS = int(fields[2])
-    lineToWrite = '{}\t{}\t{}\n'.format(chr, max(1, TSS-window), min(chrSizes[chr], TSS+window))
+    lineToWrite = '{}\t{}\t{}\t{}\n'.format(chr, max(1, TSS-window), min(chrSizes[chr], TSS+window), fields[3]) #including the gene name because several have the same TSS but are still different genes
     fileToWriteTo.write(lineToWrite)
 
 fileToWriteTo.close()
