@@ -27,8 +27,8 @@ do
   for type in ref train test
   do
     #awk -v var=$IDEAS$CT$BED '{if ($5 == var) {print}}' ${type}TSS_windows_int_all.bed > ${type}TSS_windows_int_$CT$BED
-    #awk '{print $1, $2, $3, $4, $6"_"$7"_"$8}' OFS='\t' ${type}TSS_windows_int_$CT$BED > ${type}TSS_windows_istate_$CT$BED
-    #bedtools groupby -i ${type}TSS_windows_istate_$CT$BED -g 1,2,3,4 -c 5 -o collapse > ${type}TSS_windows_collapse_$CT$BED
+    awk '{print $1, $2, $3, $4, $7"_"$8"_"$9}' OFS='\t' ${type}TSS_windows_int_$CT$BED > ${type}TSS_windows_istate_$CT$BED
+    bedtools groupby -i ${type}TSS_windows_istate_$CT$BED -g 1,2,3,4 -c 5 -o collapse > ${type}TSS_windows_collapse_$CT$BED
     #echo $type $CT
     #wc -l ${type}TSS_windows_*_$CT$BED
     awk '{print $1, $2, $3, $5}' OFS='\t' ${type}TSS_windows_collapse_$CT$BED > ${type}TSS_windows_fcollapse_$CT$BED #remove the gene name now so that the field numbers match in the downstream script
